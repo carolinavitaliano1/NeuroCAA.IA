@@ -1,0 +1,2170 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroCAA - Communication Board</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .app-container {
+      min-height: 100%;
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      margin: 0.5rem 0 0 0;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .nav-tab {
+      padding: 0.875rem 2rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .nav-tab.active {
+      background: white;
+      color: #667eea;
+      border-color: white;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .main-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .config-card {
+      background: #f7fafc;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+    }
+
+    .config-card h3 {
+      margin: 0 0 1.5rem 0;
+      color: #2d3748;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 0.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input[type="color"] {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .form-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .grid-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .margin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      padding: 0.875rem 1.5rem;
+      background: #48bb78;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #38a169;
+      transform: translateY(-1px);
+    }
+
+    .preview-section {
+      margin-top: 2rem;
+      padding: 2rem;
+      background: #f7fafc;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .preview-header h3 {
+      margin: 0;
+      color: #2d3748;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .preview-board {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+
+    .board-grid {
+      display: grid;
+      gap: 0;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+
+    .board-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      box-sizing: border-box;
+      position: relative;
+      min-height: 120px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .board-cell:hover {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+
+    .cell-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin: 0.5rem 0;
+    }
+
+    .cell-text {
+      font-weight: 600;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .phrase-input {
+      flex: 1;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .phrase-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .generate-btn {
+      padding: 0.875rem 2rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .generate-btn:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .generate-btn:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .board-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .pictogram-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .pictogram-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .pictogram-image {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .pictogram-word {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #2d3748;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .save-btn, .clear-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .save-btn {
+      background: #48bb78;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background: #38a169;
+      transform: translateY(-1px);
+    }
+
+    .clear-btn {
+      background: #f56565;
+      color: white;
+    }
+
+    .clear-btn:hover {
+      background: #e53e3e;
+      transform: translateY(-1px);
+    }
+
+    .history-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .history-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .history-item {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .history-date {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+
+    .history-phrase {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.75rem;
+    }
+
+    .history-board {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .history-pictogram {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .delete-btn {
+      padding: 0.5rem 1rem;
+      background: #f56565;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: #e53e3e;
+    }
+
+    .pdf-btn {
+      padding: 0.5rem 1rem;
+      background: #4299e1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .pdf-btn:hover {
+      background: #3182ce;
+    }
+
+    .history-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #718096;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: #48bb78;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .limit-warning {
+      background: #fed7d7;
+      border: 1px solid #fc8181;
+      color: #742a2a;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80%;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .modal-close {
+      background: #f56565;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #e53e3e;
+      transform: scale(1.1);
+    }
+
+    .modal-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .modal-option {
+      background: #f7fafc;
+      border: 3px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-option:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .modal-option-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .modal-option-label {
+      font-size: 0.75rem;
+      color: #718096;
+      text-align: center;
+    }
+
+    .info-box {
+      background: #e6fffa;
+      border: 2px solid #81e6d9;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #234e52;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .info-box strong {
+      color: #1a365d;
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+      }
+
+      .main-card {
+        padding: 1.5rem;
+      }
+
+      .input-section {
+        flex-direction: column;
+      }
+
+      .board-container {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .config-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-tabs {
+        flex-direction: column;
+      }
+
+      .grid-inputs,
+      .margin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-container">
+   <div class="header">
+    <h1 id="app-title">🧠 NeuroCAA</h1>
+    <p>Sistema Completo de Comunicação Alternativa e Aumentativa</p>
+   </div>
+   <div class="nav-tabs"><button class="nav-tab active" onclick="switchPage('quick')"> ⚡ Gerador Rápido </button> <button class="nav-tab" onclick="switchPage('advanced')"> 🧩 Gerador Avançado </button>
+   </div>
+   <div id="page-quick" class="page active">
+    <div class="main-card">
+     <div class="input-section"><input type="text" id="phrase-input" class="phrase-input" placeholder="Digite sua frase aqui..."> <button id="generate-btn" class="generate-btn">✨ Gerar Prancha</button>
+     </div>
+     <div id="title-section" style="display: none; margin-bottom: 1.5rem;"><label for="board-title-input" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">📝 Título da Prancha (opcional):</label> <input type="text" id="board-title-input" style="width: 100%; padding: 0.875rem 1rem; font-size: 1rem; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" placeholder="Ex: Prancha de Rotina Matinal">
+     </div>
+     <div id="board-display"></div>
+     <div id="action-buttons"></div>
+     <div class="history-section">
+      <h2 class="history-title">📚 Histórico de Pranchas</h2>
+      <div id="history-list"></div>
+     </div>
+    </div>
+   </div>
+   <div id="page-advanced" class="page">
+    <div class="main-card">
+     <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="font-size: 2rem; font-weight: 700; color: #2d3748; margin: 0 0 0.5rem 0;">🧩 Gerador de Pranchas – Configuração Avançada</h2>
+      <p style="color: #718096; font-size: 1.05rem; margin: 0;">Monte pranchas personalizadas para CAA, impressão ou PDF</p>
+     </div>
+     <div class="info-box"><strong>💡 Como usar:</strong> Configure a estrutura da sua prancha (linhas e colunas), personalize as células com imagens e textos, e exporte para PDF ou impressão.
+     </div>
+     <div class="config-grid">
+      <div class="config-card">
+       <h3>📐 Configuração da Planilha</h3>
+       <div class="grid-inputs">
+        <div class="form-group"><label for="grid-rows">Número de linhas</label> <input type="number" id="grid-rows" min="1" max="10" value="3">
+        </div>
+        <div class="form-group"><label for="grid-cols">Número de colunas</label> <input type="number" id="grid-cols" min="1" max="10" value="4">
+        </div>
+       </div>
+       <div class="form-group">
+        <div class="checkbox-group"><input type="checkbox" id="include-header"> <label for="include-header">Incluir cabeçalho na prancha</label>
+        </div>
+       </div>
+       <div class="form-group"><label for="border-width">Espessura da borda</label> <select id="border-width"> <option value="1">Fina (1px)</option> <option value="2" selected>Média (2px)</option> <option value="3">Grossa (3px)</option> </select>
+       </div>
+       <div class="form-group"><label for="border-style">Estilo da borda</label> <select id="border-style"> <option value="solid" selected>Simples</option> <option value="dashed">Tracejada</option> </select>
+       </div>
+       <div class="form-group"><label for="cell-spacing">Espaçamento entre células (px)</label> <input type="number" id="cell-spacing" min="0" max="30" value="8" step="2">
+       </div><button class="btn-primary" onclick="generatePreview()"> 🔄 Gerar prévia da prancha </button>
+      </div>
+      <div class="config-card">
+       <h3>📄 Configuração da Página</h3>
+       <div class="grid-inputs">
+        <div class="form-group"><label for="paper-size">Tamanho do papel</label> <select id="paper-size"> <option value="a4" selected>A4 (21 x 29.7 cm)</option> <option value="a3">A3 (29.7 x 42 cm)</option> </select>
+        </div>
+        <div class="form-group"><label for="orientation">Orientação</label> <select id="orientation"> <option value="portrait">Vertical</option> <option value="landscape" selected>Horizontal</option> </select>
+        </div>
+       </div>
+       <div class="form-group"><label>Margens (em cm)</label>
+        <div class="margin-grid"><input type="number" id="margin-top" placeholder="Superior" value="1" step="0.5" min="0"> <input type="number" id="margin-bottom" placeholder="Inferior" value="1" step="0.5" min="0"> <input type="number" id="margin-left" placeholder="Esquerda" value="1" step="0.5" min="0"> <input type="number" id="margin-right" placeholder="Direita" value="1" step="0.5" min="0">
+        </div>
+       </div>
+      </div>
+      <div class="config-card">
+       <h3>🎨 Configuração das Células</h3>
+       <div class="form-group"><label for="text-position">Posição do texto</label> <select id="text-position"> <option value="below" selected>Abaixo da imagem</option> <option value="above">Acima da imagem</option> </select>
+       </div>
+       <div class="grid-inputs">
+        <div class="form-group"><label for="font-family">Fonte</label> <select id="font-family"> <option value="Arial" selected>Arial</option> <option value="Verdana">Verdana</option> </select>
+        </div>
+        <div class="form-group"><label for="font-size">Tamanho da fonte</label> <input type="number" id="font-size" value="16" min="10" max="48">
+        </div>
+       </div>
+       <div class="grid-inputs">
+        <div class="form-group"><label for="text-color">Cor do texto</label> <input type="color" id="text-color" value="#2d3748">
+        </div>
+        <div class="form-group"><label for="cell-bg-color">Cor de fundo</label> <input type="color" id="cell-bg-color" value="#ffffff">
+        </div>
+       </div><button class="btn-primary" onclick="applySettingsToAll()"> ✨ Aplicar a todas as células </button>
+      </div>
+     </div>
+     <div class="preview-section">
+      <div class="preview-header">
+       <h3>👁️ Prévia da Prancha</h3>
+       <div class="action-buttons"><button class="btn-secondary" onclick="saveAdvancedBoard()"> ��� Salvar Prancha </button>
+       </div>
+      </div>
+      <div id="header-input-section" style="display: none; margin-bottom: 1.5rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;"> 📝 Texto do Cabeçalho (primeira linha): </label> <input type="text" id="board-header-title" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;" placeholder="Digite o texto que aparecerá no cabeçalho...">
+      </div>
+      <div class="preview-board">
+       <div id="advanced-board-grid" class="board-grid">
+        <div class="empty-state">
+         <div class="empty-state-icon">
+          🧩
+         </div>
+         <p>Configure a prancha e clique em "Gerar prévia" para começar</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const ARASAAC_API = 'https://api.arasaac.org/api/pictograms/pt/search/';
+    
+    const defaultConfig = {
+      app_title: '🧠 NeuroCAA',
+      input_placeholder: 'Digite sua frase aqui...',
+      button_text: '✨ Gerar Prancha'
+    };
+
+    const CAA_COLORS = [
+      { emoji: '🟨', name: 'Amarelo', color: '#FEF08A', category: 'Pessoas, pronomes' },
+      { emoji: '🟩', name: 'Verde', color: '#86EFAC', category: 'Verbos, ações' },
+      { emoji: '🟧', name: 'Laranja', color: '#FED7AA', category: 'Substantivos, objetos' },
+      { emoji: '🟦', name: 'Azul', color: '#BAE6FD', category: 'Adjetivos, descrições' },
+      { emoji: '🌸', name: 'Rosa', color: '#F9A8D4', category: 'Saudações, interjeições' },
+      { emoji: '⬜', name: 'Branco', color: '#FFFFFF', category: 'Artigos, preposições' },
+      { emoji: '🟫', name: 'Marrom', color: '#D4A574', category: 'Conjunções, tempo' },
+      { emoji: '⬛', name: 'Cinza', color: '#D1D5DB', category: 'Advérbios' }
+    ];
+
+    let currentBoard = [];
+    let savedBoards = [];
+    let isLoading = false;
+    let currentPage = 'quick';
+    let advancedBoardCells = [];
+
+    function switchPage(page) {
+      currentPage = page;
+      
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      
+      document.getElementById(`page-${page}`).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function generatePreview() {
+      const rows = parseInt(document.getElementById('grid-rows').value);
+      const cols = parseInt(document.getElementById('grid-cols').value);
+      const includeHeader = document.getElementById('include-header').checked;
+
+      if (rows < 1 || cols < 1 || rows > 10 || cols > 10) {
+        showToast('Configure entre 1 e 10 linhas/colunas', 'error');
+        return;
+      }
+
+      const headerSection = document.getElementById('header-input-section');
+      headerSection.style.display = includeHeader ? 'block' : 'none';
+
+      const totalCells = rows * cols;
+      advancedBoardCells = [];
+
+      for (let i = 0; i < totalCells; i++) {
+        advancedBoardCells.push({
+          id: i,
+          text: `Célula ${i + 1}`,
+          imageUrl: null,
+          customImage: null,
+          backgroundColor: document.getElementById('cell-bg-color').value,
+          textColor: document.getElementById('text-color').value,
+          borderColor: '#2d3748'
+        });
+      }
+
+      renderAdvancedBoard(rows, cols);
+      showToast('Prévia gerada! Clique nas células para editar');
+    }
+
+    function renderAdvancedBoard(rows, cols) {
+      const grid = document.getElementById('advanced-board-grid');
+      const borderWidth = document.getElementById('border-width').value;
+      const borderStyle = document.getElementById('border-style').value;
+      const textPosition = document.getElementById('text-position').value;
+      const fontFamily = document.getElementById('font-family').value;
+      const fontSize = document.getElementById('font-size').value;
+      const cellSpacing = document.getElementById('cell-spacing').value;
+
+      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      grid.style.gap = `${cellSpacing}px`;
+      grid.innerHTML = '';
+
+      advancedBoardCells.forEach((cell, index) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.className = 'board-cell';
+        cellDiv.style.border = `${borderWidth}px ${borderStyle} ${cell.borderColor || '#2d3748'}`;
+        cellDiv.style.backgroundColor = cell.backgroundColor;
+        cellDiv.onclick = () => editAdvancedCell(index);
+
+        const textElement = document.createElement('div');
+        textElement.className = 'cell-text';
+        textElement.textContent = cell.text || `Célula ${index + 1}`;
+        textElement.style.color = cell.textColor;
+        textElement.style.fontFamily = fontFamily;
+        textElement.style.fontSize = `${fontSize}px`;
+
+        const imageElement = document.createElement('div');
+        if (cell.customImage || cell.imageUrl) {
+          const img = document.createElement('img');
+          img.src = cell.customImage || cell.imageUrl;
+          img.className = 'cell-image';
+          img.alt = cell.text || '';
+          img.onerror = function() {
+            this.style.display = 'none';
+          };
+          imageElement.appendChild(img);
+        } else {
+          imageElement.innerHTML = '<div style="font-size: 3rem; opacity: 0.3;">🖼️</div>';
+        }
+
+        if (textPosition === 'above') {
+          cellDiv.appendChild(textElement);
+          cellDiv.appendChild(imageElement);
+        } else {
+          cellDiv.appendChild(imageElement);
+          cellDiv.appendChild(textElement);
+        }
+
+        grid.appendChild(cellDiv);
+      });
+    }
+
+    function editAdvancedCell(index) {
+      const cell = advancedBoardCells[index];
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-content';
+
+      const header = document.createElement('div');
+      header.className = 'modal-header';
+
+      const title = document.createElement('div');
+      title.className = 'modal-title';
+      title.textContent = `✏️ Editar Célula ${index + 1}`;
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'modal-close';
+      closeBtn.innerHTML = '×';
+      closeBtn.onclick = () => overlay.remove();
+
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      modal.appendChild(header);
+
+      const textLabel = document.createElement('label');
+      textLabel.style.cssText = 'display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;';
+      textLabel.textContent = 'Texto da célula:';
+      modal.appendChild(textLabel);
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.value = cell.text || '';
+      textInput.placeholder = 'Digite o texto...';
+      textInput.style.cssText = `
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        box-sizing: border-box;
+      `;
+      modal.appendChild(textInput);
+
+      const searchBtn = document.createElement('button');
+      searchBtn.textContent = '�� Buscar pictograma ARASAAC';
+      searchBtn.style.cssText = `
+        width: 100%;
+        padding: 0.75rem;
+        background: #4299e1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      `;
+      searchBtn.onclick = async () => {
+        const searchTerm = textInput.value.trim();
+        if (!searchTerm) {
+          showToast('Digite um texto primeiro', 'error');
+          return;
+        }
+
+        searchBtn.disabled = true;
+        searchBtn.textContent = '⏳ Buscando...';
+
+        const pictograms = await searchPictograms(searchTerm);
+        
+        searchBtn.disabled = false;
+        searchBtn.textContent = '🔍 Buscar pictograma ARASAAC';
+
+        if (pictograms.length === 0) {
+          showToast('Nenhum pictograma encontrado', 'error');
+          return;
+        }
+
+        showPictogramOptions(pictograms, (selectedUrl) => {
+          cell.imageUrl = selectedUrl;
+          cell.customImage = null;
+          renderAdvancedBoard(
+            parseInt(document.getElementById('grid-rows').value),
+            parseInt(document.getElementById('grid-cols').value)
+          );
+          showToast('Imagem atualizada!');
+        });
+      };
+      modal.appendChild(searchBtn);
+
+      const uploadLabel = document.createElement('label');
+      uploadLabel.style.cssText = `
+        width: 100%;
+        padding: 0.75rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        display: block;
+        text-align: center;
+      `;
+      uploadLabel.textContent = '📁 Anexar sua própria imagem';
+
+      const uploadInput = document.createElement('input');
+      uploadInput.type = 'file';
+      uploadInput.accept = 'image/*';
+      uploadInput.style.display = 'none';
+      uploadInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            cell.customImage = event.target.result;
+            cell.imageUrl = null;
+            renderAdvancedBoard(
+              parseInt(document.getElementById('grid-rows').value),
+              parseInt(document.getElementById('grid-cols').value)
+            );
+            overlay.remove();
+            showToast('Sua imagem foi anexada!');
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      modal.appendChild(uploadInput);
+      modal.appendChild(uploadLabel);
+
+      const colorSection = document.createElement('div');
+      colorSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const colorTitle = document.createElement('div');
+      colorTitle.style.cssText = `
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        text-align: center;
+      `;
+      colorTitle.textContent = '🎨 Cor de fundo da célula';
+
+      const colorGrid = document.createElement('div');
+      colorGrid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      `;
+
+      CAA_COLORS.forEach(colorItem => {
+        const colorBtn = document.createElement('button');
+        colorBtn.style.cssText = `
+          padding: 0.875rem;
+          background: ${colorItem.color};
+          border: 3px solid ${cell.backgroundColor === colorItem.color ? '#667eea' : '#e2e8f0'};
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          transition: all 0.2s;
+          text-align: center;
+        `;
+
+        colorBtn.innerHTML = `
+          <div style="font-size: 1.5rem;">${colorItem.emoji}</div>
+          <div style="font-size: 0.8rem; font-weight: 600; color: #2d3748;">${colorItem.name}</div>
+          <div style="font-size: 0.7rem; color: #718096;">${colorItem.category}</div>
+        `;
+
+        colorBtn.onclick = () => {
+          cell.backgroundColor = colorItem.color;
+          renderAdvancedBoard(
+            parseInt(document.getElementById('grid-rows').value),
+            parseInt(document.getElementById('grid-cols').value)
+          );
+          colorGrid.querySelectorAll('button').forEach(btn => {
+            btn.style.borderColor = '#e2e8f0';
+          });
+          colorBtn.style.borderColor = '#667eea';
+          showToast(`${colorItem.emoji} Cor de fundo alterada!`);
+        };
+
+        colorBtn.onmouseenter = () => {
+          if (cell.backgroundColor !== colorItem.color) {
+            colorBtn.style.borderColor = '#667eea';
+            colorBtn.style.transform = 'scale(1.05)';
+          }
+        };
+
+        colorBtn.onmouseleave = () => {
+          if (cell.backgroundColor !== colorItem.color) {
+            colorBtn.style.borderColor = '#e2e8f0';
+            colorBtn.style.transform = 'scale(1)';
+          }
+        };
+
+        colorGrid.appendChild(colorBtn);
+      });
+
+      colorSection.appendChild(colorTitle);
+      colorSection.appendChild(colorGrid);
+      modal.appendChild(colorSection);
+
+      const borderColorSection = document.createElement('div');
+      borderColorSection.style.cssText = `
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const borderColorTitle = document.createElement('div');
+      borderColorTitle.style.cssText = `
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        text-align: center;
+      `;
+      borderColorTitle.textContent = '🖍️ Cor da borda da célula';
+
+      const borderColorGrid = document.createElement('div');
+      borderColorGrid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      `;
+
+      CAA_COLORS.forEach(colorItem => {
+        const borderBtn = document.createElement('button');
+        borderBtn.style.cssText = `
+          padding: 0.875rem;
+          background: ${colorItem.color};
+          border: 3px solid ${cell.borderColor === colorItem.color ? '#667eea' : '#e2e8f0'};
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          transition: all 0.2s;
+          text-align: center;
+        `;
+
+        borderBtn.innerHTML = `
+          <div style="font-size: 1.5rem;">${colorItem.emoji}</div>
+          <div style="font-size: 0.8rem; font-weight: 600; color: #2d3748;">${colorItem.name}</div>
+          <div style="font-size: 0.7rem; color: #718096;">${colorItem.category}</div>
+        `;
+
+        borderBtn.onclick = () => {
+          cell.borderColor = colorItem.color;
+          renderAdvancedBoard(
+            parseInt(document.getElementById('grid-rows').value),
+            parseInt(document.getElementById('grid-cols').value)
+          );
+          borderColorGrid.querySelectorAll('button').forEach(btn => {
+            btn.style.borderColor = '#e2e8f0';
+          });
+          borderBtn.style.borderColor = '#667eea';
+          showToast(`${colorItem.emoji} Cor da borda alterada!`);
+        };
+
+        borderBtn.onmouseenter = () => {
+          if (cell.borderColor !== colorItem.color) {
+            borderBtn.style.borderColor = '#667eea';
+            borderBtn.style.transform = 'scale(1.05)';
+          }
+        };
+
+        borderBtn.onmouseleave = () => {
+          if (cell.borderColor !== colorItem.color) {
+            borderBtn.style.borderColor = '#e2e8f0';
+            borderBtn.style.transform = 'scale(1)';
+          }
+        };
+
+        borderColorGrid.appendChild(borderBtn);
+      });
+
+      borderColorSection.appendChild(borderColorTitle);
+      borderColorSection.appendChild(borderColorGrid);
+      modal.appendChild(borderColorSection);
+
+      const textColorSection = document.createElement('div');
+      textColorSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const textColorLabel = document.createElement('label');
+      textColorLabel.style.cssText = 'display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;';
+      textColorLabel.textContent = '✏️ Cor do texto (avançado):';
+      
+      const textColorInput = document.createElement('input');
+      textColorInput.type = 'color';
+      textColorInput.value = cell.textColor;
+      textColorInput.style.cssText = 'width: 100%; height: 50px; cursor: pointer; border: 2px solid #e2e8f0; border-radius: 8px;';
+      
+      textColorSection.appendChild(textColorLabel);
+      textColorSection.appendChild(textColorInput);
+      modal.appendChild(textColorSection);
+
+      const btnGroup = document.createElement('div');
+      btnGroup.style.cssText = 'display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;';
+
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = '🗑️ Limpar célula';
+      clearBtn.style.cssText = `
+        padding: 0.75rem 1rem;
+        background: #f56565;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      `;
+      clearBtn.onclick = () => {
+        cell.text = '';
+        cell.imageUrl = null;
+        cell.customImage = null;
+        renderAdvancedBoard(
+          parseInt(document.getElementById('grid-rows').value),
+          parseInt(document.getElementById('grid-cols').value)
+        );
+        overlay.remove();
+        showToast('Célula limpa!');
+      };
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '❌ Excluir';
+      deleteBtn.style.cssText = `
+        padding: 0.75rem 1rem;
+        background: #e53e3e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      `;
+      deleteBtn.onclick = () => {
+        advancedBoardCells.splice(index, 1);
+        
+        const rows = parseInt(document.getElementById('grid-rows').value);
+        const cols = parseInt(document.getElementById('grid-cols').value);
+        const newTotal = rows * cols;
+        
+        if (advancedBoardCells.length < newTotal) {
+          const diff = newTotal - advancedBoardCells.length;
+          for (let i = 0; i < diff; i++) {
+            advancedBoardCells.push({
+              id: advancedBoardCells.length,
+              text: `Célula ${advancedBoardCells.length + 1}`,
+              imageUrl: null,
+              customImage: null,
+              backgroundColor: document.getElementById('cell-bg-color').value,
+              textColor: document.getElementById('text-color').value,
+              borderColor: '#2d3748'
+            });
+          }
+        }
+        
+        renderAdvancedBoard(rows, cols);
+        overlay.remove();
+        showToast('Quadrado excluído!');
+      };
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = '✅ Salvar';
+      saveBtn.style.cssText = `
+        padding: 0.75rem 1.5rem;
+        background: #48bb78;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      `;
+      saveBtn.onclick = () => {
+        cell.text = textInput.value.trim();
+        cell.textColor = textColorInput.value;
+        renderAdvancedBoard(
+          parseInt(document.getElementById('grid-rows').value),
+          parseInt(document.getElementById('grid-cols').value)
+        );
+        overlay.remove();
+        showToast('Célula atualizada!');
+      };
+
+      btnGroup.appendChild(clearBtn);
+      btnGroup.appendChild(deleteBtn);
+      btnGroup.appendChild(saveBtn);
+      modal.appendChild(btnGroup);
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      textInput.focus();
+
+      overlay.onclick = (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      };
+    }
+
+    function showPictogramOptions(pictograms, onSelect) {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-content';
+
+      const header = document.createElement('div');
+      header.className = 'modal-header';
+
+      const title = document.createElement('div');
+      title.className = 'modal-title';
+      title.textContent = `🖼️ Escolher Pictograma (${pictograms.length} opções)`;
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'modal-close';
+      closeBtn.innerHTML = '×';
+      closeBtn.onclick = () => overlay.remove();
+
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      modal.appendChild(header);
+
+      const optionsGrid = document.createElement('div');
+      optionsGrid.className = 'modal-options';
+
+      pictograms.forEach((pict, index) => {
+        const option = document.createElement('div');
+        option.className = 'modal-option';
+
+        const img = document.createElement('img');
+        img.src = pict.url;
+        img.className = 'modal-option-image';
+        img.alt = `Opção ${index + 1}`;
+        img.onerror = function() {
+          this.style.display = 'none';
+        };
+
+        const label = document.createElement('div');
+        label.className = 'modal-option-label';
+        label.textContent = `Opção ${index + 1}`;
+
+        option.appendChild(img);
+        option.appendChild(label);
+
+        option.onclick = () => {
+          onSelect(pict.url);
+          overlay.remove();
+        };
+
+        optionsGrid.appendChild(option);
+      });
+
+      modal.appendChild(optionsGrid);
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      overlay.onclick = (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      };
+    }
+
+    function applySettingsToAll() {
+      const backgroundColor = document.getElementById('cell-bg-color').value;
+      const textColor = document.getElementById('text-color').value;
+
+      advancedBoardCells.forEach(cell => {
+        cell.backgroundColor = backgroundColor;
+        cell.textColor = textColor;
+      });
+
+      renderAdvancedBoard(
+        parseInt(document.getElementById('grid-rows').value),
+        parseInt(document.getElementById('grid-cols').value)
+      );
+
+      showToast('Configurações aplicadas a todas as células!');
+    }
+
+    async function saveAdvancedBoard() {
+      if (advancedBoardCells.length === 0) {
+        showToast('Gere uma prévia da prancha primeiro', 'error');
+        return;
+      }
+
+      if (savedBoards.length >= 999) {
+        showLimitWarning();
+        return;
+      }
+
+      const includeHeader = document.getElementById('include-header').checked;
+      const headerText = includeHeader ? document.getElementById('board-header-title').value.trim() : '';
+      const boardTitle = 'Prancha Avançada';
+
+      const phrase = `Prancha ${parseInt(document.getElementById('grid-rows').value)}x${parseInt(document.getElementById('grid-cols').value)}`;
+      const boardData = JSON.stringify(advancedBoardCells);
+
+      const result = await window.dataSdk.create({
+        id: Date.now().toString(),
+        patient_name: 'Paciente',
+        phrase: phrase,
+        board_title: boardTitle,
+        header_text: headerText,
+        board_data: boardData,
+        created_at: new Date().toISOString()
+      });
+
+      if (result.isOk) {
+        showToast('Prancha avançada salva com sucesso!');
+        document.getElementById('board-header-title').value = '';
+      } else {
+        showToast('Erro ao salvar prancha', 'error');
+      }
+    }
+
+    async function searchPictograms(word) {
+      try {
+        const response = await fetch(ARASAAC_API + encodeURIComponent(word));
+        if (response.ok) {
+          const data = await response.json();
+          return data.slice(0, 8).map(p => ({
+            id: p._id,
+            url: `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching pictograms:', error);
+      }
+      return [];
+    }
+
+    async function generateBoard() {
+      const input = document.getElementById('phrase-input');
+      const phrase = input.value.trim();
+      
+      if (!phrase) return;
+
+      isLoading = true;
+      updateGenerateButton();
+
+      const words = phrase.toLowerCase().split(/\s+/);
+      const board = [];
+
+      for (const word of words) {
+        const options = await searchPictograms(word);
+        board.push({
+          word: word,
+          selected: options[0]?.url || null,
+          options: options,
+          backgroundColor: '#FFFFFF'
+        });
+      }
+
+      currentBoard = board;
+      renderBoard();
+      isLoading = false;
+      updateGenerateButton();
+      
+      document.getElementById('title-section').style.display = 'block';
+    }
+
+    function renderBoard() {
+      const container = document.getElementById('board-display');
+      const actionsContainer = document.getElementById('action-buttons');
+
+      if (currentBoard.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🖼️</div><p>Digite uma frase e clique em "Gerar Prancha" para começar</p></div>';
+        actionsContainer.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = '<div class="board-container" id="board-grid"></div>';
+      const grid = document.getElementById('board-grid');
+
+      currentBoard.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'pictogram-card';
+        card.style.backgroundColor = item.backgroundColor || '#FFFFFF';
+
+        if (item.options.length > 0 && item.selected) {
+          const imgContainer = document.createElement('div');
+          imgContainer.style.position = 'relative';
+          imgContainer.style.cursor = 'pointer';
+
+          const img = document.createElement('img');
+          img.src = item.selected;
+          img.className = 'pictogram-image';
+          img.alt = item.word;
+          img.onerror = function() {
+            this.style.display = 'none';
+          };
+
+          if (item.options.length > 1) {
+            const badge = document.createElement('div');
+            badge.style.cssText = `
+              position: absolute;
+              top: 5px;
+              right: 5px;
+              background: #667eea;
+              color: white;
+              border-radius: 50%;
+              width: 24px;
+              height: 24px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 0.7rem;
+              font-weight: bold;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            `;
+            badge.textContent = item.options.length;
+            badge.title = `${item.options.length} opções disponíveis`;
+            imgContainer.appendChild(badge);
+          }
+
+          imgContainer.onclick = () => {
+            if (item.options.length > 1) {
+              showImageOptionsQuick(index, item);
+            }
+          };
+
+          imgContainer.appendChild(img);
+          card.appendChild(imgContainer);
+        }
+
+        const wordLabel = document.createElement('div');
+        wordLabel.className = 'pictogram-word';
+        wordLabel.textContent = item.customText || item.word;
+        card.appendChild(wordLabel);
+
+        grid.appendChild(card);
+      });
+
+      actionsContainer.innerHTML = `
+        <div class="action-buttons">
+          <button class="save-btn" onclick="saveBoard()">💾 Salvar Prancha</button>
+          <button class="clear-btn" onclick="clearBoard()">🗑️ Limpar</button>
+        </div>
+      `;
+    }
+
+    async function saveBoard() {
+      if (currentBoard.length === 0) return;
+
+      if (savedBoards.length >= 999) {
+        showLimitWarning();
+        return;
+      }
+
+      const phrase = document.getElementById('phrase-input').value.trim();
+      const boardTitle = document.getElementById('board-title-input').value.trim();
+      const boardData = JSON.stringify(currentBoard);
+
+      const result = await window.dataSdk.create({
+        id: Date.now().toString(),
+        patient_name: 'Paciente',
+        phrase: phrase,
+        board_title: boardTitle,
+        board_data: boardData,
+        created_at: new Date().toISOString()
+      });
+
+      if (result.isOk) {
+        showToast('Prancha salva com sucesso!');
+        clearBoard();
+      } else {
+        showToast('Erro ao salvar prancha', 'error');
+      }
+    }
+
+    function clearBoard() {
+      currentBoard = [];
+      document.getElementById('phrase-input').value = '';
+      document.getElementById('board-title-input').value = '';
+      document.getElementById('title-section').style.display = 'none';
+      renderBoard();
+    }
+
+    function showImageOptionsQuick(wordIndex, item) {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-content';
+
+      const header = document.createElement('div');
+      header.className = 'modal-header';
+
+      const title = document.createElement('div');
+      title.className = 'modal-title';
+      title.textContent = `✏️ Editar "${item.word}"`;
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'modal-close';
+      closeBtn.innerHTML = '×';
+      closeBtn.onclick = () => overlay.remove();
+
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      modal.appendChild(header);
+
+      const textEditSection = document.createElement('div');
+      textEditSection.style.cssText = `
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        border: 2px solid #e2e8f0;
+      `;
+
+      const textLabel = document.createElement('label');
+      textLabel.style.cssText = `
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.95rem;
+      `;
+      textLabel.textContent = '📝 Texto da palavra:';
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.value = item.customText || item.word;
+      textInput.style.cssText = `
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: all 0.2s;
+      `;
+      textInput.placeholder = 'Digite o texto...';
+
+      const saveTextBtn = document.createElement('button');
+      saveTextBtn.style.cssText = `
+        width: 100%;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: #48bb78;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      `;
+      saveTextBtn.textContent = '✅ Salvar texto';
+      saveTextBtn.onclick = () => {
+        const newText = textInput.value.trim();
+        if (newText) {
+          currentBoard[wordIndex].customText = newText;
+          renderBoard();
+          showToast('✅ Texto atualizado!');
+        }
+      };
+
+      textEditSection.appendChild(textLabel);
+      textEditSection.appendChild(textInput);
+      textEditSection.appendChild(saveTextBtn);
+      modal.appendChild(textEditSection);
+
+      const infoText = document.createElement('div');
+      infoText.style.cssText = `
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: #e6fffa;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #234e52;
+        text-align: center;
+      `;
+      infoText.innerHTML = `<strong>💡 Clique em uma imagem</strong> para substituir a atual`;
+      modal.appendChild(infoText);
+
+      const optionsGrid = document.createElement('div');
+      optionsGrid.className = 'modal-options';
+
+      item.options.forEach((option, optIndex) => {
+        const optionCard = document.createElement('div');
+        optionCard.className = 'modal-option';
+        
+        if (option.url === item.selected) {
+          optionCard.style.cssText = `
+            background: #f0fff4;
+            border: 3px solid #48bb78;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+          `;
+        }
+
+        const img = document.createElement('img');
+        img.src = option.url;
+        img.className = 'modal-option-image';
+        img.alt = `${item.word} - opção ${optIndex + 1}`;
+        img.onerror = function() {
+          this.style.display = 'none';
+        };
+
+        const label = document.createElement('div');
+        label.className = 'modal-option-label';
+        if (option.url === item.selected) {
+          label.innerHTML = `✅ Selecionada`;
+          label.style.color = '#48bb78';
+          label.style.fontWeight = 'bold';
+        } else {
+          label.textContent = `Opção ${optIndex + 1}`;
+        }
+
+        optionCard.appendChild(img);
+        optionCard.appendChild(label);
+
+        optionCard.onclick = () => {
+          currentBoard[wordIndex].selected = option.url;
+          overlay.remove();
+          renderBoard();
+          showToast('✅ Imagem substituída!');
+        };
+
+        optionsGrid.appendChild(optionCard);
+      });
+
+      modal.appendChild(optionsGrid);
+
+      const searchSection = document.createElement('div');
+      searchSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const searchTitle = document.createElement('div');
+      searchTitle.style.cssText = `
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        text-align: center;
+      `;
+      searchTitle.textContent = 'Ou busque outro pictograma';
+
+      const searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'Digite para buscar...';
+      searchInput.style.cssText = `
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        box-sizing: border-box;
+      `;
+
+      const searchBtn = document.createElement('button');
+      searchBtn.style.cssText = `
+        width: 100%;
+        padding: 0.875rem;
+        background: #4299e1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+      `;
+      searchBtn.innerHTML = '<span>🔍</span><span>Buscar pictograma</span>';
+
+      searchBtn.onclick = async () => {
+        const searchTerm = searchInput.value.trim();
+        if (!searchTerm) {
+          showToast('Digite algo para buscar', 'error');
+          return;
+        }
+
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = '<span>⏳</span><span>Buscando...</span>';
+
+        const pictograms = await searchPictograms(searchTerm);
+        
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = '<span>🔍</span><span>Buscar pictograma</span>';
+
+        if (pictograms.length === 0) {
+          showToast('Nenhum pictograma encontrado', 'error');
+          return;
+        }
+
+        overlay.remove();
+        showPictogramOptions(pictograms, (selectedUrl) => {
+          currentBoard[wordIndex].selected = selectedUrl;
+          currentBoard[wordIndex].options = pictograms;
+          renderBoard();
+          showToast('✅ Imagem atualizada!');
+        });
+      };
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchBtn.click();
+        }
+      });
+
+      searchSection.appendChild(searchTitle);
+      searchSection.appendChild(searchInput);
+      searchSection.appendChild(searchBtn);
+      modal.appendChild(searchSection);
+
+      const colorSection = document.createElement('div');
+      colorSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const colorTitle = document.createElement('div');
+      colorTitle.style.cssText = `
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        text-align: center;
+      `;
+      colorTitle.textContent = '🎨 Cor de fundo do pictograma';
+
+      const colorGrid = document.createElement('div');
+      colorGrid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      `;
+
+      CAA_COLORS.forEach(colorItem => {
+        const colorBtn = document.createElement('button');
+        colorBtn.style.cssText = `
+          padding: 0.875rem;
+          background: ${colorItem.color};
+          border: 3px solid ${item.backgroundColor === colorItem.color ? '#667eea' : '#e2e8f0'};
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          transition: all 0.2s;
+          text-align: center;
+        `;
+
+        colorBtn.innerHTML = `
+          <div style="font-size: 1.5rem;">${colorItem.emoji}</div>
+          <div style="font-size: 0.8rem; font-weight: 600; color: #2d3748;">${colorItem.name}</div>
+          <div style="font-size: 0.7rem; color: #718096;">${colorItem.category}</div>
+        `;
+
+        colorBtn.onclick = () => {
+          currentBoard[wordIndex].backgroundColor = colorItem.color;
+          renderBoard();
+          overlay.remove();
+          showToast(`${colorItem.emoji} Cor alterada para ${colorItem.name}!`);
+        };
+
+        colorBtn.onmouseenter = () => {
+          if (item.backgroundColor !== colorItem.color) {
+            colorBtn.style.borderColor = '#667eea';
+            colorBtn.style.transform = 'scale(1.05)';
+          }
+        };
+
+        colorBtn.onmouseleave = () => {
+          if (item.backgroundColor !== colorItem.color) {
+            colorBtn.style.borderColor = '#e2e8f0';
+            colorBtn.style.transform = 'scale(1)';
+          }
+        };
+
+        colorGrid.appendChild(colorBtn);
+      });
+
+      colorSection.appendChild(colorTitle);
+      colorSection.appendChild(colorGrid);
+      modal.appendChild(colorSection);
+
+      const uploadSection = document.createElement('div');
+      uploadSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const uploadTitle = document.createElement('div');
+      uploadTitle.style.cssText = `
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        text-align: center;
+      `;
+      uploadTitle.textContent = 'Ou anexe sua própria imagem';
+
+      const uploadInput = document.createElement('input');
+      uploadInput.type = 'file';
+      uploadInput.accept = 'image/*';
+      uploadInput.style.display = 'none';
+      uploadInput.id = `upload-quick-${wordIndex}`;
+
+      const uploadBtn = document.createElement('label');
+      uploadBtn.htmlFor = `upload-quick-${wordIndex}`;
+      uploadBtn.style.cssText = `
+        width: 100%;
+        padding: 0.875rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+      `;
+      uploadBtn.innerHTML = '<span>📁</span><span>Selecionar arquivo</span>';
+
+      uploadInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            currentBoard[wordIndex].selected = event.target.result;
+            overlay.remove();
+            renderBoard();
+            showToast('📤 Sua imagem foi anexada!');
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      uploadSection.appendChild(uploadTitle);
+      uploadSection.appendChild(uploadInput);
+      uploadSection.appendChild(uploadBtn);
+      modal.appendChild(uploadSection);
+
+      const deleteSection = document.createElement('div');
+      deleteSection.style.cssText = `
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+      `;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.style.cssText = `
+        width: 100%;
+        padding: 0.875rem;
+        background: #e53e3e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+      `;
+      deleteBtn.innerHTML = '<span>❌</span><span>Excluir este quadrado</span>';
+      deleteBtn.onclick = () => {
+        currentBoard.splice(wordIndex, 1);
+        overlay.remove();
+        renderBoard();
+        showToast('🗑️ Quadrado excluído!');
+      };
+
+      deleteSection.appendChild(deleteBtn);
+      modal.appendChild(deleteSection);
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      overlay.onclick = (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      };
+    }
+
+    async function deleteBoard(boardId) {
+      const board = savedBoards.find(b => b.__backendId === boardId);
+      if (!board) return;
+
+      const result = await window.dataSdk.delete(board);
+
+      if (result.isOk) {
+        showToast('Prancha excluída');
+      } else {
+        showToast('Erro ao excluir prancha', 'error');
+      }
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history-list');
+
+      if (savedBoards.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Nenhuma prancha salva ainda</p></div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      const sortedBoards = [...savedBoards].sort((a, b) => 
+        new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      sortedBoards.forEach(board => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const date = new Date(board.created_at);
+        const dateStr = date.toLocaleString('pt-BR');
+
+        const boardData = JSON.parse(board.board_data);
+        
+        const titleHTML = board.board_title ? 
+          `<div style="font-size: 1.15rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem;">📝 ${board.board_title}</div>` : 
+          '';
+
+        item.innerHTML = `
+          <div class="history-date">${dateStr}</div>
+          ${titleHTML}
+          <div class="history-phrase">${board.phrase}</div>
+          <div class="history-board">
+            ${boardData.map(p => p.selected ? 
+              `<img src="${p.selected}" class="history-pictogram" alt="${p.word}" onerror="this.style.display='none'">` : 
+              ''
+            ).join('')}
+          </div>
+          <div class="history-buttons">
+            <button class="delete-btn" onclick="deleteBoard('${board.__backendId}')">🗑️ Excluir</button>
+          </div>
+        `;
+
+        container.appendChild(item);
+      });
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      if (type === 'error') {
+        toast.style.background = '#f56565';
+      } else if (type === 'info') {
+        toast.style.background = '#4299e1';
+      }
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    function showLimitWarning() {
+      showToast('⚠️ Limite de 999 pranchas atingido', 'error');
+    }
+
+    function updateGenerateButton() {
+      const btn = document.getElementById('generate-btn');
+      
+      if (isLoading) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Gerando...';
+      } else {
+        btn.disabled = false;
+        btn.textContent = defaultConfig.button_text;
+      }
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', generateBoard);
+
+    document.getElementById('phrase-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        generateBoard();
+      }
+    });
+
+    const dataHandler = {
+      onDataChanged(data) {
+        savedBoards = data;
+        renderHistory();
+      }
+    };
+
+    async function init() {
+      const initResult = await window.dataSdk.init(dataHandler);
+      
+      if (!initResult.isOk) {
+        showToast('Erro ao inicializar dados', 'error');
+        return;
+      }
+
+      renderBoard();
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b41bb4897e98aef',t:'MTc2Njc2NDIwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
