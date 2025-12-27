@@ -105,6 +105,113 @@ button {
   display: none;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+h1 { text-align: center; }
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.generate { background:#667eea; color:#fff; }
+.save { background:#48bb78; color:#fff; }
+.pdf { background:#4299e1; color:#fff; }
+.clear { background:#f56565; color:#fff; }
+
+.actions {
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.board {
+  display:grid;
+  grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.cell {
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
+  cursor:pointer;
+}
+
+.cell img {
+  max-width:80px;
+  max-height:80px;
+}
+
+.history {
+  margin-top:25px;
+}
+
+.history-item {
+  background:#f1f5f9;
+  padding:8px;
+  border-radius:6px;
+  margin-bottom:6px;
+}
+
+.toast {
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#48bb78;
+  color:white;
+  padding:10px;
+  border-radius:8px;
+}
+
+.cell {
+  position: relative;
+}
+
+.cell .remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+}
+
 .cell:hover .remove-btn {
   display: block;
 }
