@@ -98,13 +98,18 @@ function renderBoard() {
 
   board.innerHTML = '';
 
-  /* ---- Layout da prancha ---- */
+  /* ---- Layout: colunas e espaçamento ---- */
   if (boardConfig.columnsCount) {
-    board.style.gridTemplateColumns = `repeat(${boardConfig.columnsCount}, 1fr)`;
+    board.style.gridTemplateColumns =
+      `repeat(${boardConfig.columnsCount}, 1fr)`;
+  } else {
+    board.style.gridTemplateColumns = '';
   }
 
-  if (boardConfig.cellGap !== null) {
+  if (boardConfig.cellGap !== null && boardConfig.cellGap !== '') {
     board.style.gap = `${boardConfig.cellGap}px`;
+  } else {
+    board.style.gap = '';
   }
 
   /* ---- Borda da prancha ---- */
@@ -114,6 +119,7 @@ function renderBoard() {
     board.style.padding = '10px';
   } else {
     board.style.border = '';
+    board.style.padding = '';
   }
 
   /* ---- Título ---- */
@@ -142,8 +148,15 @@ function renderBoard() {
     const cell = document.createElement('div');
     cell.className = 'cell';
 
-    const bg = item.bgColor || boardConfig.cellBgColor || '#ffffff';
-    const border = item.borderColor || boardConfig.cellBorderColor || '#e2e8f0';
+    const bg =
+      item.bgColor ||
+      boardConfig.cellBgColor ||
+      '#ffffff';
+
+    const border =
+      item.borderColor ||
+      boardConfig.cellBorderColor ||
+      '#e2e8f0';
 
     cell.style.background = bg;
     cell.style.border = `2px solid ${border}`;
@@ -155,11 +168,14 @@ function renderBoard() {
     `;
 
     /* ❌ Remover pictograma */
-    cell.querySelector('.remove-btn').onclick = (e) => {
-      e.stopPropagation();
-      window.currentBoard.splice(index, 1);
-      renderBoard();
-    };
+    const removeBtn = cell.querySelector('.remove-btn');
+    if (removeBtn) {
+      removeBtn.onclick = (e) => {
+        e.stopPropagation();
+        window.currentBoard.splice(index, 1);
+        renderBoard();
+      };
+    }
 
     /* ✏️ Abrir modal */
     cell.onclick = () => {
@@ -189,11 +205,11 @@ function applyBoardConfig() {
   boardConfig.boardBorderColor =
     document.getElementById('boardBorderColor')?.value || null;
 
-  boardConfig.columnsCount =
-    document.getElementById('columnsCount')?.value || null;
+  const cols = document.getElementById('columnsCount')?.value;
+  boardConfig.columnsCount = cols ? Number(cols) : null;
 
-  boardConfig.cellGap =
-    document.getElementById('cellGap')?.value || null;
+  const gap = document.getElementById('cellGap')?.value;
+  boardConfig.cellGap = gap ? Number(gap) : null;
 
   renderBoard();
 }
@@ -204,6 +220,7 @@ function applyBoardConfig() {
 
 function clearBoard() {
   window.currentBoard = [];
+
   const board = document.getElementById('board');
   if (board) board.innerHTML = '';
 
@@ -219,3 +236,4 @@ window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
+
