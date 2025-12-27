@@ -134,9 +134,17 @@ function renderBoard() {
     cell.style.border = `2px solid ${border}`;
 
     cell.innerHTML = `
-      ${item.img ? `<img src="${item.img}" alt="${item.word}">` : ''}
-      <div>${item.customText || item.word}</div>
-    `;
+  <div class="remove-btn" title="Remover pictograma">×</div>
+  ${item.img ? `<img src="${item.img}" alt="${item.word}">` : ''}
+  <div>${item.customText || item.word}</div>
+`;
+
+// ❌ Remover pictograma
+cell.querySelector('.remove-btn').onclick = (e) => {
+  e.stopPropagation(); // impede abrir o modal
+  currentBoard.splice(index, 1);
+  renderBoard();
+};
 
     cell.onclick = () => {
       if (typeof openQuickEditModal === 'function') {
@@ -186,4 +194,3 @@ window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
-
