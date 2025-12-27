@@ -192,9 +192,11 @@ function renderBoard(){
     board.appendChild(cell);
   });
 }
-
+<script>
 async function openQuickEditModal(index) {
   const item = currentBoard[index];
+
+  let targetColor = null; // controla se estamos editando fundo ou borda
 
   const overlay = document.createElement('div');
   overlay.style.cssText = `
@@ -214,8 +216,6 @@ async function openQuickEditModal(index) {
     border-radius:12px;
     max-width:420px;
     width:100%;
-    max-height:90vh;
-    overflow:auto;
   `;
 
   modal.innerHTML = `
@@ -225,13 +225,17 @@ async function openQuickEditModal(index) {
     <input id="editText" value="${item.customText || item.word}"
       style="width:100%; padding:8px; margin-bottom:10px"/>
 
-    <label>🎨 Cor de fundo:</label>
-    <button id="btnBg" style="width:100%; margin-bottom:6px">Selecionar cor semântica</button>
-    <div id="bgColors" style="display:none; margin-bottom:10px"></div>
+    <label>🎨 Fundo:</label>
+    <button id="btnBg" style="width:100%; padding:8px; margin-bottom:8px">
+      Selecionar cor semântica
+    </button>
 
-    <label>🖍️ Cor da borda:</label>
-    <button id="btnBorder" style="width:100%; margin-bottom:6px">Selecionar cor semântica</button>
-    <div id="borderColors" style="display:none; margin-bottom:10px"></div>
+    <label>🖍️ Borda:</label>
+    <button id="btnBorder" style="width:100%; padding:8px; margin-bottom:10px">
+      Selecionar cor semântica
+    </button>
+
+    <div id="colorPanel" style="display:none; margin:10px 0"></div>
 
     <button id="searchPic">🔍 Buscar outro pictograma</button>
     <br><br>
@@ -247,50 +251,46 @@ async function openQuickEditModal(index) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  /* ========= CORES SEMÂNTICAS ========= */
+  const colorPanel = modal.querySelector('#colorPanel');
+  colorPanel.innerHTML = '';
 
-  const bgBox = modal.querySelector('#bgColors');
-  const borderBox = modal.querySelector('#borderColors');
+  // cria os botões de cores CAA (reutilizáveis)
+  CAA_COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = `${c.name} – ${c.label}`;
+    btn.style.cssText = `
+      background:${c.color};
+      border:2px solid #333;
+      padding:6px;
+      border-radius:6px;
+      margin-bottom:4px;
+      width:100%;
+      cursor:pointer;
+      text-align:left;
+    `;
+    btn.onclick = () => {
+      if (targetColor === 'bg') item.bgColor = c.color;
+      if (targetColor === 'border') item.borderColor = c.color;
+      renderBoard();
+      colorPanel.style.display = 'none';
+      targetColor = null;
+    };
+    colorPanel.appendChild(btn);
+  });
 
-  function renderColorButtons(target, applyFn) {
-    target.innerHTML = '';
-    CAA_COLORS.forEach(c => {
-      const btn = document.createElement('button');
-      btn.textContent = `${c.name} – ${c.label}`;
-      btn.style.cssText = `
-        background:${c.color};
-        border:2px solid #333;
-        padding:6px;
-        border-radius:6px;
-        margin-bottom:4px;
-        width:100%;
-        cursor:pointer;
-        text-align:left;
-      `;
-      btn.onclick = () => {
-        applyFn(c.color);
-        renderBoard();
-        target.style.display = 'none';
-      };
-      target.appendChild(btn);
-    });
-  }
-
-  renderColorButtons(bgBox, color => item.bgColor = color);
-  renderColorButtons(borderBox, color => item.borderColor = color);
-
+  // Fundo → abre painel CAA
   modal.querySelector('#btnBg').onclick = () => {
-    bgBox.style.display = bgBox.style.display === 'none' ? 'block' : 'none';
-    borderBox.style.display = 'none';
+    targetColor = 'bg';
+    colorPanel.style.display = 'block';
   };
 
+  // Borda → abre painel CAA
   modal.querySelector('#btnBorder').onclick = () => {
-    borderBox.style.display = borderBox.style.display === 'none' ? 'block' : 'none';
-    bgBox.style.display = 'none';
+    targetColor = 'border';
+    colorPanel.style.display = 'block';
   };
 
-  /* ========= BUSCAR PICTOGRAMA ========= */
-
+  // 🔍 Buscar pictograma
   modal.querySelector('#searchPic').onclick = async () => {
     const res = await fetch(API + encodeURIComponent(item.word));
     const data = await res.json();
@@ -323,8 +323,7 @@ async function openQuickEditModal(index) {
     modal.appendChild(grid);
   };
 
-  /* ========= UPLOAD DE IMAGEM ========= */
-
+  // 📁 Upload de imagem
   modal.querySelector('#uploadImg').onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -337,8 +336,7 @@ async function openQuickEditModal(index) {
     reader.readAsDataURL(file);
   };
 
-  /* ========= SALVAR / FECHAR ========= */
-
+  // 💾 Salvar
   modal.querySelector('#saveEdit').onclick = () => {
     item.customText = document.getElementById('editText').value.trim();
     renderBoard();
@@ -347,6 +345,8 @@ async function openQuickEditModal(index) {
 
   modal.querySelector('#closeEdit').onclick = () => overlay.remove();
 }
+</script>
+
 
 
 function saveBoard(){
