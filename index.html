@@ -1,23 +1,16 @@
 <!doctype html>
 <html lang="pt-BR">
- <head>
-  <!-- Meta -->
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuroCAA - Communication Board</title>
 
-  <!-- Bibliotecas para PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <!-- Estilos -->
-  <style>
     /* TODO: seu CSS permanece aqui */
   </style>
 </head>
 
-
-  <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
       box-sizing: border-box;
@@ -2214,13 +2207,19 @@ function exportBoardToPDF(elementId, filename = 'prancha-neurocaa.pdf') {
       };
     }
 
-    async function deleteBoard(boardId) {
-      const board = savedBoards.find(b => b.__backendId === boardId);
-      if (!board) return;
+   function deleteBoard(boardId) {
+  let pranchas = carregarPranchas();
+  pranchas = pranchas.filter(p => p.id !== boardId);
+  salvarNoLocalStorage("pranchas", pranchas);
+  savedBoards = pranchas;
+  renderHistory();
+  showToast('🗑️ Prancha excluída!');
+}
+
 
 
     function renderHistory() {
-      const container = document.getElementById('history-list');
+      <button class="delete-btn" onclick="deleteBoard('${board.id}')">🗑️ Excluir</button>
 
       if (savedBoards.length === 0) {
         container.innerHTML = '<div class="empty-state"><p>Nenhuma prancha salva ainda</p></div>';
