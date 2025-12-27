@@ -2,8 +2,8 @@
    ESTADO GLOBAL DA PRANCHA
 ========================= */
 
-let currentBoard = [];
-let boardConfig = {
+window.currentBoard = [];
+window.boardConfig = {
   headerColor: null,
   cellBgColor: null,
   cellBorderColor: null,
@@ -15,7 +15,9 @@ let boardConfig = {
 ========================= */
 
 document.addEventListener('DOMContentLoaded', () => {
-  populateCAASelects();
+  if (typeof populateCAASelects === 'function') {
+    populateCAASelects();
+  }
 });
 
 /* =========================
@@ -50,10 +52,13 @@ function populateCAASelects() {
 ========================= */
 
 async function generateBoard() {
-  const phrase = document.getElementById('phraseInput').value.trim();
+  const phraseInput = document.getElementById('phraseInput');
+  if (!phraseInput) return;
+
+  const phrase = phraseInput.value.trim();
   if (!phrase) return;
 
-  currentBoard = [];
+  window.currentBoard = [];
   const words = phrase.split(/\s+/);
 
   for (const word of words) {
@@ -67,7 +72,7 @@ async function generateBoard() {
 
     const pic = data[0];
 
-    currentBoard.push({
+    window.currentBoard.push({
       word,
       customText: null,
       img: pic
@@ -87,17 +92,23 @@ async function generateBoard() {
 
 function renderBoard() {
   const board = document.getElementById('board');
+  if (!board) return;
+
   board.innerHTML = '';
 
-  // aplica borda da prancha
+  /* ---- Borda da prancha ---- */
   if (boardConfig.boardBorderColor) {
     board.style.border = `4px solid ${boardConfig.boardBorderColor}`;
     board.style.borderRadius = '12px';
     board.style.padding = '10px';
+  } else {
+    board.style.border = '';
   }
 
-  // título
-  const title = document.getElementById('boardTitle').value.trim();
+  /* ---- Título ---- */
+  const titleInput = document.getElementById('boardTitle');
+  const title = titleInput ? titleInput.value.trim() : '';
+
   if (title) {
     const titleDiv = document.createElement('div');
     titleDiv.textContent = title;
@@ -115,37 +126,32 @@ function renderBoard() {
     board.appendChild(titleDiv);
   }
 
-  // células
-  currentBoard.forEach((item, index) => {
+  /* ---- Células ---- */
+  window.currentBoard.forEach((item, index) => {
     const cell = document.createElement('div');
     cell.className = 'cell';
 
-    const bg =
-      item.bgColor ||
-      boardConfig.cellBgColor ||
-      '#ffffff';
-
-    const border =
-      item.borderColor ||
-      boardConfig.cellBorderColor ||
-      '#e2e8f0';
+    const bg = item.bgColor || boardConfig.cellBgColor || '#ffffff';
+    const border = item.borderColor || boardConfig.cellBorderColor || '#e2e8f0';
 
     cell.style.background = bg;
     cell.style.border = `2px solid ${border}`;
 
     cell.innerHTML = `
-  <div class="remove-btn" title="Remover pictograma">×</div>
-  ${item.img ? `<img src="${item.img}" alt="${item.word}">` : ''}
-  <div>${item.customText || item.word}</div>
-`;
+      <div class="remove-btn" title="Remover pictograma">×</div>
+      ${item.img ? `<img src="${item.img}" alt="${item.word}">` : ''}
+      <div>${item.customText || item.word}</div>
+    `;
 
-// ❌ Remover pictograma
-cell.querySelector('.remove-btn').onclick = (e) => {
-  e.stopPropagation(); // impede abrir o modal
-  currentBoard.splice(index, 1);
-  renderBoard();
-};
+    /* ❌ Remover pictograma */
+    const removeBtn = cell.querySelector('.remove-btn');
+    removeBtn.onclick = (e) => {
+      e.stopPropagation();
+      window.currentBoard.splice(index, 1);
+      renderBoard();
+    };
 
+    /* ✏️ Abrir modal */
     cell.onclick = () => {
       if (typeof openQuickEditModal === 'function') {
         openQuickEditModal(index);
@@ -162,16 +168,16 @@ cell.querySelector('.remove-btn').onclick = (e) => {
 
 function applyBoardConfig() {
   boardConfig.headerColor =
-    document.getElementById('headerColor').value || null;
+    document.getElementById('headerColor')?.value || null;
 
   boardConfig.cellBgColor =
-    document.getElementById('cellBgColor').value || null;
+    document.getElementById('cellBgColor')?.value || null;
 
   boardConfig.cellBorderColor =
-    document.getElementById('cellBorderColor').value || null;
+    document.getElementById('cellBorderColor')?.value || null;
 
   boardConfig.boardBorderColor =
-    document.getElementById('boardBorderColor').value || null;
+    document.getElementById('boardBorderColor')?.value || null;
 
   renderBoard();
 }
@@ -181,9 +187,12 @@ function applyBoardConfig() {
 ========================= */
 
 function clearBoard() {
-  currentBoard = [];
-  document.getElementById('board').innerHTML = '';
-  document.getElementById('phraseInput').value = '';
+  window.currentBoard = [];
+  const board = document.getElementById('board');
+  if (board) board.innerHTML = '';
+
+  const phraseInput = document.getElementById('phraseInput');
+  if (phraseInput) phraseInput.value = '';
 }
 
 /* =========================
