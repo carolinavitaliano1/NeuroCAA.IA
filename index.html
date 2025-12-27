@@ -214,24 +214,7 @@ function renderBoard() {
     container.appendChild(titleDiv);
   }
 
-  currentBoard.forEach((item, index) => {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.style.cursor = 'pointer';
-    cell.style.backgroundColor = item.bgColor;
-    cell.style.border = `2px solid ${item.borderColor}`;
-
-    cell.innerHTML = `
-      ${item.img ? `<img src="${item.img}" />` : ''}
-      <div>${item.customText || item.word}</div>
-    `;
-
-    cell.onclick = () => openQuickEditModal(index);
-    container.appendChild(cell);
-  });
-}
-
-
+  
   currentBoard.forEach((item, index) => {
     const cell = document.createElement('div');
     cell.className = 'cell';
@@ -253,7 +236,6 @@ function openQuickEditModal(index) {
   const item = currentBoard[index];
 
   const overlay = document.createElement('div');
-  overlay.className = 'overlay';
   overlay.style.cssText = `
     position: fixed;
     inset: 0;
@@ -280,129 +262,59 @@ function openQuickEditModal(index) {
     <input id="editText" value="${item.customText || item.word}"
       style="width:100%; padding:8px; margin:8px 0"/>
 
-    <label>🎨 Cor de fundo:</label>
-     value="${item.bgColor || '#ffffff'}"
-      style="width:100%; height:40px; margin-bottom:10px"/>
-
-    <label>🖍️ Cor da borda:</label>
-    value="${item.borderColor || '#e2e8f0'}"
-      style="width:100%; height:40px; margin-bottom:10px"/>
-
-    <button onclick="searchQuickImage(${index})">🔍 Buscar pictograma</button>
-    <br><br>
-
-    <input type="file" id="uploadImg" accept="image/*"/>
-
-    <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end">
-const colorSection = document.createElement('div');
-colorSection.style.margin = '12px 0';
-colorSection.innerHTML = '<strong>🎨 Categoria semântica (CAA)</strong>';
-
-const colorGrid = document.createElement('div');
-colorGrid.style.cssText = `
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:6px;
-  margin-top:6px;
-`;
-
-CAA_COLORS.forEach(c => {
-  const btn = document.createElement('button');
-  btn.textContent = `${c.name} – ${c.label}`;
-  btn.style.cssText = `
-    background:${c.color};
-    border:2px solid #333;
-    padding:6px;
-    border-radius:6px;
-    font-size:12px;
-    cursor:pointer;
-    text-align:left;
+    <strong>🎨 Categoria semântica (CAA)</strong>
   `;
 
-  btn.onclick = () => {
-    currentBoard[index].bgColor = c.color;
-    currentBoard[index].borderColor = c.color;
+  const colorGrid = document.createElement('div');
+  colorGrid.style.cssText = `
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:6px;
+    margin:10px 0;
+  `;
+
+  CAA_COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = `${c.name} – ${c.label}`;
+    btn.style.cssText = `
+      background:${c.color};
+      border:2px solid #333;
+      padding:6px;
+      border-radius:6px;
+      font-size:13px;
+      cursor:pointer;
+      text-align:left;
+    `;
+
+    btn.onclick = () => {
+      currentBoard[index].bgColor = c.color;
+      currentBoard[index].borderColor = c.color;
+      renderBoard();
+    };
+
+    colorGrid.appendChild(btn);
+  });
+
+  modal.appendChild(colorGrid);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '💾 Salvar';
+  saveBtn.onclick = () => {
+    const txt = document.getElementById('editText').value.trim();
+    if (txt) currentBoard[index].customText = txt;
     renderBoard();
+    overlay.remove();
   };
 
-  colorGrid.appendChild(btn);
-});
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌ Fechar';
+  closeBtn.onclick = () => overlay.remove();
 
-colorSection.appendChild(colorGrid);
-modal.appendChild(colorSection);
-
-      <button onclick="saveQuickEdit(${index})">💾 Salvar</button>
-      <button onclick="document.querySelector('.overlay').remove()">❌ Fechar</button>
-    </div>
-  `;
+  modal.appendChild(saveBtn);
+  modal.appendChild(closeBtn);
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
-
-  document.getElementById('uploadImg').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      currentBoard[index].img = ev.target.result;
-      renderBoard();
-      overlay.remove();
-    };
-    reader.readAsDataURL(file);
-  };
-}
-
-
-async function searchQuickImage(index) {
-  const word = currentBoard[index].word;
-  const res = await fetch(API + encodeURIComponent(word));
-  const data = await res.json();
-
-  if (!data.length) {
-    toast('Nenhuma imagem encontrada', true);
-    return;
-  }
-
-  const overlay = document.querySelector('.overlay');
-  overlay.innerHTML = '';
-
-  const grid = document.createElement('div');
-  grid.style.cssText = `
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  `;
-
-  data.slice(0, 9).forEach(p => {
-    const img = document.createElement('img');
-    img.src = `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
-    img.style.width = '100%';
-    img.style.cursor = 'pointer';
-    img.onclick = () => {
-      currentBoard[index].img = img.src;
-      renderBoard();
-      overlay.remove();
-    };
-    grid.appendChild(img);
-  });
-
-  overlay.appendChild(grid);
-}
-
-function saveQuickEdit(index) {
-  const text = document.getElementById('editText').value.trim();
-  const bg = document.getElementById('bgColor').value;
-  const border = document.getElementById('borderColor').value;
-
-  if (text) currentBoard[index].customText = text;
-  currentBoard[index].bgColor = bg;
-  currentBoard[index].borderColor = border;
-
-  renderBoard();
-  document.querySelector('.overlay').remove();
 }
 
 function saveBoard() {
