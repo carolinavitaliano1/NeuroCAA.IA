@@ -17,28 +17,64 @@
   <div class="container">
     <h1>🧠 NeuroCAA</h1>
 
+    <!-- Entrada de frase -->
     <div class="input-group">
       <input id="phraseInput" placeholder="Digite a frase..." />
       <button class="generate" onclick="generateBoard()">Gerar</button>
     </div>
 
-    <input id="boardTitle" placeholder="Título da prancha (opcional)" />
+    <!-- ⚙️ CONFIGURAÇÕES DA PRANCHA -->
+    <div id="boardConfig" class="board-config">
+      <strong>⚙️ Configurações da Prancha</strong>
 
+      <div class="config-field">
+        <label for="boardTitle">Título da prancha:</label>
+        <input id="boardTitle" placeholder="Ex: Prancha de Rotina" />
+      </div>
+
+      <div class="config-field">
+        <label for="headerColor">Cor do cabeçalho:</label>
+        <select id="headerColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="cellBgColor">Cor de fundo das células:</label>
+        <select id="cellBgColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="cellBorderColor">Cor da borda das células:</label>
+        <select id="cellBorderColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="boardBorderColor">Cor da borda da prancha:</label>
+        <select id="boardBorderColor"></select>
+      </div>
+
+      <button class="apply-config" onclick="applyBoardConfig()">
+        ✅ Aplicar à prancha
+      </button>
+    </div>
+
+    <!-- PRANCHA -->
     <div id="board" class="board"></div>
 
+    <!-- AÇÕES -->
     <div class="actions">
       <button class="save" onclick="saveBoard()">💾 Salvar</button>
       <button class="pdf" onclick="exportBoardToPDF()">📄 PDF</button>
       <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
     </div>
 
+    <!-- HISTÓRICO -->
     <div class="history">
       <h3>📚 Histórico</h3>
       <div id="historyList"></div>
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- JS (ORDEM IMPORTANTE) -->
   <script src="./js/data.js" defer></script>
   <script src="./js/storage.js" defer></script>
   <script src="./js/board.js" defer></script>
@@ -46,4 +82,4 @@
   <script src="./js/pdf.js" defer></script>
 </body>
 </html>
- 
+
