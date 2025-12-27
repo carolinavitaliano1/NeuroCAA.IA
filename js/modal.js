@@ -1,4 +1,4 @@
-const pictogramCache = {}; // cache simples
+const pictogramCache = {};
 
 function openQuickEditModal(index) {
   const item = currentBoard[index];
@@ -41,18 +41,16 @@ function openQuickEditModal(index) {
       grid-template-columns:repeat(3,1fr);
       gap:10px;
       margin-bottom:15px;
-    ">
-      <div style="grid-column:1/-1; text-align:center">⏳ Carregando imagens...</div>
-    </div>
+    "></div>
 
     <strong>🔍 Buscar outro pictograma</strong>
-    <div style="display:flex; gap:6px; margin:6px 0 12px">
+    <div style="display:flex; gap:6px; margin:6px 0 10px">
       <input id="searchWord" placeholder="Digite outra palavra"
         style="flex:1; padding:8px"/>
       <button id="searchBtn">🔍</button>
     </div>
 
-    <strong>📁 Ou anexar imagem do dispositivo</strong>
+    <strong>📁 Anexar imagem do dispositivo</strong>
     <input type="file" id="uploadImg" accept="image/*"
       style="width:100%; margin:8px 0 15px"/>
 
@@ -81,11 +79,7 @@ function openQuickEditModal(index) {
       pictogramCache[word] = data;
       renderImages(data);
     } catch {
-      grid.innerHTML = `
-        <div style="grid-column:1/-1; text-align:center; color:red">
-          Erro ao carregar imagens
-        </div>
-      `;
+      grid.innerHTML = `<div style="grid-column:1/-1; color:red">Erro ao carregar imagens</div>`;
     }
   }
 
@@ -98,7 +92,6 @@ function openQuickEditModal(index) {
         width:100%;
         border-radius:8px;
         cursor:pointer;
-        border:2px solid transparent;
       `;
       img.onclick = () => {
         item.img = img.src;
@@ -109,16 +102,16 @@ function openQuickEditModal(index) {
     });
   }
 
-  // 🔥 carrega automaticamente ao abrir
+  // 🔥 carrega imagens da palavra original
   loadImages(item.word);
 
-  // 🔍 busca por nova palavra
+  // 🔍 busca manual
   modal.querySelector('#searchBtn').onclick = () => {
     const w = modal.querySelector('#searchWord').value.trim();
     if (w) loadImages(w);
   };
 
-  // 📁 upload de imagem local
+  // 📁 upload local — AGORA FUNCIONA
   modal.querySelector('#uploadImg').onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -132,7 +125,6 @@ function openQuickEditModal(index) {
     reader.readAsDataURL(file);
   };
 
-  // 💾 salvar texto
   modal.querySelector('#save').onclick = () => {
     item.customText = modal.querySelector('#editText').value.trim();
     renderBoard();
@@ -143,5 +135,3 @@ function openQuickEditModal(index) {
 }
 
 window.openQuickEditModal = openQuickEditModal;
-
-
