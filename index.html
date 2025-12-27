@@ -197,7 +197,6 @@ try {
 }
 
 function renderBoard() {
-  function renderBoard() {
   const container = document.getElementById('board');
   container.innerHTML = '';
 
@@ -214,6 +213,23 @@ function renderBoard() {
     titleDiv.textContent = title;
     container.appendChild(titleDiv);
   }
+
+  currentBoard.forEach((item, index) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.cursor = 'pointer';
+    cell.style.backgroundColor = item.bgColor;
+    cell.style.border = `2px solid ${item.borderColor}`;
+
+    cell.innerHTML = `
+      ${item.img ? `<img src="${item.img}" />` : ''}
+      <div>${item.customText || item.word}</div>
+    `;
+
+    cell.onclick = () => openQuickEditModal(index);
+    container.appendChild(cell);
+  });
+}
 
 
   currentBoard.forEach((item, index) => {
