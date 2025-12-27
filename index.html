@@ -232,7 +232,6 @@ function renderBoard() {
   });
 }
 
-<script>
 async function openQuickEditModal(index) {
   const item = currentBoard[index];
   const overlay = document.createElement('div');
@@ -367,7 +366,6 @@ async function openQuickEditModal(index) {
 
   modal.querySelector('#closeEdit').onclick = () => overlay.remove();
 }
-</script>
 
 function saveBoard() {
   const list = loadLS();
