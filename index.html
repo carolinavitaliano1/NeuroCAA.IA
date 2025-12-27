@@ -1,312 +1,287 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧠 NeuroCAA</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 NeuroCAA</title>
 
-  <!-- PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      padding: 20px;
-    }
+<style>
+body{
+  font-family:Arial, sans-serif;
+  background:#f8f9fa;
+  padding:20px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+h1{text-align:center}
+.input-group{display:flex;gap:10px}
+input{flex:1;padding:10px;font-size:16px}
+button{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
+.generate{background:#667eea;color:#fff}
+.save{background:#48bb78;color:#fff}
+.pdf{background:#4299e1;color:#fff}
+.clear{background:#f56565;color:#fff}
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+.board{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+.cell{
+  padding:10px;
+  text-align:center;
+  border-radius:8px;
+  cursor:pointer;
+}
+.cell img{max-width:80px;max-height:80px}
 
-    h1 { text-align: center; }
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
 
-    .input-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+.modal{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  max-width:420px;
+  width:100%;
+}
 
-    input {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-    }
+.color-panel{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:6px;
+  margin:10px 0;
+}
 
-    button {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
+.color-btn{
+  padding:6px;
+  border-radius:6px;
+  border:2px solid #333;
+  font-size:12px;
+  cursor:pointer;
+  text-align:left;
+}
 
-    .generate { background: #667eea; color: white; }
-    .save { background: #48bb78; color: white; }
-    .pdf { background: #4299e1; color: white; }
-    .clear { background: #f56565; color: white; }
+.pic-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .cell {
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .cell img {
-      max-width: 80px;
-      max-height: 80px;
-    }
-
-    .history {
-      margin-top: 25px;
-    }
-
-    .history-item {
-      background: #f1f5f9;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-    }
-
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #48bb78;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-    }
-  </style>
+.pic-grid img{
+  width:100%;
+  cursor:pointer;
+  border-radius:6px;
+  border:2px solid transparent;
+}
+.pic-grid img:hover{border-color:#667eea}
+</style>
 </head>
 
 <body>
 <div class="container">
-  <h1>🧠 NeuroCAA</h1>
+<h1>🧠 NeuroCAA</h1>
 
-  <div class="input-group">
-    <input id="phraseInput" placeholder="Digite a frase..." />
-    <button class="generate" onclick="generateBoard()">Gerar</button>
-  </div>
+<div class="input-group">
+<input id="phraseInput" placeholder="Digite a frase...">
+<button class="generate" onclick="generateBoard()">Gerar</button>
+</div>
 
-  <input id="boardTitle" placeholder="Título da prancha (opcional)" style="width:100%; padding:8px;" />
+<input id="boardTitle" placeholder="Título da prancha (opcional)" style="width:100%;margin-top:8px;padding:8px">
 
-  <div id="board" class="board"></div>
+<div id="board" class="board"></div>
 
-  <div style="margin-top:15px; display:flex; gap:10px;">
-    <button class="save" onclick="saveBoard()">💾 Salvar</button>
-    <button class="pdf" onclick="exportBoardToPDF()">📄 PDF</button>
-    <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
-  </div>
+<div style="margin-top:12px;display:flex;gap:8px">
+<button class="save" onclick="saveBoard()">💾 Salvar</button>
+<button class="pdf" onclick="exportPDF()">📄 PDF</button>
+<button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
+</div>
 
-  <div class="history">
-    <h3>📚 Histórico</h3>
-    <div id="historyList"></div>
-  </div>
+<h3 style="margin-top:20px">📚 Histórico</h3>
+<div id="history"></div>
 </div>
 
 <script>
-/* ===================== CONFIG ===================== */
-const API = 'https://api.arasaac.org/api/pictograms/pt/search/';
-let currentBoard = [];
+const API='https://api.arasaac.org/api/pictograms/pt/search/';
+let currentBoard=[];
+let activeColorTarget=null;
 
-const CAA_COLORS = [
-  { name:'Amarelo', color:'#FDE047', label:'Pessoas / Pronomes' },
-  { name:'Verde', color:'#86EFAC', label:'Verbos / Ações' },
-  { name:'Azul', color:'#93C5FD', label:'Adjetivos / Descrições' },
-  { name:'Laranja', color:'#FDBA74', label:'Objetos / Substantivos' },
-  { name:'Rosa', color:'#F9A8D4', label:'Expressões sociais' },
-  { name:'Branco', color:'#FFFFFF', label:'Artigos / Conjunções' },
-  { name:'Roxo', color:'#C4B5FD', label:'Preposições' },
-  { name:'Marrom', color:'#D6B28A', label:'Advérbios' }
+const CAA_COLORS=[
+ {name:'Amarelo',color:'#FDE047',label:'Pessoas / Pronomes'},
+ {name:'Verde',color:'#86EFAC',label:'Verbos / Ações'},
+ {name:'Azul',color:'#93C5FD',label:'Adjetivos'},
+ {name:'Laranja',color:'#FDBA74',label:'Substantivos'},
+ {name:'Rosa',color:'#F9A8D4',label:'Expressões sociais'},
+ {name:'Branco',color:'#FFFFFF',label:'Artigos'},
+ {name:'Roxo',color:'#C4B5FD',label:'Preposições'},
+ {name:'Marrom',color:'#D6B28A',label:'Advérbios'}
 ];
 
-/* ===================== UTIL ===================== */
-function toast(msg, error=false){
-  const t=document.createElement('div');
-  t.className='toast';
-  if(error) t.style.background='#f56565';
-  t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
-}
-
-function saveLS(data){ localStorage.setItem('pranchas',JSON.stringify(data)); }
-function loadLS(){ return JSON.parse(localStorage.getItem('pranchas')||'[]'); }
-
-/* ===================== GERAÇÃO ===================== */
-async function generateBoard(){
-  const phrase = phraseInput.value.trim();
-  if(!phrase) return;
-
-  currentBoard = [];
-
-  for(const word of phrase.split(/\s+/)){
-    let data=[];
-    try{
-      const res=await fetch(API+encodeURIComponent(word));
-      data=await res.json();
-    }catch{}
-
-    const pic=data[0];
-    currentBoard.push({
-      word,
-      img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null,
-      customText:null,
-      bgColor:'#ffffff',
-      borderColor:'#e2e8f0'
-    });
-  }
-  renderBoard();
-}
-
-/* ===================== RENDER ===================== */
-function renderBoard(){
-  board.innerHTML='';
-
-  const title=boardTitle.value.trim();
-  if(title){
-    const t=document.createElement('div');
-    t.textContent=title;
-    t.style.fontWeight='700';
-    t.style.gridColumn='1/-1';
-    t.style.textAlign='center';
-    board.appendChild(t);
-  }
-
-  currentBoard.forEach((item,i)=>{
-    const cell=document.createElement('div');
-    cell.className='cell';
-    cell.style.background=item.bgColor;
-    cell.style.border=`2px solid ${item.borderColor}`;
-    cell.innerHTML=`
-      ${item.img?`<img src="${item.img}">`:''}
-      <div>${item.customText||item.word}</div>`;
-    cell.onclick=()=>openQuickEditModal(i);
-    board.appendChild(cell);
+function generateBoard(){
+ const phrase=phraseInput.value.trim();
+ if(!phrase)return;
+ currentBoard=[];
+ phrase.split(/\s+/).forEach(async word=>{
+  let data=[];
+  try{
+   const r=await fetch(API+encodeURIComponent(word));
+   data=await r.json();
+  }catch{}
+  const pic=data[0];
+  currentBoard.push({
+   word,
+   customText:null,
+   img:pic?`https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png`:null,
+   bgColor:'#fff',
+   borderColor:'#e2e8f0'
   });
+  renderBoard();
+ });
 }
 
-/* ===================== MODAL ===================== */
-async function openQuickEditModal(index){
-  const item=currentBoard[index];
-  let target=null;
-
-  const overlay=document.createElement('div');
-  overlay.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999`;
-
-  const modal=document.createElement('div');
-  modal.style.cssText=`background:#fff;padding:20px;border-radius:12px;max-width:420px;width:100%`;
-
-  modal.innerHTML=`
-    <h3>✏️ Editar "${item.word}"</h3>
-
-    <label>Texto:</label>
-    <input id="editText" value="${item.customText||item.word}" style="width:100%;margin-bottom:8px">
-
-    <button id="btnBg">🎨 Fundo</button>
-    <button id="btnBorder">🖍️ Borda</button>
-
-    <div id="colorPanel" style="display:none;margin:10px 0"></div>
-
-    <button id="searchPic">🔍 Buscar outro pictograma</button><br><br>
-    <input type="file" id="uploadImg"><br><br>
-
-    <button id="saveEdit">💾 Salvar</button>
-    <button id="closeEdit">❌ Fechar</button>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  const panel=modal.querySelector('#colorPanel');
-  function showColors(type){
-    target=type;
-    panel.innerHTML='';
-    panel.style.display='block';
-    CAA_COLORS.forEach(c=>{
-      const b=document.createElement('button');
-      b.textContent=`${c.name} – ${c.label}`;
-      b.style.background=c.color;
-      b.onclick=()=>{
-        if(target==='bg') item.bgColor=c.color;
-        if(target==='border') item.borderColor=c.color;
-        renderBoard();
-      };
-      panel.appendChild(b);
-    });
-  }
-
-  modal.querySelector('#btnBg').onclick=()=>showColors('bg');
-  modal.querySelector('#btnBorder').onclick=()=>showColors('border');
-
-  modal.querySelector('#searchPic').onclick=async()=>{
-    const res=await fetch(API+encodeURIComponent(item.word));
-    const data=await res.json();
-    if(!data.length){toast('Nenhuma imagem',true);return;}
-    modal.innerHTML='<h3>Escolha um pictograma</h3>';
-    data.slice(0,9).forEach(p=>{
-      const img=document.createElement('img');
-      img.src=`https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
-      img.onclick=()=>{item.img=img.src;renderBoard();overlay.remove();}
-      modal.appendChild(img);
-    });
-  };
-
-  modal.querySelector('#uploadImg').onchange=e=>{
-    const r=new FileReader();
-    r.onload=ev=>{item.img=ev.target.result;renderBoard();overlay.remove();}
-    r.readAsDataURL(e.target.files[0]);
-  };
-
-  modal.querySelector('#saveEdit').onclick=()=>{
-    item.customText=document.getElementById('editText').value;
-    renderBoard();overlay.remove();
-  };
-  modal.querySelector('#closeEdit').onclick=()=>overlay.remove();
+function renderBoard(){
+ board.innerHTML='';
+ const title=boardTitle.value.trim();
+ if(title){
+  const t=document.createElement('div');
+  t.textContent=title;
+  t.style.gridColumn='1/-1';
+  t.style.textAlign='center';
+  t.style.fontWeight='700';
+  board.appendChild(t);
+ }
+ currentBoard.forEach((item,i)=>{
+  const c=document.createElement('div');
+  c.className='cell';
+  c.style.background=item.bgColor;
+  c.style.border=`2px solid ${item.borderColor}`;
+  c.innerHTML=`${item.img?`<img src="${item.img}">`:''}<div>${item.customText||item.word}</div>`;
+  c.onclick=()=>openEdit(i);
+  board.appendChild(c);
+ });
 }
 
-/* ===================== SALVAR / PDF ===================== */
+function openEdit(index){
+ const item=currentBoard[index];
+ const overlay=document.createElement('div');
+ overlay.className='overlay';
+
+ const modal=document.createElement('div');
+ modal.className='modal';
+
+ modal.innerHTML=`
+ <h3>✏️ Editar "${item.word}"</h3>
+ <input id="editText" value="${item.customText||item.word}" style="width:100%;padding:6px">
+
+ <button id="bgBtn" style="width:100%;margin-top:8px">🎨 Fundo</button>
+ <button id="borderBtn" style="width:100%;margin-top:6px">🖍️ Borda</button>
+
+ <div id="colorPanel" class="color-panel" style="display:none"></div>
+
+ <button id="searchPic" style="margin-top:8px;width:100%">🔍 Buscar pictograma</button>
+ <input type="file" id="uploadImg" style="margin-top:6px">
+
+ <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end">
+ <button id="saveEdit">💾 Salvar</button>
+ <button onclick="overlay.remove()">❌ Fechar</button>
+ </div>
+ `;
+
+ overlay.appendChild(modal);
+ document.body.appendChild(overlay);
+
+ const panel=modal.querySelector('#colorPanel');
+
+ function showColors(target){
+  activeColorTarget=target;
+  panel.innerHTML='';
+  panel.style.display='grid';
+  CAA_COLORS.forEach(c=>{
+   const b=document.createElement('div');
+   b.className='color-btn';
+   b.style.background=c.color;
+   b.textContent=`${c.name} – ${c.label}`;
+   b.onclick=()=>{
+    item[target]=c.color;
+    renderBoard();
+   };
+   panel.appendChild(b);
+  });
+ }
+
+ modal.querySelector('#bgBtn').onclick=()=>showColors('bgColor');
+ modal.querySelector('#borderBtn').onclick=()=>showColors('borderColor');
+
+ modal.querySelector('#searchPic').onclick=async()=>{
+  const r=await fetch(API+encodeURIComponent(item.word));
+  const d=await r.json();
+  modal.innerHTML='<h3>Escolha</h3>';
+  const g=document.createElement('div');
+  g.className='pic-grid';
+  d.slice(0,9).forEach(p=>{
+   const i=document.createElement('img');
+   i.src=`https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
+   i.onclick=()=>{item.img=i.src;renderBoard();overlay.remove()};
+   g.appendChild(i);
+  });
+  modal.appendChild(g);
+ };
+
+ modal.querySelector('#uploadImg').onchange=e=>{
+  const f=e.target.files[0];
+  const r=new FileReader();
+  r.onload=ev=>{item.img=ev.target.result;renderBoard();overlay.remove()};
+  r.readAsDataURL(f);
+ };
+
+ modal.querySelector('#saveEdit').onclick=()=>{
+  item.customText=document.getElementById('editText').value.trim();
+  renderBoard();
+  overlay.remove();
+ };
+}
+
 function saveBoard(){
-  const l=loadLS();
-  l.push({id:Date.now(),date:new Date().toLocaleString('pt-BR'),board:currentBoard});
-  saveLS(l);renderHistory();toast('Salvo!');
+ const h=JSON.parse(localStorage.getItem('boards')||'[]');
+ h.push({date:new Date().toLocaleString(),board:currentBoard});
+ localStorage.setItem('boards',JSON.stringify(h));
+ renderHistory();
 }
-
-function clearBoard(){currentBoard=[];board.innerHTML='';phraseInput.value='';}
 
 function renderHistory(){
-  historyList.innerHTML='';
-  loadLS().reverse().forEach(i=>{
-    const d=document.createElement('div');
-    d.className='history-item';
-    d.innerHTML=`${i.date}<br>${i.board.map(b=>b.word).join(' ')}`;
-    historyList.appendChild(d);
-  });
+ history.innerHTML='';
+ (JSON.parse(localStorage.getItem('boards')||'[]')).reverse().forEach(b=>{
+  const d=document.createElement('div');
+  d.textContent=b.date;
+  history.appendChild(d);
+ });
 }
 
-function exportBoardToPDF(){
-  html2canvas(board).then(c=>{
-    const {jsPDF}=window.jspdf;
-    const pdf=new jsPDF('landscape');
-    pdf.addImage(c.toDataURL(),'PNG',10,10,280,0);
-    pdf.save('prancha-neurocaa.pdf');
-  });
+function clearBoard(){currentBoard=[];renderBoard()}
+function exportPDF(){
+ html2canvas(board).then(c=>{
+  const pdf=new jspdf.jsPDF('landscape');
+  pdf.addImage(c.toDataURL(),'PNG',10,10,280,0);
+  pdf.save('prancha.pdf');
+ });
 }
-
 renderHistory();
 </script>
 </body>
