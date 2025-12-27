@@ -60,6 +60,30 @@
         <select id="boardBorderColor"></select>
       </div>
 
+      <!-- 🧱 NOVO: NÚMERO DE COLUNAS -->
+      <div class="config-field">
+        <label for="columnsCount">Número de colunas</label>
+        <input
+          type="number"
+          id="columnsCount"
+          min="1"
+          max="10"
+          placeholder="Ex: 4"
+        />
+      </div>
+
+      <!-- ↔️ NOVO: ESPAÇAMENTO ENTRE CÉLULAS -->
+      <div class="config-field">
+        <label for="cellGap">Espaçamento entre células (px)</label>
+        <input
+          type="number"
+          id="cellGap"
+          min="0"
+          max="40"
+          placeholder="Ex: 10"
+        />
+      </div>
+
       <button class="apply-config" onclick="applyBoardConfig()">
         ✅ Aplicar à prancha
       </button>
@@ -83,21 +107,12 @@
   </div>
 
   <!-- ⚠️ ORDEM DOS SCRIPTS (ESSENCIAL) -->
-  <!-- 1️⃣ Dados globais e constantes -->
   <script src="./js/data.js" defer></script>
-
-  <!-- 2️⃣ Lógica da prancha -->
   <script src="./js/board.js" defer></script>
-
-  <!-- 3️⃣ Modal de edição -->
   <script src="./js/modal.js" defer></script>
-
-  <!-- 4️⃣ LocalStorage / Histórico -->
   <script src="./js/storage.js" defer></script>
-
-  <!-- 5️⃣ Exportação PDF -->
   <script src="./js/pdf.js" defer></script>
-
 </body>
 </html>
+
 
