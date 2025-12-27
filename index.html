@@ -13,12 +13,7 @@
     body {
       font-family: Arial, sans-serif;
       background: #f8f9fa;
-      margin: 0;
       padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
     }
 
     .container {
@@ -30,10 +25,12 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
+    h1 { text-align: center; }
+
     .input-group {
       display: flex;
       gap: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     input {
@@ -43,11 +40,10 @@
     }
 
     button {
-      padding: 10px 15px;
-      font-size: 14px;
-      cursor: pointer;
+      padding: 10px;
       border-radius: 6px;
       border: none;
+      cursor: pointer;
     }
 
     .generate { background: #667eea; color: white; }
@@ -59,15 +55,14 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 15px;
     }
 
     .cell {
-      background: #fff;
-      border: 2px solid #e2e8f0;
       border-radius: 8px;
       padding: 10px;
       text-align: center;
+      cursor: pointer;
     }
 
     .cell img {
@@ -76,14 +71,14 @@
     }
 
     .history {
-      margin-top: 30px;
+      margin-top: 25px;
     }
 
     .history-item {
       background: #f1f5f9;
       padding: 10px;
       border-radius: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .toast {
@@ -92,330 +87,197 @@
       right: 20px;
       background: #48bb78;
       color: white;
-      padding: 10px 15px;
+      padding: 10px;
       border-radius: 8px;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>🧠 NeuroCAA</h1>
+<div class="container">
+  <h1>🧠 NeuroCAA</h1>
 
-    <div class="input-group">
-      <input id="phraseInput" placeholder="Digite a frase..." />
-      <button class="generate" onclick="generateBoard()">Gerar</button>
-    </div>
-<input
-  id="boardTitle"
-  placeholder="Título da prancha (opcional)"
-  style="
-    width:100%;
-    padding:8px;
-    margin-bottom:10px;
-    font-size:14px;
-  "
-/>
-
-    <div id="board" class="board"></div>
-
-    <div style="margin-top:15px; display:flex; gap:10px;">
-      <button class="save" onclick="saveBoard()">💾 Salvar</button>
-      <button class="pdf" onclick="exportBoardToPDF()">📄 PDF</button>
-      <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
-    </div>
-
-    <div class="history">
-      <h3>📚 Histórico</h3>
-      <div id="historyList"></div>
-    </div>
+  <div class="input-group">
+    <input id="phraseInput" placeholder="Digite a frase..." />
+    <button class="generate" onclick="generateBoard()">Gerar</button>
   </div>
+
+  <input id="boardTitle" placeholder="Título da prancha (opcional)" style="width:100%; padding:8px;" />
+
+  <div id="board" class="board"></div>
+
+  <div style="margin-top:15px; display:flex; gap:10px;">
+    <button class="save" onclick="saveBoard()">💾 Salvar</button>
+    <button class="pdf" onclick="exportBoardToPDF()">📄 PDF</button>
+    <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
+  </div>
+
+  <div class="history">
+    <h3>📚 Histórico</h3>
+    <div id="historyList"></div>
+  </div>
+</div>
 
 <script>
 const API = 'https://api.arasaac.org/api/pictograms/pt/search/';
 let currentBoard = [];
 
 const CAA_COLORS = [
-  { name: 'Amarelo', color: '#FDE047', label: 'Pessoas / Pronomes' },
-  { name: 'Verde',   color: '#86EFAC', label: 'Verbos / Ações' },
-  { name: 'Azul',    color: '#93C5FD', label: 'Adjetivos / Descrições' },
-  { name: 'Laranja', color: '#FDBA74', label: 'Objetos / Substantivos' },
-  { name: 'Rosa',    color: '#F9A8D4', label: 'Expressões sociais' },
-  { name: 'Branco',  color: '#FFFFFF', label: 'Artigos / Conjunções' },
-  { name: 'Roxo',    color: '#C4B5FD', label: 'Preposições' },
-  { name: 'Marrom',  color: '#D6B28A', label: 'Advérbios' }
+  { name:'Amarelo', color:'#FDE047', label:'Pessoas / Pronomes' },
+  { name:'Verde', color:'#86EFAC', label:'Verbos / Ações' },
+  { name:'Azul', color:'#93C5FD', label:'Adjetivos' },
+  { name:'Laranja', color:'#FDBA74', label:'Substantivos' },
+  { name:'Rosa', color:'#F9A8D4', label:'Expressões sociais' },
+  { name:'Branco', color:'#FFFFFF', label:'Artigos' },
+  { name:'Roxo', color:'#C4B5FD', label:'Preposições' },
+  { name:'Marrom', color:'#D6B28A', label:'Advérbios' }
 ];
-
 
 function toast(msg, error=false) {
   const t = document.createElement('div');
   t.className = 'toast';
-  if (error) t.style.background = '#f56565';
+  if(error) t.style.background='#f56565';
   t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  setTimeout(()=>t.remove(),3000);
 }
 
-function saveLS(data) {
-  localStorage.setItem('pranchas', JSON.stringify(data));
-}
+function saveLS(data){ localStorage.setItem('pranchas',JSON.stringify(data)); }
+function loadLS(){ return JSON.parse(localStorage.getItem('pranchas')||'[]'); }
 
-function loadLS() {
-  return JSON.parse(localStorage.getItem('pranchas') || '[]');
-}
-
-async function generateBoard() {
+async function generateBoard(){
   const phrase = phraseInput.value.trim();
-  if (!phrase) return;
+  if(!phrase) return;
 
   currentBoard = [];
-  board.innerHTML = '';
-
-  for (const word of phrase.split(/\s+/)) {
-    let data = [];
-try {
-  const res = await fetch(API + encodeURIComponent(word));
-  data = await res.json();
-} catch (e) {
-  console.error('Erro ao buscar pictograma:', word);
-}
-
-    const pic = data[0];
-
- currentBoard.push({
-  word,
-  img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null,
-  customText: null,
-  bgColor: '#ffffff',
-  borderColor: '#e2e8f0'
-});
-
-
+  for(const word of phrase.split(/\s+/)){
+    let data=[];
+    try{
+      const res=await fetch(API+encodeURIComponent(word));
+      data=await res.json();
+    }catch{}
+    const pic=data[0];
+    currentBoard.push({
+      word,
+      img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null,
+      customText:null,
+      bgColor:'#ffffff',
+      borderColor:'#e2e8f0'
+    });
   }
-
   renderBoard();
 }
 
-function renderBoard() {
-  const container = document.getElementById('board');
-  container.innerHTML = '';
-
-  const title = document.getElementById('boardTitle').value.trim();
-  if (title) {
-    const titleDiv = document.createElement('div');
-    titleDiv.style.cssText = `
-      width:100%;
-      text-align:center;
-      font-weight:700;
-      font-size:18px;
-      margin-bottom:10px;
-    `;
-    titleDiv.textContent = title;
-    container.appendChild(titleDiv);
+function renderBoard(){
+  board.innerHTML='';
+  const title=boardTitle.value.trim();
+  if(title){
+    const t=document.createElement('div');
+    t.textContent=title;
+    t.style.fontWeight='700';
+    t.style.gridColumn='1/-1';
+    t.style.textAlign='center';
+    board.appendChild(t);
   }
 
-  
-  currentBoard.forEach((item, index) => {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.style.cursor = 'pointer';
-    cell.style.backgroundColor = item.bgColor || '#ffffff';
-    cell.style.border = `2px solid ${item.borderColor || '#e2e8f0'}`;
-
-    cell.innerHTML = `
-      ${item.img ? `<img src="${item.img}" />` : ''}
-      <div>${item.customText || item.word}</div>
-    `;
-
-    cell.onclick = () => openQuickEditModal(index);
-    container.appendChild(cell);
+  currentBoard.forEach((item,i)=>{
+    const cell=document.createElement('div');
+    cell.className='cell';
+    cell.style.background=item.bgColor;
+    cell.style.border=`2px solid ${item.borderColor}`;
+    cell.innerHTML=`
+      ${item.img?`<img src="${item.img}">`:''}
+      <div>${item.customText||item.word}</div>`;
+    cell.onclick=()=>openQuickEditModal(i);
+    board.appendChild(cell);
   });
 }
 
-async function openQuickEditModal(index) {
-  const item = currentBoard[index];
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:9999;
-  `;
+async function openQuickEditModal(index){
+  const item=currentBoard[index];
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:9999;';
+  
+  const modal=document.createElement('div');
+  modal.style.cssText='background:white;padding:20px;border-radius:12px;max-width:420px;width:100%;';
 
-  const modal = document.createElement('div');
-  modal.style.cssText = `
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    max-width:420px;
-    width:100%;
-  `;
-
-  modal.innerHTML = `
+  modal.innerHTML=`
     <h3>✏️ Editar "${item.word}"</h3>
-
-    <label>Texto:</label>
-    <input id="editText" value="${item.customText || item.word}"
-      style="width:100%; padding:8px; margin-bottom:10px"/>
-
-    <label>🎨 Cor de fundo:</label>
-    <input type="color" id="bgColor" value="${item.bgColor}"
-      style="width:100%; height:40px; margin-bottom:10px"/>
-
-    <label>🖍️ Cor da borda:</label>
-    <input type="color" id="borderColor" value="${item.borderColor}"
-      style="width:100%; height:40px; margin-bottom:10px"/>
-
-    <strong>📚 Categoria semântica (CAA)</strong>
-    <div id="colorGrid" style="margin:10px 0"></div>
-
-    <button id="searchPic">🔍 Buscar outro pictograma</button>
+    <input id="editText" value="${item.customText||item.word}" style="width:100%;margin-bottom:8px"/>
+    <label>🎨 Fundo</label>
+    <input type="color" id="bgColor" value="${item.bgColor}" style="width:100%"/>
+    <label>🖍️ Borda</label>
+    <input type="color" id="borderColor" value="${item.borderColor}" style="width:100%"/>
+    <strong>📚 Categoria CAA</strong>
+    <div id="colorGrid"></div>
+    <button id="searchPic">🔍 Buscar pictograma</button><br><br>
+    <input type="file" id="uploadImg"/>
     <br><br>
-
-    <input type="file" id="uploadImg" accept="image/*"/>
-
-    <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end">
-      <button id="saveEdit">💾 Salvar</button>
-      <button id="closeEdit">❌ Fechar</button>
-    </div>
+    <button id="saveEdit">💾 Salvar</button>
+    <button onclick="document.body.removeChild(this.parentElement.parentElement)">❌ Fechar</button>
   `;
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // 🎨 Botões CAA
-  const grid = modal.querySelector('#colorGrid');
-  CAA_COLORS.forEach(c => {
-    const btn = document.createElement('button');
-    btn.textContent = `${c.name} – ${c.label}`;
-    btn.style.cssText = `
-      background:${c.color};
-      border:2px solid #333;
-      padding:6px;
-      border-radius:6px;
-      margin-bottom:4px;
-      width:100%;
-      cursor:pointer;
-      text-align:left;
-    `;
-    btn.onclick = () => {
-      item.bgColor = c.color;
-      item.borderColor = c.color;
-      renderBoard();
-    };
-    grid.appendChild(btn);
+  const grid=modal.querySelector('#colorGrid');
+  CAA_COLORS.forEach(c=>{
+    const b=document.createElement('button');
+    b.textContent=`${c.name} – ${c.label}`;
+    b.style.background=c.color;
+    b.onclick=()=>{ item.bgColor=c.color; item.borderColor=c.color; renderBoard(); };
+    grid.appendChild(b);
   });
 
-  // 🔍 Buscar pictograma
-  modal.querySelector('#searchPic').onclick = async () => {
-    const res = await fetch(API + encodeURIComponent(item.word));
-    const data = await res.json();
-    if (!data.length) {
-      toast('Nenhuma imagem encontrada', true);
-      return;
-    }
-
-    modal.innerHTML = '<h3>Escolha um pictograma</h3>';
-    const picGrid = document.createElement('div');
-    picGrid.style.cssText = `
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-    `;
-
-    data.slice(0,9).forEach(p => {
-      const img = document.createElement('img');
-      img.src = `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
-      img.style.width = '100%';
-      img.style.cursor = 'pointer';
-      img.onclick = () => {
-        item.img = img.src;
-        renderBoard();
-        overlay.remove();
-      };
-      picGrid.appendChild(img);
-    });
-
-    modal.appendChild(picGrid);
-  };
-
-  // 📁 Upload imagem
-  modal.querySelector('#uploadImg').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      item.img = ev.target.result;
-      renderBoard();
-      overlay.remove();
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // 💾 Salvar
-  modal.querySelector('#saveEdit').onclick = () => {
-    item.customText = document.getElementById('editText').value.trim();
-    item.bgColor = document.getElementById('bgColor').value;
-    item.borderColor = document.getElementById('borderColor').value;
+  modal.querySelector('#saveEdit').onclick=()=>{
+    item.customText=editText.value.trim();
+    item.bgColor=bgColor.value;
+    item.borderColor=borderColor.value;
     renderBoard();
     overlay.remove();
   };
 
-  modal.querySelector('#closeEdit').onclick = () => overlay.remove();
+  modal.querySelector('#uploadImg').onchange=e=>{
+    const r=new FileReader();
+    r.onload=ev=>{ item.img=ev.target.result; renderBoard(); overlay.remove(); };
+    r.readAsDataURL(e.target.files[0]);
+  };
+
+  modal.querySelector('#searchPic').onclick=async()=>{
+    const res=await fetch(API+encodeURIComponent(item.word));
+    const data=await res.json();
+    modal.innerHTML='<h3>Escolha</h3>';
+    data.slice(0,9).forEach(p=>{
+      const img=document.createElement('img');
+      img.src=`https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
+      img.onclick=()=>{ item.img=img.src; renderBoard(); overlay.remove(); };
+      modal.appendChild(img);
+    });
+  };
 }
 
-function saveBoard() {
-  const list = loadLS();
-  list.push({
-    id: Date.now(),
-    date: new Date().toLocaleString('pt-BR'),
-    board: currentBoard
+function saveBoard(){
+  const list=loadLS();
+  list.push({id:Date.now(),date:new Date().toLocaleString('pt-BR'),board:currentBoard});
+  saveLS(list); renderHistory(); toast('Prancha salva!');
+}
+
+function clearBoard(){ currentBoard=[]; board.innerHTML=''; phraseInput.value=''; }
+
+function renderHistory(){
+  historyList.innerHTML='';
+  loadLS().reverse().forEach(b=>{
+    const d=document.createElement('div');
+    d.className='history-item';
+    d.innerHTML=`${b.date}<br>${b.board.map(x=>x.word).join(' ')}`;
+    historyList.appendChild(d);
   });
-  saveLS(list);
-  renderHistory();
-  toast('Prancha salva!');
 }
 
-function clearBoard() {
-  currentBoard = [];
-  board.innerHTML = '';
-  phraseInput.value = '';
-}
-
-function renderHistory() {
-  const list = loadLS();
-  historyList.innerHTML = '';
-
-  [...list].reverse().forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `
-      <strong>${item.date}</strong><br>
-      ${item.board.map(b => b.word).join(' ')}
-      <br>
-      <button onclick="deleteBoard(${item.id})">🗑️ Excluir</button>
-    `;
-    historyList.appendChild(div);
-  });
-}
-
-function deleteBoard(id) {
-  let list = loadLS();
-  list = list.filter(b => b.id !== id);
-  saveLS(list);
-  renderHistory();
-  toast('Excluída!');
-}
-
-function exportBoardToPDF() {
-  html2canvas(board).then(canvas => {
-    const img = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('landscape');
-    pdf.addImage(img, 'PNG', 10, 10, 280, 0);
+function exportBoardToPDF(){
+  html2canvas(board).then(c=>{
+    const pdf=new window.jspdf.jsPDF('landscape');
+    pdf.addImage(c.toDataURL(),'PNG',10,10,280,0);
     pdf.save('prancha-neurocaa.pdf');
   });
 }
