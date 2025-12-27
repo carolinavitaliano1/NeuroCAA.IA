@@ -119,25 +119,27 @@
 </div>
 
 <script>
+/* ===================== CONFIG ===================== */
 const API = 'https://api.arasaac.org/api/pictograms/pt/search/';
 let currentBoard = [];
 
 const CAA_COLORS = [
   { name:'Amarelo', color:'#FDE047', label:'Pessoas / Pronomes' },
   { name:'Verde', color:'#86EFAC', label:'Verbos / Ações' },
-  { name:'Azul', color:'#93C5FD', label:'Adjetivos' },
-  { name:'Laranja', color:'#FDBA74', label:'Substantivos' },
+  { name:'Azul', color:'#93C5FD', label:'Adjetivos / Descrições' },
+  { name:'Laranja', color:'#FDBA74', label:'Objetos / Substantivos' },
   { name:'Rosa', color:'#F9A8D4', label:'Expressões sociais' },
-  { name:'Branco', color:'#FFFFFF', label:'Artigos' },
+  { name:'Branco', color:'#FFFFFF', label:'Artigos / Conjunções' },
   { name:'Roxo', color:'#C4B5FD', label:'Preposições' },
   { name:'Marrom', color:'#D6B28A', label:'Advérbios' }
 ];
 
-function toast(msg, error=false) {
-  const t = document.createElement('div');
-  t.className = 'toast';
+/* ===================== UTIL ===================== */
+function toast(msg, error=false){
+  const t=document.createElement('div');
+  t.className='toast';
   if(error) t.style.background='#f56565';
-  t.textContent = msg;
+  t.textContent=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),3000);
 }
@@ -145,17 +147,20 @@ function toast(msg, error=false) {
 function saveLS(data){ localStorage.setItem('pranchas',JSON.stringify(data)); }
 function loadLS(){ return JSON.parse(localStorage.getItem('pranchas')||'[]'); }
 
+/* ===================== GERAÇÃO ===================== */
 async function generateBoard(){
   const phrase = phraseInput.value.trim();
   if(!phrase) return;
 
   currentBoard = [];
+
   for(const word of phrase.split(/\s+/)){
     let data=[];
     try{
       const res=await fetch(API+encodeURIComponent(word));
       data=await res.json();
     }catch{}
+
     const pic=data[0];
     currentBoard.push({
       word,
@@ -168,8 +173,10 @@ async function generateBoard(){
   renderBoard();
 }
 
+/* ===================== RENDER ===================== */
 function renderBoard(){
   board.innerHTML='';
+
   const title=boardTitle.value.trim();
   if(title){
     const t=document.createElement('div');
@@ -192,162 +199,115 @@ function renderBoard(){
     board.appendChild(cell);
   });
 }
-<script>
-async function openQuickEditModal(index) {
-  const item = currentBoard[index];
-  let target = null; // 'bg' ou 'border'
 
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:9999;
-  `;
+/* ===================== MODAL ===================== */
+async function openQuickEditModal(index){
+  const item=currentBoard[index];
+  let target=null;
 
-  const modal = document.createElement('div');
-  modal.style.cssText = `
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    max-width:420px;
-    width:100%;
-  `;
+  const overlay=document.createElement('div');
+  overlay.style.cssText=`position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999`;
 
-  modal.innerHTML = `
+  const modal=document.createElement('div');
+  modal.style.cssText=`background:#fff;padding:20px;border-radius:12px;max-width:420px;width:100%`;
+
+  modal.innerHTML=`
     <h3>✏️ Editar "${item.word}"</h3>
 
     <label>Texto:</label>
-    <input id="editText" value="${item.customText || item.word}"
-      style="width:100%; padding:8px; margin-bottom:10px"/>
+    <input id="editText" value="${item.customText||item.word}" style="width:100%;margin-bottom:8px">
 
-    <label>🎨 Fundo:</label>
-    <button id="btnBg" style="width:100%; padding:8px; margin-bottom:8px">
-      Selecionar cor semântica
-    </button>
+    <button id="btnBg">🎨 Fundo</button>
+    <button id="btnBorder">🖍️ Borda</button>
 
-    <label>🖍️ Borda:</label>
-    <button id="btnBorder" style="width:100%; padding:8px; margin-bottom:10px">
-      Selecionar cor semântica
-    </button>
+    <div id="colorPanel" style="display:none;margin:10px 0"></div>
 
-    <div id="colorPanel" style="display:none; margin-bottom:10px"></div>
+    <button id="searchPic">🔍 Buscar outro pictograma</button><br><br>
+    <input type="file" id="uploadImg"><br><br>
 
-    <button id="searchPic" style="
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding:8px 10px;
-      cursor:pointer;
-      margin-bottom:10px;
-    ">
-      <span>🔍</span>
-      <span>Buscar outro pictograma</span>
-    </button>
-
-    <input type="file" id="uploadImg" accept="image/*" />
-
-    <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end">
-      <button id="saveEdit">💾 Salvar</button>
-      <button id="closeEdit">❌ Fechar</button>
-    </div>
+    <button id="saveEdit">💾 Salvar</button>
+    <button id="closeEdit">❌ Fechar</button>
   `;
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  const colorPanel = modal.querySelector('#colorPanel');
-
-  function renderColors() {
-    colorPanel.innerHTML = '';
-    colorPanel.style.display = 'block';
-
-    CAA_COLORS.forEach(c => {
-      const btn = document.createElement('button');
-      btn.textContent = `${c.name} – ${c.label}`;
-      btn.style.cssText = `
-        background:${c.color};
-        border:2px solid #333;
-        padding:6px;
-        border-radius:6px;
-        margin-bottom:4px;
-        width:100%;
-        cursor:pointer;
-        text-align:left;
-      `;
-      btn.onclick = () => {
-        if (target === 'bg') item.bgColor = c.color;
-        if (target === 'border') item.borderColor = c.color;
+  const panel=modal.querySelector('#colorPanel');
+  function showColors(type){
+    target=type;
+    panel.innerHTML='';
+    panel.style.display='block';
+    CAA_COLORS.forEach(c=>{
+      const b=document.createElement('button');
+      b.textContent=`${c.name} – ${c.label}`;
+      b.style.background=c.color;
+      b.onclick=()=>{
+        if(target==='bg') item.bgColor=c.color;
+        if(target==='border') item.borderColor=c.color;
         renderBoard();
-        colorPanel.style.display = 'none';
       };
-      colorPanel.appendChild(btn);
+      panel.appendChild(b);
     });
   }
 
-  modal.querySelector('#btnBg').onclick = () => {
-    target = 'bg';
-    renderColors();
-  };
+  modal.querySelector('#btnBg').onclick=()=>showColors('bg');
+  modal.querySelector('#btnBorder').onclick=()=>showColors('border');
 
-  modal.querySelector('#btnBorder').onclick = () => {
-    target = 'border';
-    renderColors();
-  };
-
-  modal.querySelector('#searchPic').onclick = async () => {
-    const res = await fetch(API + encodeURIComponent(item.word));
-    const data = await res.json();
-    if (!data.length) {
-      toast('Nenhuma imagem encontrada', true);
-      return;
-    }
-
-    modal.innerHTML = '<h3>Escolha um pictograma</h3>';
-    const grid = document.createElement('div');
-    grid.style.cssText = `
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-    `;
-
-    data.slice(0,9).forEach(p => {
-      const img = document.createElement('img');
-      img.src = `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
-      img.style.width = '100%';
-      img.style.cursor = 'pointer';
-      img.onclick = () => {
-        item.img = img.src;
-        renderBoard();
-        overlay.remove();
-      };
-      grid.appendChild(img);
+  modal.querySelector('#searchPic').onclick=async()=>{
+    const res=await fetch(API+encodeURIComponent(item.word));
+    const data=await res.json();
+    if(!data.length){toast('Nenhuma imagem',true);return;}
+    modal.innerHTML='<h3>Escolha um pictograma</h3>';
+    data.slice(0,9).forEach(p=>{
+      const img=document.createElement('img');
+      img.src=`https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
+      img.onclick=()=>{item.img=img.src;renderBoard();overlay.remove();}
+      modal.appendChild(img);
     });
-
-    modal.appendChild(grid);
   };
 
-  modal.querySelector('#uploadImg').onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      item.img = ev.target.result;
-      renderBoard();
-      overlay.remove();
-    };
-    reader.readAsDataURL(file);
+  modal.querySelector('#uploadImg').onchange=e=>{
+    const r=new FileReader();
+    r.onload=ev=>{item.img=ev.target.result;renderBoard();overlay.remove();}
+    r.readAsDataURL(e.target.files[0]);
   };
 
-  modal.querySelector('#saveEdit').onclick = () => {
-    item.customText = document.getElementById('editText').value.trim();
-    renderBoard();
-    overlay.remove();
+  modal.querySelector('#saveEdit').onclick=()=>{
+    item.customText=document.getElementById('editText').value;
+    renderBoard();overlay.remove();
   };
-
-  modal.querySelector('#closeEdit').onclick = () => overlay.remove();
+  modal.querySelector('#closeEdit').onclick=()=>overlay.remove();
 }
+
+/* ===================== SALVAR / PDF ===================== */
+function saveBoard(){
+  const l=loadLS();
+  l.push({id:Date.now(),date:new Date().toLocaleString('pt-BR'),board:currentBoard});
+  saveLS(l);renderHistory();toast('Salvo!');
+}
+
+function clearBoard(){currentBoard=[];board.innerHTML='';phraseInput.value='';}
+
+function renderHistory(){
+  historyList.innerHTML='';
+  loadLS().reverse().forEach(i=>{
+    const d=document.createElement('div');
+    d.className='history-item';
+    d.innerHTML=`${i.date}<br>${i.board.map(b=>b.word).join(' ')}`;
+    historyList.appendChild(d);
+  });
+}
+
+function exportBoardToPDF(){
+  html2canvas(board).then(c=>{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF('landscape');
+    pdf.addImage(c.toDataURL(),'PNG',10,10,280,0);
+    pdf.save('prancha-neurocaa.pdf');
+  });
+}
+
+renderHistory();
 </script>
+</body>
+</html>
