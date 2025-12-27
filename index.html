@@ -150,17 +150,24 @@ async function generateBoard() {
   board.innerHTML = '';
 
   for (const word of phrase.split(/\s+/)) {
-    const res = await fetch(API + encodeURIComponent(word));
-    const data = await res.json();
+    let data = [];
+try {
+  const res = await fetch(API + encodeURIComponent(word));
+  data = await res.json();
+} catch (e) {
+  console.error('Erro ao buscar pictograma:', word);
+}
+
     const pic = data[0];
 
-    currentBoard.push({
+ currentBoard.push({
   word,
   img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null,
   customText: null,
   bgColor: '#ffffff',
   borderColor: '#e2e8f0'
 });
+
 
   }
 
@@ -329,7 +336,7 @@ function renderHistory() {
   const list = loadLS();
   historyList.innerHTML = '';
 
-  list.reverse().forEach(item => {
+  [...list].reverse().forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `
