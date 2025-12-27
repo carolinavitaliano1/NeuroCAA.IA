@@ -1,16 +1,29 @@
 <!doctype html>
 <html lang="pt-BR">
  <head>
+  <!-- PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Meta -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuroCAA - Communication Board</title>
-  <script src="/_sdk/data_sdk.js">
-window.onload = function () {
-  const pranchas = carregarPranchas();
-  console.log("Pranchas salvas:", pranchas);
-};
 
-</script>
+  <!-- Canva SDK (opcional fora do Canva) -->
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+
+  <!-- Seu código leve (opcional) -->
+  <script>
+    window.onload = function () {
+      if (typeof carregarPranchas === "function") {
+        console.log("Pranchas salvas:", carregarPranchas());
+      }
+    };
+  </script>
+</head>
+
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
@@ -799,10 +812,10 @@ window.onload = function () {
      <div class="preview-section">
       <div class="preview-header">
        <h3>👁️ Prévia da Prancha</h3>
-       <div class="action-buttons"><button class="btn-secondary" onclick="saveAdvancedBoard()"> ��� Salvar Prancha </button>
+       <div class="action-buttons"><button class="btn-secondary" onclick="saveAdvancedBoard()"> Salvar Prancha </button>
        </div>
       </div>
-      <div id="header-input-section" style="display: none; margin-bottom: 1.5rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;"> �� Texto do Cabeçalho (primeira linha): </label> <input type="text" id="board-header-title" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;" placeholder="Digite o texto que aparecer�� no cabeçalho...">
+      <div id="header-input-section" style="display: none; margin-bottom: 1.5rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;"> Texto do Cabeçalho (primeira linha): </label> <input type="text" id="board-header-title" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box;" placeholder="Digite o texto que aparecer�� no cabeçalho...">
       </div>
       <div class="preview-board">
        <div id="advanced-board-grid" class="board-grid">
@@ -1468,25 +1481,34 @@ function carregarPranchas() {
       showToast('Configurações aplicadas a todas as células!');
     }
 
-    async function saveAdvancedBoard() {
-      if (advancedBoardCells.length === 0) {
-        showToast('Gere uma prévia da prancha primeiro', 'error');
-        return;
-      }
+    function saveAdvancedBoard() {
+  if (advancedBoardCells.length === 0) {
+    showToast('Gere uma prévia da prancha primeiro', 'error');
+    return;
+  }
 
-      if (savedBoards.length >= 999) {
-        showLimitWarning();
-        return;
-      }
+  const includeHeader = document.getElementById('include-header').checked;
+  const headerText = includeHeader ? document.getElementById('board-header-title').value.trim() : '';
 
-      const includeHeader = document.getElementById('include-header').checked;
-      const headerText = includeHeader ? document.getElementById('board-header-title').value.trim() : '';
-      const boardTitle = 'Prancha Avançada';
+  const board = {
+    id: Date.now().toString(),
+    phrase: `Prancha ${gridRows.value}x${gridCols.value}`,
+    board_title: 'Prancha Avançada',
+    header_text: headerText,
+    board_data: JSON.stringify(advancedBoardCells),
+    created_at: new Date().toISOString()
+  };
 
-      const phrase = `Prancha ${parseInt(document.getElementById('grid-rows').value)}x${parseInt(document.getElementById('grid-cols').value)}`;
-      const boardData = JSON.stringify(advancedBoardCells);
+  const pranchas = carregarPranchas();
+  pranchas.push(board);
+  salvarNoLocalStorage("pranchas", pranchas);
 
-      const result = await window.dataSdk.create({
+  savedBoards = pranchas;
+  renderHistory();
+
+  showToast('💾 Prancha avançada salva!');
+}
+
         id: Date.now().toString(),
         patient_name: 'Paciente',
         phrase: phrase,
@@ -1627,24 +1649,37 @@ function carregarPranchas() {
       actionsContainer.innerHTML = `
         <div class="action-buttons">
           <button class="save-btn" onclick="saveBoard()">💾 Salvar Prancha</button>
+<button class="pdf-btn" onclick="exportBoardToPDF('board-display','prancha-rapida.pdf')">📄 PDF</button>
           <button class="clear-btn" onclick="clearBoard()">🗑️ Limpar</button>
         </div>
       `;
     }
 
-    async function saveBoard() {
-      if (currentBoard.length === 0) return;
+    function saveBoard() {
+  if (currentBoard.length === 0) return;
 
-      if (savedBoards.length >= 999) {
-        showLimitWarning();
-        return;
-      }
+  const phrase = document.getElementById('phrase-input').value.trim();
+  const boardTitle = document.getElementById('board-title-input').value.trim();
 
-      const phrase = document.getElementById('phrase-input').value.trim();
-      const boardTitle = document.getElementById('board-title-input').value.trim();
-      const boardData = JSON.stringify(currentBoard);
+  const board = {
+    id: Date.now().toString(),
+    phrase,
+    board_title: boardTitle,
+    board_data: JSON.stringify(currentBoard),
+    created_at: new Date().toISOString()
+  };
 
-      const result = await window.dataSdk.create({
+  const pranchas = carregarPranchas();
+  pranchas.push(board);
+  salvarNoLocalStorage("pranchas", pranchas);
+
+  savedBoards = pranchas;
+  renderHistory();
+  clearBoard();
+
+  showToast('💾 Prancha salva com sucesso!');
+}
+
         id: Date.now().toString(),
         patient_name: 'Paciente',
         phrase: phrase,
@@ -2248,6 +2283,46 @@ function carregarPranchas() {
       }, 3000);
     }
 
+// ===============================
+// EXPORTAÇÃO DE PRANCHA PARA PDF
+// ===============================
+async function exportBoardToPDF(elementId, filename = 'prancha-neurocaa.pdf') {
+  const element = document.getElementById(elementId);
+
+  if (!element) {
+    showToast('Nada para exportar', 'error');
+    return;
+  }
+
+  showToast('📄 Gerando PDF...', 'info');
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+
+  pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
+  pdf.save(filename);
+}
+
     function showLimitWarning() {
       showToast('⚠️ Limite de 999 pranchas atingido', 'error');
     }
@@ -2272,25 +2347,14 @@ function carregarPranchas() {
       }
     });
 
-    const dataHandler = {
-      onDataChanged(data) {
-        savedBoards = data;
-        renderHistory();
-      }
-    };
+    function initApp() {
+  savedBoards = carregarPranchas();
+  renderBoard();
+  renderHistory();
+}
 
-    async function init() {
-      const initResult = await window.dataSdk.init(dataHandler);
-      
-      if (!initResult.isOk) {
-        showToast('Erro ao inicializar dados', 'error');
-        return;
-      }
+initApp();
 
-      renderBoard();
-    }
-
-    init();
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b42036420822754',t:'MTc2Njc2NzE1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
