@@ -164,15 +164,127 @@ async function generateBoard() {
 }
 
 function renderBoard() {
-  board.innerHTML = '';
-  currentBoard.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'cell';
-    if (c.img) div.innerHTML = `<img src="${c.img}"><div>${c.word}</div>`;
-    else div.innerHTML = `<div>${c.word}</div>`;
-    board.appendChild(div);
+  const container = document.getElementById('board');
+  container.innerHTML = '';
+
+  currentBoard.forEach((item, index) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.style.cursor = 'pointer';
+
+    cell.innerHTML = `
+      ${item.img ? `<img src="${item.img}" />` : ''}
+      <div>${item.customText || item.word}</div>
+    `;
+
+    cell.onclick = () => openQuickEditModal(index);
+    container.appendChild(cell);
   });
 }
+
+function openQuickEditModal(index) {
+  const item = currentBoard[index];
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 100%;
+  `;
+
+  modal.innerHTML = `
+    <h3>✏️ Editar "${item.word}"</h3>
+
+    <input id="editText" value="${item.customText || item.word}"
+      style="width:100%; padding:10px; margin:10px 0"/>
+
+    <button onclick="searchQuickImage(${index})">🔍 Buscar pictograma</button>
+    <br><br>
+    <input type="file" id="uploadImg" accept="image/*"/>
+
+    <br><br>
+    <button onclick="saveQuickText(${index})">💾 Salvar</button>
+    <button onclick="this.closest('.overlay')?.remove()">❌ Fechar</button>
+  `;
+
+  overlay.className = 'overlay';
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  document.getElementById('uploadImg').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      currentBoard[index].img = ev.target.result;
+      renderBoard();
+      overlay.remove();
+    };
+    reader.readAsDataURL(file);
+  };
+}
+
+async function searchQuickImage(index) {
+  const word = currentBoard[index].word;
+  const res = await fetch(API + encodeURIComponent(word));
+  const data = await res.json();
+
+  if (!data.length) {
+    toast('Nenhuma imagem encontrada', true);
+    return;
+  }
+
+  const overlay = document.querySelector('.overlay');
+  overlay.innerHTML = '';
+
+  const grid = document.createElement('div');
+  grid.style.cssText = `
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  `;
+
+  data.slice(0, 9).forEach(p => {
+    const img = document.createElement('img');
+    img.src = `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
+    img.style.width = '100%';
+    img.style.cursor = 'pointer';
+    img.onclick = () => {
+      currentBoard[index].img = img.src;
+      renderBoard();
+      overlay.remove();
+    };
+    grid.appendChild(img);
+  });
+
+  overlay.appendChild(grid);
+}
+
+function saveQuickText(index) {
+  const input = document.getElementById('editText');
+  if (input && input.value.trim()) {
+    currentBoard[index].customText = input.value.trim();
+    renderBoard();
+    document.querySelector('.overlay')?.remove();
+  }
+}
+
 
 function saveBoard() {
   const list = loadLS();
