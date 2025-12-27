@@ -1,4 +1,4 @@
-const pictogramCache = {}; // cache simples em memória
+const pictogramCache = {}; // cache simples
 
 function openQuickEditModal(index) {
   const item = currentBoard[index];
@@ -45,12 +45,16 @@ function openQuickEditModal(index) {
       <div style="grid-column:1/-1; text-align:center">⏳ Carregando imagens...</div>
     </div>
 
-    <strong>Ou busque outro pictograma</strong>
+    <strong>🔍 Buscar outro pictograma</strong>
     <div style="display:flex; gap:6px; margin:6px 0 12px">
       <input id="searchWord" placeholder="Digite outra palavra"
         style="flex:1; padding:8px"/>
       <button id="searchBtn">🔍</button>
     </div>
+
+    <strong>📁 Ou anexar imagem do dispositivo</strong>
+    <input type="file" id="uploadImg" accept="image/*"
+      style="width:100%; margin:8px 0 15px"/>
 
     <div style="display:flex; gap:10px; justify-content:flex-end">
       <button id="save">💾 Salvar</button>
@@ -77,9 +81,11 @@ function openQuickEditModal(index) {
       pictogramCache[word] = data;
       renderImages(data);
     } catch {
-      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center;color:red">
-        Erro ao carregar imagens
-      </div>`;
+      grid.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; color:red">
+          Erro ao carregar imagens
+        </div>
+      `;
     }
   }
 
@@ -103,14 +109,30 @@ function openQuickEditModal(index) {
     });
   }
 
-  // 🔥 BUSCA AUTOMÁTICA AO ABRIR
+  // 🔥 carrega automaticamente ao abrir
   loadImages(item.word);
 
+  // 🔍 busca por nova palavra
   modal.querySelector('#searchBtn').onclick = () => {
     const w = modal.querySelector('#searchWord').value.trim();
     if (w) loadImages(w);
   };
 
+  // 📁 upload de imagem local
+  modal.querySelector('#uploadImg').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      item.img = ev.target.result;
+      renderBoard();
+      overlay.remove();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 💾 salvar texto
   modal.querySelector('#save').onclick = () => {
     item.customText = modal.querySelector('#editText').value.trim();
     renderBoard();
@@ -121,4 +143,5 @@ function openQuickEditModal(index) {
 }
 
 window.openQuickEditModal = openQuickEditModal;
+
 
