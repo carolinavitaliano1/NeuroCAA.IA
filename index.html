@@ -149,18 +149,19 @@ async function generateBoard() {
   currentBoard = [];
   board.innerHTML = '';
 
-  for (const word of phrase.split(' ')) {
-    const res = await fetch(API + word);
+  for (const word of phrase.split(/\s+/)) {
+    const res = await fetch(API + encodeURIComponent(word));
     const data = await res.json();
     const pic = data[0];
 
     currentBoard.push({
-      word,
-      img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null
- customText: null,
+  word,
+  img: pic ? `https://static.arasaac.org/pictograms/${pic._id}/${pic._id}_300.png` : null,
+  customText: null,
   bgColor: '#ffffff',
   borderColor: '#e2e8f0'
-    });
+});
+
   }
 
   renderBoard();
