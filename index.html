@@ -106,6 +106,16 @@
       <input id="phraseInput" placeholder="Digite a frase..." />
       <button class="generate" onclick="generateBoard()">Gerar</button>
     </div>
+<input
+  id="boardTitle"
+  placeholder="Título da prancha (opcional)"
+  style="
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+    font-size:14px;
+  "
+/>
 
     <div id="board" class="board"></div>
 
@@ -124,6 +134,18 @@
 <script>
 const API = 'https://api.arasaac.org/api/pictograms/pt/search/';
 let currentBoard = [];
+
+const CAA_COLORS = [
+  { name: 'Amarelo', color: '#FDE047', label: 'Pessoas / Pronomes' },
+  { name: 'Verde',   color: '#86EFAC', label: 'Verbos / Ações' },
+  { name: 'Azul',    color: '#93C5FD', label: 'Adjetivos / Descrições' },
+  { name: 'Laranja', color: '#FDBA74', label: 'Objetos / Substantivos' },
+  { name: 'Rosa',    color: '#F9A8D4', label: 'Expressões sociais' },
+  { name: 'Branco',  color: '#FFFFFF', label: 'Artigos / Conjunções' },
+  { name: 'Roxo',    color: '#C4B5FD', label: 'Preposições' },
+  { name: 'Marrom',  color: '#D6B28A', label: 'Advérbios' }
+];
+
 
 function toast(msg, error=false) {
   const t = document.createElement('div');
@@ -175,8 +197,24 @@ try {
 }
 
 function renderBoard() {
+  function renderBoard() {
   const container = document.getElementById('board');
   container.innerHTML = '';
+
+  const title = document.getElementById('boardTitle').value.trim();
+  if (title) {
+    const titleDiv = document.createElement('div');
+    titleDiv.style.cssText = `
+      width:100%;
+      text-align:center;
+      font-weight:700;
+      font-size:18px;
+      margin-bottom:10px;
+    `;
+    titleDiv.textContent = title;
+    container.appendChild(titleDiv);
+  }
+
 
   currentBoard.forEach((item, index) => {
     const cell = document.createElement('div');
@@ -227,11 +265,11 @@ function openQuickEditModal(index) {
       style="width:100%; padding:8px; margin:8px 0"/>
 
     <label>🎨 Cor de fundo:</label>
-    <input type="color" id="bgColor" value="${item.bgColor || '#ffffff'}"
+     value="${item.bgColor || '#ffffff'}"
       style="width:100%; height:40px; margin-bottom:10px"/>
 
     <label>🖍️ Cor da borda:</label>
-    <input type="color" id="borderColor" value="${item.borderColor || '#e2e8f0'}"
+    value="${item.borderColor || '#e2e8f0'}"
       style="width:100%; height:40px; margin-bottom:10px"/>
 
     <button onclick="searchQuickImage(${index})">🔍 Buscar pictograma</button>
@@ -240,6 +278,43 @@ function openQuickEditModal(index) {
     <input type="file" id="uploadImg" accept="image/*"/>
 
     <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end">
+const colorSection = document.createElement('div');
+colorSection.style.margin = '12px 0';
+colorSection.innerHTML = '<strong>🎨 Categoria semântica (CAA)</strong>';
+
+const colorGrid = document.createElement('div');
+colorGrid.style.cssText = `
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:6px;
+  margin-top:6px;
+`;
+
+CAA_COLORS.forEach(c => {
+  const btn = document.createElement('button');
+  btn.textContent = `${c.name} – ${c.label}`;
+  btn.style.cssText = `
+    background:${c.color};
+    border:2px solid #333;
+    padding:6px;
+    border-radius:6px;
+    font-size:12px;
+    cursor:pointer;
+    text-align:left;
+  `;
+
+  btn.onclick = () => {
+    currentBoard[index].bgColor = c.color;
+    currentBoard[index].borderColor = c.color;
+    renderBoard();
+  };
+
+  colorGrid.appendChild(btn);
+});
+
+colorSection.appendChild(colorGrid);
+modal.appendChild(colorSection);
+
       <button onclick="saveQuickEdit(${index})">💾 Salvar</button>
       <button onclick="document.querySelector('.overlay').remove()">❌ Fechar</button>
     </div>
