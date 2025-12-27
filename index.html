@@ -232,10 +232,142 @@ function renderBoard() {
   });
 }
 
-function openQuickEditModal(index) {
+<script>
+async function openQuickEditModal(index) {
   const item = currentBoard[index];
-alert('Modal de edição ainda em construção 😄');
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+  `;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    max-width:420px;
+    width:100%;
+  `;
+
+  modal.innerHTML = `
+    <h3>✏️ Editar "${item.word}"</h3>
+
+    <label>Texto:</label>
+    <input id="editText" value="${item.customText || item.word}"
+      style="width:100%; padding:8px; margin-bottom:10px"/>
+
+    <label>🎨 Cor de fundo:</label>
+    <input type="color" id="bgColor" value="${item.bgColor}"
+      style="width:100%; height:40px; margin-bottom:10px"/>
+
+    <label>🖍️ Cor da borda:</label>
+    <input type="color" id="borderColor" value="${item.borderColor}"
+      style="width:100%; height:40px; margin-bottom:10px"/>
+
+    <strong>📚 Categoria semântica (CAA)</strong>
+    <div id="colorGrid" style="margin:10px 0"></div>
+
+    <button id="searchPic">🔍 Buscar outro pictograma</button>
+    <br><br>
+
+    <input type="file" id="uploadImg" accept="image/*"/>
+
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end">
+      <button id="saveEdit">💾 Salvar</button>
+      <button id="closeEdit">❌ Fechar</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // 🎨 Botões CAA
+  const grid = modal.querySelector('#colorGrid');
+  CAA_COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = `${c.name} – ${c.label}`;
+    btn.style.cssText = `
+      background:${c.color};
+      border:2px solid #333;
+      padding:6px;
+      border-radius:6px;
+      margin-bottom:4px;
+      width:100%;
+      cursor:pointer;
+      text-align:left;
+    `;
+    btn.onclick = () => {
+      item.bgColor = c.color;
+      item.borderColor = c.color;
+      renderBoard();
+    };
+    grid.appendChild(btn);
+  });
+
+  // 🔍 Buscar pictograma
+  modal.querySelector('#searchPic').onclick = async () => {
+    const res = await fetch(API + encodeURIComponent(item.word));
+    const data = await res.json();
+    if (!data.length) {
+      toast('Nenhuma imagem encontrada', true);
+      return;
+    }
+
+    modal.innerHTML = '<h3>Escolha um pictograma</h3>';
+    const picGrid = document.createElement('div');
+    picGrid.style.cssText = `
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    `;
+
+    data.slice(0,9).forEach(p => {
+      const img = document.createElement('img');
+      img.src = `https://static.arasaac.org/pictograms/${p._id}/${p._id}_300.png`;
+      img.style.width = '100%';
+      img.style.cursor = 'pointer';
+      img.onclick = () => {
+        item.img = img.src;
+        renderBoard();
+        overlay.remove();
+      };
+      picGrid.appendChild(img);
+    });
+
+    modal.appendChild(picGrid);
+  };
+
+  // 📁 Upload imagem
+  modal.querySelector('#uploadImg').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      item.img = ev.target.result;
+      renderBoard();
+      overlay.remove();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 💾 Salvar
+  modal.querySelector('#saveEdit').onclick = () => {
+    item.customText = document.getElementById('editText').value.trim();
+    item.bgColor = document.getElementById('bgColor').value;
+    item.borderColor = document.getElementById('borderColor').value;
+    renderBoard();
+    overlay.remove();
+  };
+
+  modal.querySelector('#closeEdit').onclick = () => overlay.remove();
 }
+</script>
 
 function saveBoard() {
   const list = loadLS();
