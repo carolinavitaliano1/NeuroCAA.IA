@@ -7,7 +7,9 @@ window.boardConfig = {
   headerColor: null,
   cellBgColor: null,
   cellBorderColor: null,
-  boardBorderColor: null
+  boardBorderColor: null,
+  columnsCount: null,
+  cellGap: null
 };
 
 /* =========================
@@ -66,7 +68,7 @@ async function generateBoard() {
     try {
       const res = await fetch(API + encodeURIComponent(word));
       data = await res.json();
-    } catch (e) {
+    } catch {
       console.warn('Erro ao buscar pictograma:', word);
     }
 
@@ -95,6 +97,15 @@ function renderBoard() {
   if (!board) return;
 
   board.innerHTML = '';
+
+  /* ---- Layout da prancha ---- */
+  if (boardConfig.columnsCount) {
+    board.style.gridTemplateColumns = `repeat(${boardConfig.columnsCount}, 1fr)`;
+  }
+
+  if (boardConfig.cellGap !== null) {
+    board.style.gap = `${boardConfig.cellGap}px`;
+  }
 
   /* ---- Borda da prancha ---- */
   if (boardConfig.boardBorderColor) {
@@ -144,8 +155,7 @@ function renderBoard() {
     `;
 
     /* ❌ Remover pictograma */
-    const removeBtn = cell.querySelector('.remove-btn');
-    removeBtn.onclick = (e) => {
+    cell.querySelector('.remove-btn').onclick = (e) => {
       e.stopPropagation();
       window.currentBoard.splice(index, 1);
       renderBoard();
@@ -179,6 +189,12 @@ function applyBoardConfig() {
   boardConfig.boardBorderColor =
     document.getElementById('boardBorderColor')?.value || null;
 
+  boardConfig.columnsCount =
+    document.getElementById('columnsCount')?.value || null;
+
+  boardConfig.cellGap =
+    document.getElementById('cellGap')?.value || null;
+
   renderBoard();
 }
 
@@ -203,3 +219,4 @@ window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
+
