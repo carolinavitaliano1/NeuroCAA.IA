@@ -1,28 +1,21 @@
 <!doctype html>
 <html lang="pt-BR">
  <head>
-  <!-- PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <!-- Meta -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuroCAA - Communication Board</title>
 
-  <!-- Canva SDK (opcional fora do Canva) -->
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
+  <!-- Bibliotecas para PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <!-- Seu código leve (opcional) -->
-  <script>
-    window.onload = function () {
-      if (typeof carregarPranchas === "function") {
-        console.log("Pranchas salvas:", carregarPranchas());
-      }
-    };
-  </script>
+  <!-- Estilos -->
+  <style>
+    /* TODO: seu CSS permanece aqui */
+  </style>
 </head>
+
 
   <script src="/_sdk/element_sdk.js"></script>
   <style>
@@ -1573,6 +1566,35 @@ function carregarPranchas() {
       document.getElementById('title-section').style.display = 'block';
     }
 
+function exportBoardToPDF(elementId, filename = 'prancha-neurocaa.pdf') {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    showToast('Nada para exportar', 'error');
+    return;
+  }
+
+  html2canvas(element, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 10, pageWidth, imgHeight);
+    pdf.save(filename);
+  });
+}
+
     function renderBoard() {
       const container = document.getElementById('board-display');
       const actionsContainer = document.getElementById('action-buttons');
@@ -1679,22 +1701,6 @@ function carregarPranchas() {
 
   showToast('💾 Prancha salva com sucesso!');
 }
-
-        id: Date.now().toString(),
-        patient_name: 'Paciente',
-        phrase: phrase,
-        board_title: boardTitle,
-        board_data: boardData,
-        created_at: new Date().toISOString()
-      });
-
-      if (result.isOk) {
-        showToast('Prancha salva com sucesso!');
-        clearBoard();
-      } else {
-        showToast('Erro ao salvar prancha', 'error');
-      }
-    }
 
     function clearBoard() {
       currentBoard = [];
@@ -2212,14 +2218,6 @@ function carregarPranchas() {
       const board = savedBoards.find(b => b.__backendId === boardId);
       if (!board) return;
 
-      const result = await window.dataSdk.delete(board);
-
-      if (result.isOk) {
-        showToast('Prancha excluída');
-      } else {
-        showToast('Erro ao excluir prancha', 'error');
-      }
-    }
 
     function renderHistory() {
       const container = document.getElementById('history-list');
