@@ -1,3 +1,7 @@
+/* =========================
+   BASE
+========================= */
+
 body {
   font-family: Arial, sans-serif;
   background: #f8f9fa;
@@ -13,187 +17,122 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
 
-h1 { text-align: center; }
+h1 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   ENTRADA DE FRASE
+========================= */
 
 .input-group {
   display: flex;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
 }
+
+/* =========================
+   BOTÕES
+========================= */
 
 button {
   padding: 10px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .generate { background:#667eea; color:#fff; }
-.save { background:#48bb78; color:#fff; }
-.pdf { background:#4299e1; color:#fff; }
-.clear { background:#f56565; color:#fff; }
+.save     { background:#48bb78; color:#fff; }
+.pdf      { background:#4299e1; color:#fff; }
+.clear    { background:#f56565; color:#fff; }
 
-.actions {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
+.apply-config {
+  background:#0ea5e9;
+  color:#fff;
+  margin-top: 10px;
+  width: 100%;
 }
+
+/* =========================
+   CONFIGURAÇÃO DA PRANCHA
+========================= */
+
+.board-config {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.board-config h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.config-field {
+  margin-bottom: 10px;
+}
+
+.config-field label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+/* =========================
+   PRANCHA
+========================= */
 
 .board {
-  display:grid;
-  grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
-  gap:10px;
-  margin-top:15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+  gap: 10px;
+  margin-top: 15px;
 }
 
-.cell {
-  padding:10px;
-  border-radius:8px;
-  text-align:center;
-  cursor:pointer;
-}
-
-.cell img {
-  max-width:80px;
-  max-height:80px;
-}
-
-.history {
-  margin-top:25px;
-}
-
-.history-item {
-  background:#f1f5f9;
-  padding:8px;
-  border-radius:6px;
-  margin-bottom:6px;
-}
-
-.toast {
-  position:fixed;
-  top:20px;
-  right:20px;
-  background:#48bb78;
-  color:white;
-  padding:10px;
-  border-radius:8px;
-}
+/* =========================
+   CÉLULAS
+========================= */
 
 .cell {
   position: relative;
-}
-
-.cell .remove-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 18px;
-  height: 18px;
-  background: #ef4444;
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: bold;
-  line-height: 18px;
+  padding: 10px;
+  border-radius: 8px;
   text-align: center;
   cursor: pointer;
-  display: none;
+  transition: transform .1s ease;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #f8f9fa;
-  padding: 20px;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
-}
-
-h1 { text-align: center; }
-
-.input-group {
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-button {
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
-.generate { background:#667eea; color:#fff; }
-.save { background:#48bb78; color:#fff; }
-.pdf { background:#4299e1; color:#fff; }
-.clear { background:#f56565; color:#fff; }
-
-.actions {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-.board {
-  display:grid;
-  grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
-  gap:10px;
-  margin-top:15px;
-}
-
-.cell {
-  padding:10px;
-  border-radius:8px;
-  text-align:center;
-  cursor:pointer;
+.cell:hover {
+  transform: scale(1.02);
 }
 
 .cell img {
-  max-width:80px;
-  max-height:80px;
+  max-width: 80px;
+  max-height: 80px;
+  display: block;
+  margin: 0 auto 5px;
 }
 
-.history {
-  margin-top:25px;
-}
-
-.history-item {
-  background:#f1f5f9;
-  padding:8px;
-  border-radius:6px;
-  margin-bottom:6px;
-}
-
-.toast {
-  position:fixed;
-  top:20px;
-  right:20px;
-  background:#48bb78;
-  color:white;
-  padding:10px;
-  border-radius:8px;
-}
-
-.cell {
-  position: relative;
-}
+/* =========================
+   BOTÃO ❌ REMOVER CÉLULA
+========================= */
 
 .cell .remove-btn {
   position: absolute;
@@ -215,3 +154,46 @@ button {
 .cell:hover .remove-btn {
   display: block;
 }
+
+/* =========================
+   AÇÕES
+========================= */
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* =========================
+   HISTÓRICO
+========================= */
+
+.history {
+  margin-top: 25px;
+}
+
+.history-item {
+  background:#f1f5f9;
+  padding:8px;
+  border-radius:6px;
+  margin-bottom:6px;
+  font-size: 13px;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background:#48bb78;
+  color:white;
+  padding:10px;
+  border-radius:8px;
+  font-size: 14px;
+  z-index: 9999;
+}
+
