@@ -99,3 +99,4 @@ function openQuickEditModal(index) {
 
   modal.querySelector('#close').onclick = () => overlay.remove();
 }
+  window.openQuickEditModal = openQuickEditModal;
