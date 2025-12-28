@@ -3,14 +3,14 @@ async function exportBoardToPDF() {
   if (!board) return;
 
   /* =========================
-     CONFIGURAÇÃO A4 (mm)
+     CONFIGURAÇÃO A4
   ========================= */
   const pageWidth = 210;
   const pageHeight = 297;
-  const margin = 10;
+  const marginTop = 15;
 
   /* =========================
-     CLONAR PRANCHA (PDF SAFE)
+     CLONE DA PRANCHA
   ========================= */
   const clone = board.cloneNode(true);
   clone.style.width = 'auto';
@@ -18,9 +18,6 @@ async function exportBoardToPDF() {
   clone.style.background = '#ffffff';
   clone.style.boxSizing = 'border-box';
 
-  /* =========================
-     CONTAINER TEMPORÁRIO
-  ========================= */
   const temp = document.createElement('div');
   temp.style.position = 'fixed';
   temp.style.left = '-9999px';
@@ -29,27 +26,26 @@ async function exportBoardToPDF() {
   document.body.appendChild(temp);
 
   /* =========================
-     AJUSTE DINÂMICO DA LARGURA
-     baseado no número de colunas
+     CÁLCULO DINÂMICO POR COLUNAS
   ========================= */
   const columns =
     window.boardConfig?.columnsCount ||
     getComputedStyle(board).gridTemplateColumns.split(' ').length;
 
-  const cellSize = 40; // mm base por célula
-  const gap = (window.boardConfig?.cellGap || 10) * 0.3;
+  const baseCellMM = 42;
+  const gapMM = (window.boardConfig?.cellGap || 10) * 0.25;
 
-  const estimatedWidth =
-    columns * cellSize + (columns - 1) * gap;
+  const estimatedWidthMM =
+    columns * baseCellMM + (columns - 1) * gapMM;
 
-  const scale =
-    (pageWidth - margin * 2) / estimatedWidth;
+  const maxUsableWidth = pageWidth - 20;
+  const scale = maxUsableWidth / estimatedWidthMM;
 
   clone.style.transform = `scale(${scale})`;
   clone.style.transformOrigin = 'top left';
 
   /* =========================
-     RENDER CANVAS
+     HTML → CANVAS
   ========================= */
   const canvas = await html2canvas(clone, {
     backgroundColor: '#ffffff',
@@ -60,17 +56,22 @@ async function exportBoardToPDF() {
 
   const imgData = canvas.toDataURL('image/png');
 
+  const imgWidth = maxUsableWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  /* =========================
+     CENTRALIZAÇÃO REAL
+  ========================= */
+  const xCentered = (pageWidth - imgWidth) / 2;
+
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('p', 'mm', 'a4');
-
-  const imgWidth = pageWidth - margin * 2;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   pdf.addImage(
     imgData,
     'PNG',
-    margin,
-    margin,
+    xCentered,
+    marginTop,
     imgWidth,
     imgHeight
   );
@@ -79,4 +80,3 @@ async function exportBoardToPDF() {
 
   document.body.removeChild(temp);
 }
-
