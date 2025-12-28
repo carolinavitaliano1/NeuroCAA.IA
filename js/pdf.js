@@ -18,6 +18,29 @@ async function exportBoardToPDF() {
   clone.style.background = '#ffffff';
   clone.style.boxSizing = 'border-box';
 
+  /* =========================
+     CRÉDITOS / RODAPÉ (PDF)
+  ========================= */
+  const footer = document.createElement('div');
+  footer.style.marginTop = '16px';
+  footer.style.paddingTop = '8px';
+  footer.style.borderTop = '1px solid #ccc';
+  footer.style.fontSize = '10px';
+  footer.style.color = '#444';
+  footer.style.textAlign = 'center';
+  footer.style.lineHeight = '1.4';
+
+  footer.innerHTML = `
+    © 2025 – NeuroCAA | Carol Gurgel<br>
+    Sistema protegido por direitos autorais.<br>
+    Pictogramas utilizados sob licença ARASAAC (CC BY-NC-SA 4.0).
+  `;
+
+  clone.appendChild(footer);
+
+  /* =========================
+     CONTAINER TEMPORÁRIO
+  ========================= */
   const temp = document.createElement('div');
   temp.style.position = 'fixed';
   temp.style.left = '-9999px';
@@ -78,5 +101,9 @@ async function exportBoardToPDF() {
 
   pdf.save(`prancha-neurocaa-A4-${Date.now()}.pdf`);
 
+  /* =========================
+     LIMPEZA
+  ========================= */
   document.body.removeChild(temp);
 }
+
