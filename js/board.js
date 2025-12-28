@@ -57,15 +57,21 @@ function populateCAASelects() {
 }
 
 /* =========================
-   GERAR PRANCHA
+   GERAR PRANCHA (COM FEEDBACK VISUAL)
 ========================= */
 
 async function generateBoard() {
   const phraseInput = document.getElementById('phraseInput');
-  if (!phraseInput) return;
+  const generateBtn = document.querySelector('.generate');
+
+  if (!phraseInput || !generateBtn) return;
 
   const phrase = phraseInput.value.trim();
   if (!phrase) return;
+
+  // 🔄 Estado visual: gerando
+  generateBtn.textContent = '⏳ Gerando...';
+  generateBtn.disabled = true;
 
   window.currentBoard = [];
   const words = phrase.split(/\s+/);
@@ -93,6 +99,10 @@ async function generateBoard() {
   }
 
   renderBoard();
+
+  // ✅ Volta ao estado normal
+  generateBtn.textContent = 'Gerar';
+  generateBtn.disabled = false;
 }
 
 /* =========================
@@ -239,3 +249,4 @@ window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
+
