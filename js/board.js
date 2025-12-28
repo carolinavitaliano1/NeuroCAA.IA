@@ -1,4 +1,3 @@
-
 /* =========================
    ESTADO GLOBAL DA PRANCHA
 ========================= */
@@ -43,8 +42,7 @@ function populateCAASelects() {
       const opt = document.createElement('option');
       opt.value = c.color;
 
-      // 🔥 REGRA DE EXIBIÇÃO
-      // Cabeçalho E borda da prancha → só nome da cor
+      // Cabeçalho e borda da prancha → só nome da cor
       if (id === 'headerColor' || id === 'boardBorderColor') {
         opt.textContent = c.name;
       } 
@@ -57,7 +55,6 @@ function populateCAASelects() {
     });
   });
 }
-
 
 /* =========================
    GERAR PRANCHA
@@ -117,7 +114,7 @@ function renderBoard() {
   }
 
   // Espaçamento
-  if (boardConfig.cellGap !== null) {
+  if (boardConfig.cellGap !== null && boardConfig.cellGap !== '') {
     board.style.gap = `${boardConfig.cellGap}px`;
   } else {
     board.style.gap = '';
@@ -133,32 +130,37 @@ function renderBoard() {
     board.style.padding = '';
   }
 
-  // Título
+  /* =========================
+     CABEÇALHO (COM OU SEM TÍTULO)
+  ========================= */
+
   const title = document.getElementById('boardTitle')?.value.trim();
-  / ---- CABEÇALHO (com ou sem título) ----
-const headerDiv = document.createElement('div');
-headerDiv.style.gridColumn = '1 / -1';
-headerDiv.style.marginBottom = '10px';
-headerDiv.style.textAlign = 'center';
 
-if (title) {
-  headerDiv.textContent = title;
-  headerDiv.style.fontWeight = '700';
-  headerDiv.style.padding = '8px';
+  const headerDiv = document.createElement('div');
+  headerDiv.style.gridColumn = '1 / -1';
+  headerDiv.style.marginBottom = '10px';
+  headerDiv.style.textAlign = 'center';
 
-  if (boardConfig.headerColor) {
-    headerDiv.style.background = boardConfig.headerColor;
-    headerDiv.style.borderRadius = '8px';
-  }
-} else {
-  // 🔥 Placeholder invisível para manter o layout
-  headerDiv.style.height = '16px';
-}
+  if (title) {
+    headerDiv.textContent = title;
+    headerDiv.style.fontWeight = '700';
+    headerDiv.style.padding = '8px';
 
-board.appendChild(headerDiv);
+    if (boardConfig.headerColor) {
+      headerDiv.style.background = boardConfig.headerColor;
+      headerDiv.style.borderRadius = '8px';
+    }
+  } else {
+    // Placeholder invisível para manter layout
+    headerDiv.style.height = '16px';
   }
 
-  // Células
+  board.appendChild(headerDiv);
+
+  /* =========================
+     CÉLULAS
+  ========================= */
+
   window.currentBoard.forEach((item, index) => {
     const cell = document.createElement('div');
     cell.className = 'cell';
