@@ -27,6 +27,14 @@
       <button class="generate" onclick="generateBoard()">Gerar</button>
     </div>
 
+    <!-- ℹ️ INSTRUÇÕES AO USUÁRIO -->
+    <div class="generate-info">
+      ⏳ <strong>Atenção:</strong> dependendo do tamanho do texto, a geração da prancha
+      pode levar até <strong>10 segundos</strong>.<br>
+      📐 Para um bom resultado visual, ajuste o <strong>número de colunas</strong> e o
+      <strong>espaçamento entre as células</strong> antes de aplicar a prancha.
+    </div>
+
     <!-- ⚙️ CONFIGURAÇÕES DA PRANCHA -->
     <div id="boardConfig" class="board-config">
       <h3>⚙️ Configurações da Prancha</h3>
@@ -60,7 +68,7 @@
         <select id="boardBorderColor"></select>
       </div>
 
-      <!-- 🧱 NOVO: NÚMERO DE COLUNAS -->
+      <!-- 🧱 NÚMERO DE COLUNAS -->
       <div class="config-field">
         <label for="columnsCount">Número de colunas</label>
         <input
@@ -72,7 +80,7 @@
         />
       </div>
 
-      <!-- ↔️ NOVO: ESPAÇAMENTO ENTRE CÉLULAS -->
+      <!-- ↔️ ESPAÇAMENTO ENTRE CÉLULAS -->
       <div class="config-field">
         <label for="cellGap">Espaçamento entre células (px)</label>
         <input
