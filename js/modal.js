@@ -4,18 +4,18 @@
 const pictogramCache = {};
 
 /* =========================
-   MODAL DE EDIÇÃO
+   MODAL DE EDIÇÃO DA CÉLULA
 ========================= */
 function openQuickEditModal(index) {
   const item = window.currentBoard[index];
 
-  /* ---- estado temporário ---- */
+  /* ===== ESTADO TEMPORÁRIO ===== */
   let tempImage = item.img;
   let tempBgColor = item.bgColor;
   let tempBorderColor = item.borderColor;
   let tempText = item.customText || item.word;
 
-  /* ---- overlay ---- */
+  /* ===== OVERLAY ===== */
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position:fixed;
@@ -27,13 +27,13 @@ function openQuickEditModal(index) {
     z-index:9999;
   `;
 
-  /* ---- modal ---- */
+  /* ===== MODAL ===== */
   const modal = document.createElement('div');
   modal.style.cssText = `
     background:#fff;
     padding:20px;
     border-radius:12px;
-    max-width:420px;
+    max-width:440px;
     width:100%;
     max-height:90vh;
     overflow:auto;
@@ -46,17 +46,27 @@ function openQuickEditModal(index) {
     <input id="editText" value="${tempText}"
       style="width:100%; padding:8px; margin-bottom:10px"/>
 
+    <!-- PREVIEW -->
     <div id="preview" style="
-      border:2px solid #cbd5f5;
+      border:2px dashed #cbd5f5;
       border-radius:10px;
       padding:10px;
       text-align:center;
       margin-bottom:12px;
     ">
-      ${tempImage ? `<img src="${tempImage}" style="max-width:120px"/>` : ''}
+      ${tempImage ? `<img src="${tempImage}" style="max-width:140px"/>` : 'Sem imagem'}
     </div>
 
-    <strong>🔄 Escolher outra imagem</strong>
+    <!-- 📎 ANEXAR IMAGEM -->
+    <label>📎 Anexar imagem do computador</label>
+    <input type="file" id="uploadImage" accept="image/*"
+      style="width:100%; margin-bottom:14px"/>
+
+    <hr>
+
+    <!-- ARASAAC -->
+    <strong>🔄 Escolher pictograma (ARASAAC)</strong>
+
     <div id="imageGrid" style="
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -73,13 +83,16 @@ function openQuickEditModal(index) {
       <button id="searchBtn">🔍</button>
     </div>
 
+    <hr>
+
+    <!-- CORES INDIVIDUAIS -->
     <strong>🎨 Cores da célula (individual)</strong>
 
     <label>Cor de fundo (CAA)</label>
     <select id="bgColorSelect" style="width:100%; margin-bottom:8px"></select>
 
     <label>Cor da borda (CAA)</label>
-    <select id="borderColorSelect" style="width:100%; margin-bottom:12px"></select>
+    <select id="borderColorSelect" style="width:100%; margin-bottom:14px"></select>
 
     <div style="display:flex; gap:10px; justify-content:flex-end">
       <button id="save">💾 Salvar</button>
@@ -91,7 +104,33 @@ function openQuickEditModal(index) {
   document.body.appendChild(overlay);
 
   /* =========================
-     POPULAR SELECTS CAA
+     PREVIEW
+  ========================= */
+  const preview = modal.querySelector('#preview');
+
+  function updatePreview() {
+    preview.innerHTML = tempImage
+      ? `<img src="${tempImage}" style="max-width:140px"/>`
+      : 'Sem imagem';
+  }
+
+  /* =========================
+     UPLOAD DE IMAGEM
+  ========================= */
+  modal.querySelector('#uploadImage').onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      tempImage = reader.result; // base64
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  /* =========================
+     SELECTS DE CORES
   ========================= */
   const bgSelect = modal.querySelector('#bgColorSelect');
   const borderSelect = modal.querySelector('#borderColorSelect');
@@ -118,10 +157,9 @@ function openQuickEditModal(index) {
   borderSelect.onchange = () => tempBorderColor = borderSelect.value || null;
 
   /* =========================
-     BUSCA DE IMAGENS
+     BUSCA ARASAAC
   ========================= */
   const grid = modal.querySelector('#imageGrid');
-  const preview = modal.querySelector('#preview');
 
   async function loadImages(word) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center">⏳ Carregando...</div>`;
@@ -144,7 +182,7 @@ function openQuickEditModal(index) {
 
       img.onclick = () => {
         tempImage = img.src;
-        preview.innerHTML = `<img src="${tempImage}" style="max-width:120px"/>`;
+        updatePreview();
       };
 
       grid.appendChild(img);
@@ -176,5 +214,6 @@ function openQuickEditModal(index) {
   };
 }
 
-/* expõe global */
+/* expor global */
 window.openQuickEditModal = openQuickEditModal;
+
