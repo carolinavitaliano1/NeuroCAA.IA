@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuroCAA | Painel</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>🧠 NeuroCAA</h1>
+
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:20px;
+      margin-top:30px
+    ">
+      <div class="board-card" onclick="location.href='index.html'">
+        🧩<br><strong>Pranchas de Comunicação</strong>
+        <p>Criar pranchas personalizadas com pictogramas ARASAAC</p>
+      </div>
+
+      <div class="board-card" onclick="location.href='rotinas.html'">
+        🛁<br><strong>Rotinas Passo a Passo</strong>
+        <p>Sequências visuais para atividades do dia a dia</p>
+      </div>
+    </div>
+
+    <button class="clear" style="margin-top:30px" onclick="logout()">Sair</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const auth = firebase.auth();
+    function logout() {
+      auth.signOut().then(() => location.href = 'login.html');
+    }
+  </script>
+</body>
+</html>
