@@ -135,21 +135,27 @@ function renderBoard() {
 
   // Título
   const title = document.getElementById('boardTitle')?.value.trim();
-  if (title) {
-    const titleDiv = document.createElement('div');
-    titleDiv.textContent = title;
-    titleDiv.style.gridColumn = '1 / -1';
-    titleDiv.style.textAlign = 'center';
-    titleDiv.style.fontWeight = '700';
-    titleDiv.style.padding = '8px';
-    titleDiv.style.marginBottom = '10px';
+  / ---- CABEÇALHO (com ou sem título) ----
+const headerDiv = document.createElement('div');
+headerDiv.style.gridColumn = '1 / -1';
+headerDiv.style.marginBottom = '10px';
+headerDiv.style.textAlign = 'center';
 
-    if (boardConfig.headerColor) {
-      titleDiv.style.background = boardConfig.headerColor;
-      titleDiv.style.borderRadius = '8px';
-    }
+if (title) {
+  headerDiv.textContent = title;
+  headerDiv.style.fontWeight = '700';
+  headerDiv.style.padding = '8px';
 
-    board.appendChild(titleDiv);
+  if (boardConfig.headerColor) {
+    headerDiv.style.background = boardConfig.headerColor;
+    headerDiv.style.borderRadius = '8px';
+  }
+} else {
+  // 🔥 Placeholder invisível para manter o layout
+  headerDiv.style.height = '16px';
+}
+
+board.appendChild(headerDiv);
   }
 
   // Células
