@@ -1,4 +1,3 @@
- alert("BOARD.JS ATUALIZADO CARREGOU");
 
 /* =========================
    ESTADO GLOBAL DA PRANCHA
