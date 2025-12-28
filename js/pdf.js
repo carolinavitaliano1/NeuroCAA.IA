@@ -1,6 +1,6 @@
 /* =========================
    EXPORTAÇÃO DA PRANCHA EM PDF (A4)
-   Com créditos institucionais
+   Imagens proporcionais + créditos no rodapé
 ========================= */
 
 async function exportBoardToPDF() {
@@ -10,8 +10,10 @@ async function exportBoardToPDF() {
   /* =========================
      CONFIGURAÇÃO A4
   ========================= */
-  const pageWidth = 210; // mm
+  const pageWidth = 210;   // mm
+  const pageHeight = 297;  // mm
   const marginTop = 15;
+  const marginBottom = 12;
 
   /* =========================
      CLONE DA PRANCHA
@@ -23,19 +25,16 @@ async function exportBoardToPDF() {
   clone.style.boxSizing = 'border-box';
 
   /* =========================
-     CRÉDITOS – LINHA ÚNICA (PADRÃO ARASAAC)
+     GARANTIR IMAGENS PROPORCIONAIS
   ========================= */
-  const creditsLine = document.createElement('div');
-  creditsLine.style.marginTop = '6px';
-  creditsLine.style.fontSize = '8px';
-  creditsLine.style.color = '#555';
-  creditsLine.style.textAlign = 'center';
-  creditsLine.style.whiteSpace = 'nowrap';
-
-  creditsLine.textContent =
-    '© 2025 – NeuroCAA | Carol Gurgel · Sistema protegido por direitos autorais · Pictogramas ARASAAC (CC BY-NC-SA 4.0)';
-
-  clone.appendChild(creditsLine);
+  clone.querySelectorAll('img').forEach(img => {
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+    img.style.margin = '0 auto';
+  });
 
   /* =========================
      CONTAINER TEMPORÁRIO
@@ -54,7 +53,7 @@ async function exportBoardToPDF() {
     window.boardConfig?.columnsCount ||
     getComputedStyle(board).gridTemplateColumns.split(' ').length;
 
-  const baseCellMM = 42; // tamanho base por célula
+  const baseCellMM = 42;
   const gapMM = (window.boardConfig?.cellGap || 10) * 0.25;
 
   const estimatedWidthMM =
@@ -80,14 +79,14 @@ async function exportBoardToPDF() {
   const imgWidth = maxUsableWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  /* =========================
-     CENTRALIZAÇÃO NA PÁGINA
-  ========================= */
   const xCentered = (pageWidth - imgWidth) / 2;
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('p', 'mm', 'a4');
 
+  /* =========================
+     ADICIONA PRANCHA
+  ========================= */
   pdf.addImage(
     imgData,
     'PNG',
@@ -95,6 +94,22 @@ async function exportBoardToPDF() {
     marginTop,
     imgWidth,
     imgHeight
+  );
+
+  /* =========================
+     CRÉDITOS NO RODAPÉ (FORA DA BORDA)
+  ========================= */
+  pdf.setFontSize(8);
+  pdf.setTextColor(90);
+
+  const creditsText =
+    '© 2025 – NeuroCAA | Carol Gurgel · Sistema protegido por direitos autorais · Pictogramas ARASAAC (CC BY-NC-SA 4.0)';
+
+  pdf.text(
+    creditsText,
+    pageWidth / 2,
+    pageHeight - marginBottom,
+    { align: 'center' }
   );
 
   pdf.save(`prancha-neurocaa-A4-${Date.now()}.pdf`);
