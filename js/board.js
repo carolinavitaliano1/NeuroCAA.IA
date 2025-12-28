@@ -17,9 +17,7 @@ window.boardConfig = {
 ========================= */
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof populateCAASelects === 'function') {
-    populateCAASelects();
-  }
+  populateCAASelects();
 });
 
 /* =========================
@@ -43,7 +41,14 @@ function populateCAASelects() {
     CAA_COLORS.forEach(c => {
       const opt = document.createElement('option');
       opt.value = c.color;
-      opt.textContent = `${c.name} – ${c.label}`;
+
+      // Cabeçalho: só nome da cor
+      if (id === 'headerColor') {
+        opt.textContent = c.name;
+      } else {
+        opt.textContent = `${c.name} – ${c.label}`;
+      }
+
       select.appendChild(opt);
     });
   });
@@ -98,7 +103,7 @@ function renderBoard() {
 
   board.innerHTML = '';
 
-  /* ---- Layout: colunas e espaçamento ---- */
+  // Colunas
   if (boardConfig.columnsCount) {
     board.style.gridTemplateColumns =
       `repeat(${boardConfig.columnsCount}, 1fr)`;
@@ -106,13 +111,14 @@ function renderBoard() {
     board.style.gridTemplateColumns = '';
   }
 
-  if (boardConfig.cellGap !== null && boardConfig.cellGap !== '') {
+  // Espaçamento
+  if (boardConfig.cellGap !== null) {
     board.style.gap = `${boardConfig.cellGap}px`;
   } else {
     board.style.gap = '';
   }
 
-  /* ---- Borda da prancha ---- */
+  // Borda da prancha
   if (boardConfig.boardBorderColor) {
     board.style.border = `4px solid ${boardConfig.boardBorderColor}`;
     board.style.borderRadius = '12px';
@@ -122,10 +128,8 @@ function renderBoard() {
     board.style.padding = '';
   }
 
-  /* ---- Título ---- */
-  const titleInput = document.getElementById('boardTitle');
-  const title = titleInput ? titleInput.value.trim() : '';
-
+  // Título
+  const title = document.getElementById('boardTitle')?.value.trim();
   if (title) {
     const titleDiv = document.createElement('div');
     titleDiv.textContent = title;
@@ -143,20 +147,13 @@ function renderBoard() {
     board.appendChild(titleDiv);
   }
 
-  /* ---- Células ---- */
+  // Células
   window.currentBoard.forEach((item, index) => {
     const cell = document.createElement('div');
     cell.className = 'cell';
 
-    const bg =
-      item.bgColor ||
-      boardConfig.cellBgColor ||
-      '#ffffff';
-
-    const border =
-      item.borderColor ||
-      boardConfig.cellBorderColor ||
-      '#e2e8f0';
+    const bg = item.bgColor || boardConfig.cellBgColor || '#ffffff';
+    const border = item.borderColor || boardConfig.cellBorderColor || '#e2e8f0';
 
     cell.style.background = bg;
     cell.style.border = `2px solid ${border}`;
@@ -167,17 +164,14 @@ function renderBoard() {
       <div>${item.customText || item.word}</div>
     `;
 
-    /* ❌ Remover pictograma */
-    const removeBtn = cell.querySelector('.remove-btn');
-    if (removeBtn) {
-      removeBtn.onclick = (e) => {
-        e.stopPropagation();
-        window.currentBoard.splice(index, 1);
-        renderBoard();
-      };
-    }
+    // Remover pictograma
+    cell.querySelector('.remove-btn').onclick = (e) => {
+      e.stopPropagation();
+      window.currentBoard.splice(index, 1);
+      renderBoard();
+    };
 
-    /* ✏️ Abrir modal */
+    // Abrir modal
     cell.onclick = () => {
       if (typeof openQuickEditModal === 'function') {
         openQuickEditModal(index);
@@ -189,7 +183,7 @@ function renderBoard() {
 }
 
 /* =========================
-   APLICAR CONFIGURAÇÕES DA PRANCHA
+   APLICAR CONFIGURAÇÕES
 ========================= */
 
 function applyBoardConfig() {
@@ -205,35 +199,30 @@ function applyBoardConfig() {
   boardConfig.boardBorderColor =
     document.getElementById('boardBorderColor')?.value || null;
 
-  const cols = document.getElementById('columnsCount')?.value;
-  boardConfig.columnsCount = cols ? Number(cols) : null;
+  boardConfig.columnsCount =
+    Number(document.getElementById('columnsCount')?.value) || null;
 
-  const gap = document.getElementById('cellGap')?.value;
-  boardConfig.cellGap = gap ? Number(gap) : null;
+  boardConfig.cellGap =
+    Number(document.getElementById('cellGap')?.value) || null;
 
   renderBoard();
 }
 
 /* =========================
-   LIMPAR PRANCHA
+   LIMPAR
 ========================= */
 
 function clearBoard() {
   window.currentBoard = [];
-
-  const board = document.getElementById('board');
-  if (board) board.innerHTML = '';
-
-  const phraseInput = document.getElementById('phraseInput');
-  if (phraseInput) phraseInput.value = '';
+  document.getElementById('board').innerHTML = '';
+  document.getElementById('phraseInput').value = '';
 }
 
 /* =========================
-   EXPOR FUNÇÕES GLOBAIS
+   EXPOR FUNÇÕES
 ========================= */
 
 window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
-
