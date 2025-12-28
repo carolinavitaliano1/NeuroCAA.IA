@@ -2,7 +2,6 @@
 /* =========================
    ESTADO GLOBAL DA PRANCHA
 ========================= */
-alert("BOARD.JS NOVO CARREGADO");
 
 window.currentBoard = [];
 window.boardConfig = {
