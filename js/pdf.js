@@ -31,9 +31,7 @@ async function exportBoardToPDF() {
   footer.style.lineHeight = '1.4';
 
   footer.innerHTML = `
-    © 2025 – NeuroCAA | Carol Gurgel<br>
-    Sistema protegido por direitos autorais.<br>
-    Pictogramas utilizados sob licença ARASAAC (CC BY-NC-SA 4.0).
+    © 2025 – NeuroCAA | Carol Gurgel<br> Sistema protegido por direitos autorais.<br> Pictogramas utilizados sob licença ARASAAC (CC BY-NC-SA 4.0).
   `;
 
   clone.appendChild(footer);
