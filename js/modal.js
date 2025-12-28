@@ -1,14 +1,14 @@
-const pictogramCache = {};
+/* ======================================================
+   MODAL DE EDIÇÃO DA CÉLULA (PICTOGRAMA)
+====================================================== */
 
-/* =========================
-   MODAL DE EDIÇÃO DA CÉLULA
-========================= */
+const pictogramCache = {}; // cache simples em memória
 
 function openQuickEditModal(index) {
   const item = window.currentBoard[index];
+  let colorTarget = null; // 'bg' | 'border'
 
-  let colorTarget = null; // "bg" | "border"
-
+  /* ---------- OVERLAY ---------- */
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position:fixed;
@@ -20,6 +20,7 @@ function openQuickEditModal(index) {
     z-index:9999;
   `;
 
+  /* ---------- MODAL ---------- */
   const modal = document.createElement('div');
   modal.style.cssText = `
     background:#fff;
@@ -32,45 +33,61 @@ function openQuickEditModal(index) {
   `;
 
   modal.innerHTML = `
-    <h3>✏️ Editar "${item.word}"</h3>
+    <h3 style="margin-top:0">✏️ Editar "${item.word}"</h3>
 
     <label>Texto da célula:</label>
     <input id="editText"
       value="${item.customText || item.word}"
       style="width:100%; padding:8px; margin-bottom:10px"/>
 
-    <label>🎨 Fundo da célula:</label>
-    <button id="btnBg" style="width:100%; padding:8px; margin-bottom:6px">
-      Escolher cor CAA
-    </button>
-
-    <label>🖍️ Borda da célula:</label>
-    <button id="btnBorder" style="width:100%; padding:8px; margin-bottom:10px">
-      Escolher cor CAA
-    </button>
-
-    <div id="colorPanel"
-      style="display:none; margin-bottom:12px"></div>
-
-    <hr>
-
-    <div style="background:#f1f5f9; padding:8px; border-radius:6px; margin-bottom:10px">
-      💡 Clique em uma imagem para substituir o pictograma
+    <div style="font-size:13px; background:#f1f5f9; padding:8px; border-radius:6px; margin-bottom:10px">
+      👉 Clique em uma imagem para substituir o pictograma
     </div>
 
     <div id="imageGrid"
-      style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px">
+      style="
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:10px;
+        margin-bottom:12px;
+      ">
       <div style="grid-column:1/-1; text-align:center">⏳ Carregando imagens…</div>
     </div>
 
-    <strong>Buscar outro pictograma</strong>
-    <div style="display:flex; gap:6px; margin:6px 0 14px">
-      <input id="searchWord" placeholder="Digite outra palavra"
+    <strong>🔍 Buscar outro pictograma</strong>
+    <div style="display:flex; gap:6px; margin:6px 0 12px">
+      <input id="searchWord"
+        placeholder="Digite outra palavra"
         style="flex:1; padding:8px"/>
       <button id="searchBtn">🔍</button>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; gap:10px">
+    <strong>🎨 Cores da célula</strong>
+
+    <button id="btnBg"
+      style="width:100%; padding:8px; margin:6px 0">
+      Fundo (CAA)
+    </button>
+
+    <button id="btnBorder"
+      style="width:100%; padding:8px; margin-bottom:6px">
+      Borda (CAA)
+    </button>
+
+    <div id="colorPanel"
+      style="
+        display:none;
+        grid-template-columns:1fr;
+        gap:6px;
+        margin-bottom:12px;
+      ">
+    </div>
+
+    <label style="margin-top:10px">📎 Anexar imagem do computador</label>
+    <input type="file" id="uploadImg" accept="image/*"
+      style="margin-bottom:14px"/>
+
+    <div style="display:flex; gap:10px; justify-content:flex-end">
       <button id="saveBtn">💾 Salvar</button>
       <button id="closeBtn">❌ Fechar</button>
     </div>
@@ -79,52 +96,9 @@ function openQuickEditModal(index) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  /* =========================
-     PAINEL DE CORES CAA
-  ========================= */
-
-  const colorPanel = modal.querySelector('#colorPanel');
-
-  function openColorPanel(target) {
-    colorTarget = target;
-    colorPanel.innerHTML = '';
-    colorPanel.style.display = 'grid';
-    colorPanel.style.gridTemplateColumns = '1fr';
-    colorPanel.style.gap = '6px';
-
-    CAA_COLORS.forEach(c => {
-      const btn = document.createElement('button');
-      btn.textContent = `${c.name} – ${c.label}`;
-      btn.style.cssText = `
-        background:${c.color};
-        border:2px solid #333;
-        padding:6px;
-        border-radius:6px;
-        cursor:pointer;
-        text-align:left;
-      `;
-
-      btn.onclick = () => {
-        if (colorTarget === 'bg') {
-          item.bgColor = c.color;
-        }
-        if (colorTarget === 'border') {
-          item.borderColor = c.color;
-        }
-        renderBoard();
-        colorPanel.style.display = 'none';
-      };
-
-      colorPanel.appendChild(btn);
-    });
-  }
-
-  modal.querySelector('#btnBg').onclick = () => openColorPanel('bg');
-  modal.querySelector('#btnBorder').onclick = () => openColorPanel('border');
-
-  /* =========================
-     IMAGENS (ARASAAC)
-  ========================= */
+  /* ======================================================
+     IMAGENS – CARREGAMENTO E CACHE
+  ====================================================== */
 
   const grid = modal.querySelector('#imageGrid');
 
@@ -144,7 +118,7 @@ function openQuickEditModal(index) {
       renderImages(data);
     } catch {
       grid.innerHTML =
-        `<div style="grid-column:1/-1; text-align:center; color:red">
+        `<div style="grid-column:1/-1; text-align:center;color:red">
           Erro ao carregar imagens
         </div>`;
     }
@@ -170,7 +144,6 @@ function openQuickEditModal(index) {
     });
   }
 
-  // busca inicial
   loadImages(item.word);
 
   modal.querySelector('#searchBtn').onclick = () => {
@@ -178,13 +151,63 @@ function openQuickEditModal(index) {
     if (w) loadImages(w);
   };
 
-  /* =========================
+  /* ======================================================
+     CORES CAA (FUNDO / BORDA)
+  ====================================================== */
+
+  const colorPanel = modal.querySelector('#colorPanel');
+
+  function openColorPanel(target) {
+    colorTarget = target;
+    colorPanel.innerHTML = '';
+    colorPanel.style.display = 'grid';
+
+    CAA_COLORS.forEach(c => {
+      const btn = document.createElement('button');
+      btn.textContent = `${c.name} – ${c.label}`;
+      btn.style.cssText = `
+        background:${c.color};
+        border:2px solid #333;
+        padding:6px;
+        border-radius:6px;
+        cursor:pointer;
+        text-align:left;
+      `;
+      btn.onclick = () => {
+        if (colorTarget === 'bg') item.bgColor = c.color;
+        if (colorTarget === 'border') item.borderColor = c.color;
+        renderBoard();
+        colorPanel.style.display = 'none';
+      };
+      colorPanel.appendChild(btn);
+    });
+  }
+
+  modal.querySelector('#btnBg').onclick = () => openColorPanel('bg');
+  modal.querySelector('#btnBorder').onclick = () => openColorPanel('border');
+
+  /* ======================================================
+     UPLOAD DE IMAGEM
+  ====================================================== */
+
+  modal.querySelector('#uploadImg').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      item.img = ev.target.result;
+      renderBoard();
+      overlay.remove();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  /* ======================================================
      SALVAR / FECHAR
-  ========================= */
+  ====================================================== */
 
   modal.querySelector('#saveBtn').onclick = () => {
-    item.customText =
-      modal.querySelector('#editText').value.trim();
+    item.customText = modal.querySelector('#editText').value.trim();
     renderBoard();
     overlay.remove();
   };
@@ -192,9 +215,4 @@ function openQuickEditModal(index) {
   modal.querySelector('#closeBtn').onclick = () => overlay.remove();
 }
 
-/* =========================
-   EXPORTA GLOBALMENTE
-========================= */
-
 window.openQuickEditModal = openQuickEditModal;
-
