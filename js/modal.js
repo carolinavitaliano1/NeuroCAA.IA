@@ -1,15 +1,8 @@
-/* =========================
-   CACHE DE PICTOGRAMAS
-========================= */
 const pictogramCache = {};
 
-/* =========================
-   MODAL DE EDIÇÃO RÁPIDA
-========================= */
 function openQuickEditModal(index) {
   const item = window.currentBoard[index];
 
-  /* ---------- Overlay ---------- */
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position:fixed;
@@ -21,7 +14,6 @@ function openQuickEditModal(index) {
     z-index:9999;
   `;
 
-  /* ---------- Modal ---------- */
   const modal = document.createElement('div');
   modal.style.cssText = `
     background:#fff;
@@ -37,10 +29,11 @@ function openQuickEditModal(index) {
     <h3>✏️ Editar "${item.word}"</h3>
 
     <label>Texto da palavra</label>
-    <input id="editText" value="${item.customText || item.word}"
-      style="width:100%; padding:8px; margin-bottom:10px"/>
+    <input id="editText"
+      value="${item.customText || item.word}"
+      style="width:100%; padding:8px; margin-bottom:12px"/>
 
-    <div style="background:#ecfdf5; padding:8px; border-radius:6px; margin-bottom:10px">
+    <div style="background:#ecfdf5; padding:8px; border-radius:6px; margin-bottom:12px">
       💡 Clique em uma imagem para selecionar (salve para aplicar)
     </div>
 
@@ -48,29 +41,37 @@ function openQuickEditModal(index) {
       display:grid;
       grid-template-columns:repeat(3,1fr);
       gap:10px;
-      margin-bottom:15px;
+      margin-bottom:16px;
     ">
       <div style="grid-column:1/-1; text-align:center">⏳ Carregando imagens...</div>
     </div>
 
-    <strong>🔍 Buscar outro pictograma</strong>
-    <div style="display:flex; gap:6px; margin:6px 0 12px">
+    <strong style="display:block; margin-bottom:6px">🔍 Buscar outro pictograma</strong>
+    <div style="display:flex; gap:6px; margin-bottom:16px">
       <input id="searchWord" placeholder="Digite outra palavra"
         style="flex:1; padding:8px"/>
       <button id="searchBtn">🔍</button>
     </div>
 
-    <hr style="margin:15px 0">
+    <hr style="margin:16px 0">
 
-    <strong>🎨 Cores da célula (individual)</strong>
+    <strong style="display:block; margin-bottom:10px">
+      🎨 Cores da célula (individual)
+    </strong>
 
-    <label>Cor de fundo (CAA)</label>
-    <select id="cellBgColorModal" style="width:100%; margin-bottom:10px">
+    <label style="display:block; margin-bottom:4px">
+      Cor de fundo (CAA)
+    </label>
+    <select id="cellBgColorModal"
+      style="width:100%; padding:6px; margin-bottom:12px">
       <option value="">Padrão da prancha</option>
     </select>
 
-    <label>Cor da borda (CAA)</label>
-    <select id="cellBorderColorModal" style="width:100%; margin-bottom:15px">
+    <label style="display:block; margin-bottom:4px">
+      Cor da borda (CAA)
+    </label>
+    <select id="cellBorderColorModal"
+      style="width:100%; padding:6px; margin-bottom:16px">
       <option value="">Padrão da prancha</option>
     </select>
 
@@ -83,29 +84,25 @@ function openQuickEditModal(index) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  /* =========================
-     POPULAR SELECTS CAA (MODAL)
-  ========================= */
+  /* ===== POPULAR CORES CAA ===== */
   const bgSelect = modal.querySelector('#cellBgColorModal');
   const borderSelect = modal.querySelector('#cellBorderColorModal');
 
   CAA_COLORS.forEach(c => {
-    const optBg = document.createElement('option');
-    optBg.value = c.color;
-    optBg.textContent = `${c.name} – ${c.label}`;
-    if (item.bgColor === c.color) optBg.selected = true;
-    bgSelect.appendChild(optBg);
+    const bgOpt = document.createElement('option');
+    bgOpt.value = c.color;
+    bgOpt.textContent = `${c.name} – ${c.label}`;
+    if (item.bgColor === c.color) bgOpt.selected = true;
+    bgSelect.appendChild(bgOpt);
 
-    const optBorder = document.createElement('option');
-    optBorder.value = c.color;
-    optBorder.textContent = `${c.name} – ${c.label}`;
-    if (item.borderColor === c.color) optBorder.selected = true;
-    borderSelect.appendChild(optBorder);
+    const borderOpt = document.createElement('option');
+    borderOpt.value = c.color;
+    borderOpt.textContent = `${c.name} – ${c.label}`;
+    if (item.borderColor === c.color) borderOpt.selected = true;
+    borderSelect.appendChild(borderOpt);
   });
 
-  /* =========================
-     IMAGENS ARASAAC
-  ========================= */
+  /* ===== IMAGENS ===== */
   const grid = modal.querySelector('#imageGrid');
   let selectedImage = item.img || null;
 
@@ -117,16 +114,10 @@ function openQuickEditModal(index) {
       return;
     }
 
-    try {
-      const res = await fetch(API + encodeURIComponent(word));
-      const data = await res.json();
-      pictogramCache[word] = data;
-      renderImages(data);
-    } catch {
-      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center;color:red">
-        Erro ao carregar imagens
-      </div>`;
-    }
+    const res = await fetch(API + encodeURIComponent(word));
+    const data = await res.json();
+    pictogramCache[word] = data;
+    renderImages(data);
   }
 
   function renderImages(data) {
@@ -142,7 +133,7 @@ function openQuickEditModal(index) {
       `;
       img.onclick = () => {
         selectedImage = img.src;
-        renderImages(data); // apenas marca seleção
+        renderImages(data);
       };
       grid.appendChild(img);
     });
@@ -155,16 +146,11 @@ function openQuickEditModal(index) {
     if (w) loadImages(w);
   };
 
-  /* =========================
-     SALVAR ALTERAÇÕES
-  ========================= */
   modal.querySelector('#save').onclick = () => {
     item.customText = modal.querySelector('#editText').value.trim();
     item.img = selectedImage;
-
     item.bgColor = bgSelect.value || null;
     item.borderColor = borderSelect.value || null;
-
     renderBoard();
     overlay.remove();
   };
@@ -173,3 +159,4 @@ function openQuickEditModal(index) {
 }
 
 window.openQuickEditModal = openQuickEditModal;
+
