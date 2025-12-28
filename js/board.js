@@ -1,3 +1,4 @@
+alert("BOARD.JS NOVO CARREGADO");
 /* =========================
    ESTADO GLOBAL DA PRANCHA
 ========================= */
