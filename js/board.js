@@ -43,10 +43,13 @@ function populateCAASelects() {
       const opt = document.createElement('option');
       opt.value = c.color;
 
-      // Cabeçalho: só nome da cor
-      if (id === 'headerColor') {
+      // 🔥 REGRA DE EXIBIÇÃO
+      // Cabeçalho E borda da prancha → só nome da cor
+      if (id === 'headerColor' || id === 'boardBorderColor') {
         opt.textContent = c.name;
-      } else {
+      } 
+      // Células → nome + função CAA
+      else {
         opt.textContent = `${c.name} – ${c.label}`;
       }
 
@@ -54,6 +57,7 @@ function populateCAASelects() {
     });
   });
 }
+
 
 /* =========================
    GERAR PRANCHA
