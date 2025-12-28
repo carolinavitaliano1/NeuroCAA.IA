@@ -19,7 +19,6 @@ body {
 
 h1 {
   text-align: center;
-  margin-bottom: 15px;
 }
 
 /* =========================
@@ -29,22 +28,15 @@ h1 {
 .input-group {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
-input,
-select {
+input {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
   font-size: 14px;
 }
-
-/* =========================
-   BOTÕES
-========================= */
 
 button {
   padding: 10px;
@@ -55,33 +47,25 @@ button {
 }
 
 .generate { background:#667eea; color:#fff; }
-.save     { background:#48bb78; color:#fff; }
-.pdf      { background:#4299e1; color:#fff; }
-.clear    { background:#f56565; color:#fff; }
-
-.apply-config {
-  background:#0ea5e9;
-  color:#fff;
-  margin-top: 10px;
-  width: 100%;
-}
+.save { background:#48bb78; color:#fff; }
+.pdf { background:#4299e1; color:#fff; }
+.clear { background:#f56565; color:#fff; }
 
 /* =========================
-   CONFIGURAÇÃO DA PRANCHA
+   CONFIGURAÇÕES DA PRANCHA
 ========================= */
 
 .board-config {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border: 1px solid #e5e7eb;
   padding: 15px;
-  margin: 15px 0;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .board-config h3 {
   margin-top: 0;
   margin-bottom: 10px;
-  font-size: 16px;
 }
 
 .config-field {
@@ -91,8 +75,22 @@ button {
 .config-field label {
   display: block;
   font-size: 13px;
-  margin-bottom: 4px;
   font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.config-field select,
+.config-field input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.apply-config {
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  width: 100%;
 }
 
 /* =========================
@@ -101,9 +99,10 @@ button {
 
 .board {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 10px;
   margin-top: 15px;
+  background: white;
 }
 
 /* =========================
@@ -111,27 +110,39 @@ button {
 ========================= */
 
 .cell {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 12px;
   text-align: center;
   cursor: pointer;
-  transition: transform .1s ease;
+  position: relative;
+
+  border-width: 3px;
+  border-style: solid;
 }
 
-.cell:hover {
-  transform: scale(1.02);
-}
-
+/* 🔥 IMAGEM ADAPTATIVA (ESTILO ARASAAC) */
 .cell img {
-  max-width: 80px;
-  max-height: 80px;
-  display: block;
-  margin: 0 auto 5px;
+  width: 100%;
+  height: auto;
+  max-height: 70%;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+
+/* TEXTO DA CÉLULA */
+.cell div:last-child {
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 /* =========================
-   BOTÃO ❌ REMOVER CÉLULA
+   BOTÃO REMOVER (X)
 ========================= */
 
 .cell .remove-btn {
@@ -149,6 +160,7 @@ button {
   text-align: center;
   cursor: pointer;
   display: none;
+  z-index: 5;
 }
 
 .cell:hover .remove-btn {
@@ -160,9 +172,9 @@ button {
 ========================= */
 
 .actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  display:flex;
+  gap:10px;
+  margin-top:15px;
 }
 
 /* =========================
@@ -170,7 +182,7 @@ button {
 ========================= */
 
 .history {
-  margin-top: 25px;
+  margin-top:25px;
 }
 
 .history-item {
@@ -186,14 +198,13 @@ button {
 ========================= */
 
 .toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  position:fixed;
+  top:20px;
+  right:20px;
   background:#48bb78;
   color:white;
   padding:10px;
   border-radius:8px;
-  font-size: 14px;
-  z-index: 9999;
+  z-index:9999;
 }
 
