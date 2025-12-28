@@ -14,7 +14,7 @@ async function exportBoardToPDF() {
     })
   );
 
-  // 📸 Captura com CORS liberado
+  // 📸 Captura da prancha
   const canvas = await html2canvas(board, {
     useCORS: true,
     allowTaint: true,
@@ -25,20 +25,42 @@ async function exportBoardToPDF() {
   const imgData = canvas.toDataURL('image/png');
 
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'px',
-    format: [canvas.width, canvas.height]
-  });
 
-  pdf.addImage(
-    imgData,
-    'PNG',
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+  // 📄 PDF A4 em pixels (jsPDF trabalha em mm por padrão)
+  const pdf = new jsPDF('portrait', 'mm', 'a4');
 
-  pdf.save(`prancha-neurocaa-${Date.now()}.pdf`);
+  const pageWidth = pdf.internal.pageSize.getWidth();   // 210mm
+  const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+  // 🔢 Tamanho da imagem no PDF mantendo proporção
+  const imgWidth = pageWidth - 20; // margens laterais
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let x = 10; // margem esquerda
+  let y = 10; // margem superior
+
+  // 🧠 Se a prancha for mais alta que a página
+  if (imgHeight > pageHeight - 20) {
+    const scale = (pageHeight - 20) / imgHeight;
+    pdf.addImage(
+      imgData,
+      'PNG',
+      x,
+      y,
+      imgWidth * scale,
+      imgHeight * scale
+    );
+  } else {
+    pdf.addImage(
+      imgData,
+      'PNG',
+      x,
+      y,
+      imgWidth,
+      imgHeight
+    );
+  }
+
+  pdf.save(`prancha-neurocaa-A4-${Date.now()}.pdf`);
 }
+
