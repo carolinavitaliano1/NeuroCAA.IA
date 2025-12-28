@@ -33,7 +33,7 @@ h1 {
 .input-group {
   display: flex;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 input, select {
@@ -60,6 +60,21 @@ button {
   display:flex;
   gap:10px;
   margin-top:20px;
+}
+
+/* =========================
+   🔔 INSTRUÇÕES APÓS GERAR
+========================= */
+
+.generate-info {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #1e3a8a;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 18px;
 }
 
 /* =========================
@@ -239,5 +254,4 @@ button {
     page-break-inside: avoid;
   }
 }
-
 
