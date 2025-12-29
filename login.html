@@ -1,39 +1,71 @@
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = 'login.html';
-  }
-});
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>NeuroCAA | Painel</title>
+  <title>NeuroCAA | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .login-box {
+      max-width: 420px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.1);
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 20px;
+    }
+
+    .login-box input {
+      margin-bottom: 12px;
+    }
+
+    .login-box button {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .divider {
+      margin: 20px 0;
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .link {
+      font-size: 14px;
+      margin-top: 10px;
+      cursor: pointer;
+      color: #2563eb;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container" style="display:none" id="panel">
-    <h1>🧠 NeuroCAA</h1>
 
-    <div style="
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:20px;
-      margin-top:30px
-    ">
-      <div class="board-card" onclick="location.href='index.html'">
-        🧩<br><strong>Pranchas de Comunicação</strong>
-        <p>Criar pranchas personalizadas com pictogramas ARASAAC</p>
-      </div>
+  <div class="login-box">
+    <h2>🧠 NeuroCAA</h2>
+    <p>Acesso ao sistema</p>
 
-      <div class="board-card" onclick="location.href='rotinas.html'">
-        🛁<br><strong>Rotinas Passo a Passo</strong>
-        <p>Sequências visuais para atividades do dia a dia</p>
-      </div>
-    </div>
+    <!-- EMAIL -->
+    <input type="email" id="email" placeholder="E-mail">
 
-    <button class="clear" style="margin-top:30px" onclick="logout()">Sair</button>
+    <!-- SENHA -->
+    <input type="password" id="password" placeholder="Senha">
+
+    <button class="generate" onclick="loginEmail()">Entrar</button>
+
+    <div class="link" onclick="register()">Criar conta</div>
+    <div class="link" onclick="resetPassword()">Esqueci minha senha</div>
+
+    <div class="divider">ou</div>
+
+    <button class="pdf" onclick="loginGoogle()">Entrar com Google</button>
   </div>
 
   <!-- FIREBASE -->
@@ -41,32 +73,73 @@ firebase.auth().onAuthStateChanged(user => {
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script>
-    // 🔥 CONFIGURAÇÃO DO FIREBASE (use a SUA)
+    // 🔥 SEU FIREBASE CONFIG
     const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_DOMINIO.firebaseapp.com",
-      projectId: "SEU_PROJECT_ID",
-      appId: "SEU_APP_ID"
+      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+      authDomain: "neurocaa-1460e.firebaseapp.com",
+      projectId: "neurocaa-1460e",
+      storageBucket: "neurocaa-1460e.firebasestorage.app",
+      messagingSenderId: "788969719580",
+      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9",
+      measurementId: "G-TZZT9H86XT"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // 🔐 PROTEÇÃO DA PÁGINA
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('panel').style.display = 'block';
-      } else {
-        location.href = 'login.html';
-      }
-    });
+    // 🔐 LOGIN EMAIL
+    function loginEmail() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-    function logout() {
-      auth.signOut().then(() => {
-        location.href = 'login.html';
-      });
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => location.href = 'panel.html')
+        .catch(err => alert(err.message));
     }
+
+    // 🆕 REGISTRAR
+    function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        alert('Preencha e-mail e senha');
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => location.href = 'panel.html')
+        .catch(err => alert(err.message));
+    }
+
+    // 🔁 RESET SENHA
+    function resetPassword() {
+      const email = document.getElementById('email').value;
+
+      if (!email) {
+        alert('Digite seu e-mail');
+        return;
+      }
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => alert('E-mail de recuperação enviado'))
+        .catch(err => alert(err.message));
+    }
+
+    // 🔵 GOOGLE LOGIN
+    function loginGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => location.href = 'panel.html')
+        .catch(err => alert(err.message));
+    }
+
+    // 🔒 SE JÁ ESTIVER LOGADO, REDIRECIONA
+    auth.onAuthStateChanged(user => {
+      if (user) location.href = 'panel.html';
+    });
   </script>
+
 </body>
 </html>
 
