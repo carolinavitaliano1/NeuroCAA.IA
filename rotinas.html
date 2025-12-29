@@ -1,8 +1,27 @@
-<div class="container">
-  <h1>🛁 Rotinas Visuais</h1>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-  <input id="routineInput" placeholder="Ex: Como tomar banho" />
-  <button class="generate" onclick="generateRoutine()">Gerar rotina</button>
+<script>
+  // 🔥 Firebase config (a SUA)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+    authDomain: "neurocaa-1460e.firebaseapp.com",
+    projectId: "neurocaa-1460e",
+    storageBucket: "neurocaa-1460e.firebasestorage.app",
+    messagingSenderId: "788969719580",
+    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+  };
 
-  <div id="board" class="board"></div>
-</div>
+  // Inicializa Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // 🔐 PROTEÇÃO DA PÁGINA
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      // se não estiver logado → volta pro login
+      window.location.href = "login.html";
+    }
+  });
+</script>
