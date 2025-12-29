@@ -1,27 +1,147 @@
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧠 NeuroCAA</title>
 
-<script>
-  // 🔥 Firebase config (a SUA)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-    authDomain: "neurocaa-1460e.firebaseapp.com",
-    projectId: "neurocaa-1460e",
-    storageBucket: "neurocaa-1460e.firebasestorage.app",
-    messagingSenderId: "788969719580",
-    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-  };
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
 
-  // Inicializa Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+  <!-- PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
 
-  // 🔐 PROTEÇÃO DA PÁGINA
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      // se não estiver logado → volta pro login
-      window.location.href = "login.html";
-    }
-  });
-</script>
+<body>
+  <div class="container">
+    <h1>🧠 NeuroCAA</h1>
+
+    <!-- 🔤 ENTRADA DE FRASE -->
+    <div class="input-group">
+      <input
+        id="phraseInput"
+        placeholder="Digite a frase..."
+        autocomplete="off"
+      />
+      <button class="generate" onclick="generateBoard()">Gerar</button>
+    </div>
+
+    <!-- ℹ️ INSTRUÇÕES AO USUÁRIO -->
+    <div class="generate-info">
+      ⏳ <strong>Atenção:</strong> dependendo do tamanho do texto, a geração da prancha
+      pode levar até <strong>10 segundos</strong>.<br>
+      📐 Para um bom resultado visual, ajuste o <strong>número de colunas</strong> e o
+      <strong>espaçamento entre as células</strong> antes de aplicar a prancha.
+    </div>
+
+    <!-- ⚙️ CONFIGURAÇÕES DA PRANCHA -->
+    <div id="boardConfig" class="board-config">
+      <h3>⚙️ Configurações da Prancha</h3>
+
+      <div class="config-field">
+        <label for="boardTitle">Título da prancha</label>
+        <input
+          id="boardTitle"
+          placeholder="Ex: Prancha de Rotina"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="config-field">
+        <label for="headerColor">Cor do cabeçalho (CAA)</label>
+        <select id="headerColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="cellBgColor">Cor de fundo das células (CAA)</label>
+        <select id="cellBgColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="cellBorderColor">Cor da borda das células (CAA)</label>
+        <select id="cellBorderColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="boardBorderColor">Cor da borda da prancha (CAA)</label>
+        <select id="boardBorderColor"></select>
+      </div>
+
+      <div class="config-field">
+        <label for="columnsCount">Número de colunas</label>
+        <input
+          type="number"
+          id="columnsCount"
+          min="1"
+          max="10"
+          placeholder="Ex: 4"
+        />
+      </div>
+
+      <div class="config-field">
+        <label for="cellGap">Espaçamento entre células (px)</label>
+        <input
+          type="number"
+          id="cellGap"
+          min="0"
+          max="40"
+          placeholder="Ex: 10"
+        />
+      </div>
+
+      <button class="apply-config" onclick="applyBoardConfig()">
+        ✅ Aplicar à prancha
+      </button>
+    </div>
+
+    <!-- 🧩 PRANCHA -->
+    <div id="board" class="board"></div>
+
+    <!-- 🎛️ AÇÕES -->
+    <div class="actions">
+      <button class="save" onclick="saveBoard()">💾 Salvar</button>
+      <button class="pdf" onclick="exportBoardToPDF()">📄 PDF</button>
+      <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
+    </div>
+
+    <!-- 📚 HISTÓRICO -->
+    <div class="history">
+      <h3>📚 Histórico</h3>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- ⚠️ SCRIPTS DA PRANCHA (ORDEM MANTIDA) -->
+  <script src="./js/data.js" defer></script>
+  <script src="./js/board.js" defer></script>
+  <script src="./js/modal.js" defer></script>
+  <script src="./js/storage.js" defer></script>
+  <script src="./js/pdf.js" defer></script>
+
+  <!-- 🔐 FIREBASE AUTH (PROTEÇÃO DA PÁGINA) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+      authDomain: "neurocaa-1460e.firebaseapp.com",
+      projectId: "neurocaa-1460e",
+      storageBucket: "neurocaa-1460e.firebasestorage.app",
+      messagingSenderId: "788969719580",
+      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 🔒 Protege a página
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
