@@ -7,7 +7,7 @@
 </head>
 
 <body>
-  <div class="container">
+  <div class="container" style="display:none" id="panel">
     <h1>🧠 NeuroCAA</h1>
 
     <div style="
@@ -30,14 +30,37 @@
     <button class="clear" style="margin-top:30px" onclick="logout()">Sair</button>
   </div>
 
+  <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script>
+    // 🔥 CONFIGURAÇÃO DO FIREBASE (use a SUA)
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+
+    // 🔐 PROTEÇÃO DA PÁGINA
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('panel').style.display = 'block';
+      } else {
+        location.href = 'login.html';
+      }
+    });
+
     function logout() {
-      auth.signOut().then(() => location.href = 'login.html');
+      auth.signOut().then(() => {
+        location.href = 'login.html';
+      });
     }
   </script>
 </body>
 </html>
+
