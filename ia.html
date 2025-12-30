@@ -2,168 +2,44 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeuroCAA | Prancha com IA</title>
-
+  <title>NeuroCAA | Prancha IA</title>
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <!-- ARASAAC -->
+  <script>
+    const API = 'https://api.arasaac.org/api/pictograms/pt/search/';
+  </script>
 </head>
 
 <body>
+  <div class="container">
+    <h1>🤖 Prancha IA – Rotinas Visuais</h1>
 
-<div class="container" id="app" style="display:none">
+    <div class="input-group">
+      <input
+        id="iaInput"
+        placeholder="Ex: Ensinar ir ao banheiro passo a passo"
+        autocomplete="off"
+      />
+      <button class="generate" onclick="generateIABoard()">Gerar prancha IA</button>
+    </div>
 
-  <h1>🤖 Prancha com IA</h1>
+    <div class="generate-info">
+      ✨ A IA cria automaticamente uma sequência visual usando pictogramas ARASAAC.<br>
+      ✏️ Depois, clique em qualquer célula para editar imagem, texto, cores ou anexar foto.
+    </div>
 
-  <!-- ENTRADA -->
-  <div class="input-group">
-    <input
-      id="themeInput"
-      placeholder="Ex: Prancha para ensinar ir ao banheiro passo a passo"
-    />
-    <button class="generate" onclick="generateRoutineIA()">
-      Gerar prancha
-    </button>
+    <!-- PRANCHA IA -->
+    <div id="iaBoard" class="board"></div>
+
+    <div class="actions">
+      <button class="pdf" onclick="exportBoardToPDF()">📄 Exportar PDF</button>
+      <button class="clear" onclick="clearIABoard()">🗑️ Limpar</button>
+    </div>
   </div>
 
-  <div class="generate-info">
-    🤖 A IA cria automaticamente os passos e imagens (ARASAAC).  
-    Você poderá editar depois como quiser.
-  </div>
-
-  <!-- PRANCHA -->
-  <div id="board" class="board"></div>
-
-  <div class="actions">
-    <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
-    <button class="save" onclick="location.href='index.html'">
-      ✏️ Editar como prancha
-    </button>
-  </div>
-
-</div>
-
-<script>
-/* =========================
-   FIREBASE
-========================= */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-  authDomain: "neurocaa-1460e.firebaseapp.com",
-  projectId: "neurocaa-1460e",
-  storageBucket: "neurocaa-1460e.firebasestorage.app",
-  messagingSenderId: "788969719580",
-  appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("app").style.display = "block";
-  } else {
-    window.location.href = "login.html";
-  }
-});
-
-/* =========================
-   ARASAAC
-========================= */
-
-const ARASAAC_API =
-  "https://api.arasaac.org/api/pictograms/pt/search/";
-
-/* =========================
-   IA + ROTINAS
-========================= */
-
-async function generateRoutineIA() {
-  const theme = document.getElementById("themeInput").value.toLowerCase();
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-
-  let steps = [];
-
-  if (theme.includes("banheiro")) {
-    steps = [
-      "ir ao banheiro",
-      "baixar a roupa",
-      "sentar no vaso",
-      "fazer xixi",
-      "limpar-se",
-      "dar descarga",
-      "subir a roupa",
-      "lavar as mãos"
-    ];
-  } else if (theme.includes("banho")) {
-    steps = [
-      "entrar no banheiro",
-      "tirar a roupa",
-      "entrar no chuveiro",
-      "ensaboar o corpo",
-      "lavar o cabelo",
-      "enxaguar",
-      "secar-se",
-      "vestir a roupa"
-    ];
-  } else {
-    steps = [
-      "iniciar atividade",
-      "passo 1",
-      "passo 2",
-      "passo 3",
-      "finalizar atividade"
-    ];
-  }
-
-  for (const step of steps) {
-    const imgUrl = await getArasaacImage(step);
-
-    const cell = document.createElement("div");
-    cell.className = "cell";
-
-    cell.innerHTML = `
-      ${imgUrl ? `<img src="${imgUrl}" alt="${step}">` : ""}
-      <div>${step}</div>
-    `;
-
-    board.appendChild(cell);
-  }
-}
-
-/* =========================
-   BUSCA IMAGEM ARASAAC
-========================= */
-
-async function getArasaacImage(word) {
-  try {
-    const res = await fetch(ARASAAC_API + encodeURIComponent(word));
-    const data = await res.json();
-
-    if (data.length > 0) {
-      const id = data[0]._id;
-      return `https://static.arasaac.org/pictograms/${id}/${id}_300.png`;
-    }
-  } catch (e) {
-    console.warn("Erro ARASAAC:", word);
-  }
-  return null;
-}
-
-/* =========================
-   LIMPAR
-========================= */
-
-function clearBoard() {
-  document.getElementById("board").innerHTML = "";
-}
-</script>
-
+  <!-- JS -->
+  <script src="./js/ia-board.js"></script>
+  <script src="./js/modal_ia.js"></script>
 </body>
 </html>
-
