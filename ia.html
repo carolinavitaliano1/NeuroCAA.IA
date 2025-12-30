@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroCAA | Prancha com IA</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+
+<body>
+
+<div class="container" id="app" style="display:none">
+
+  <h1>🤖 Prancha com IA</h1>
+
+  <!-- ENTRADA -->
+  <div class="input-group">
+    <input
+      id="themeInput"
+      placeholder="Ex: Prancha para ensinar ir ao banheiro passo a passo"
+    />
+    <button class="generate" onclick="generateRoutineIA()">
+      Gerar prancha
+    </button>
+  </div>
+
+  <div class="generate-info">
+    ✨ A IA vai sugerir uma sequência visual inicial.<br>
+    Você poderá editar, reorganizar e personalizar depois.
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="board" class="board"></div>
+
+  <div class="actions">
+    <button class="clear" onclick="clearBoard()">🗑️ Limpar</button>
+    <button class="save" onclick="location.href='index.html'">
+      ✏️ Editar como prancha
+    </button>
+  </div>
+
+</div>
+
+<script>
+  // 🔥 Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+    authDomain: "neurocaa-1460e.firebaseapp.com",
+    projectId: "neurocaa-1460e",
+    storageBucket: "neurocaa-1460e.firebasestorage.app",
+    messagingSenderId: "788969719580",
+    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById("app").style.display = "block";
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  // 🤖 IA SIMPLES (BASE DE ROTINAS)
+  function generateRoutineIA() {
+    const theme = document.getElementById("themeInput").value.toLowerCase();
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+
+    let steps = [];
+
+    if (theme.includes("banheiro")) {
+      steps = [
+        "Ir ao banheiro",
+        "Baixar a roupa",
+        "Sentar no vaso",
+        "Fazer xixi ou cocô",
+        "Limpar-se",
+        "Dar descarga",
+        "Subir a roupa",
+        "Lavar as mãos"
+      ];
+    } else if (theme.includes("banho")) {
+      steps = [
+        "Entrar no banheiro",
+        "Tirar a roupa",
+        "Entrar no chuveiro",
+        "Ensaboar o corpo",
+        "Lavar o cabelo",
+        "Enxaguar",
+        "Secar-se",
+        "Vestir a roupa"
+      ];
+    } else {
+      steps = [
+        "Início da atividade",
+        "Passo 1",
+        "Passo 2",
+        "Passo 3",
+        "Finalizar atividade"
+      ];
+    }
+
+    steps.forEach(step => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.innerHTML = `<strong>${step}</strong>`;
+      board.appendChild(cell);
+    });
+  }
+
+  function clearBoard() {
+    document.getElementById("board").innerHTML = "";
+  }
+</script>
+
+</body>
+</html>
