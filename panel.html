@@ -2,88 +2,192 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <title>NeuroCAA | Plataforma de Comunicação Alternativa</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeuroCAA | Painel</title>
 
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <style>
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #555;
+      max-width: 720px;
+      margin: auto;
+    }
+
+    .access-btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .section {
+      margin-top: 50px;
+    }
+
+    .section h2 {
+      margin-bottom: 12px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .creator {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      max-width: 900px;
+    }
+
+    .footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+
+    .contact {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .contact a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
 
-<div class="container" id="panel" style="display:none">
+    <!-- HERO -->
+    <div class="hero">
+      <h1>🧠 NeuroCAA</h1>
+      <p>
+        Tecnologia a serviço da comunicação, da inclusão e do desenvolvimento humano.
+      </p>
 
-  <h1>🧠 NeuroCAA</h1>
+      <!-- 🔑 BOTÃO DE ACESSO -->
+      <button class="access-btn" onclick="location.href='index.html'">
+        Acessar plataforma
+      </button>
+    </div>
 
-  <!-- SOBRE -->
-  <div class="card">
-    <h2>Sobre o projeto</h2>
-    <p>
-      NeuroCAA é uma plataforma desenvolvida por <strong>Carol Gurgel</strong>,
-      voltada para criação de pranchas de Comunicação Alternativa,
-      rotinas visuais e recursos terapêuticos acessíveis.
-    </p>
+    <!-- SOBRE -->
+    <div class="section">
+      <h2>🌱 Sobre o Projeto</h2>
+      <p>
+        O <strong>NeuroCAA</strong> é uma plataforma digital criada para apoiar profissionais,
+        educadores e famílias na construção de pranchas de Comunicação Alternativa e Aumentativa,
+        respeitando princípios clínicos, pedagógicos e éticos.
+      </p>
+    </div>
+
+    <!-- MISSÃO / VISÃO / VALORES -->
+    <div class="section">
+      <div class="cards">
+        <div class="card">
+          <h3>🎯 Missão</h3>
+          <p>
+            Promover acesso à comunicação de forma ética, funcional e respeitosa,
+            valorizando a singularidade de cada sujeito.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>👁 Visão</h3>
+          <p>
+            Ser referência em Comunicação Alternativa digital,
+            unindo ciência, prática terapêutica e tecnologia acessível.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>💙 Valores</h3>
+          <p>
+            Inclusão • Ética • Acessibilidade • Respeito à diversidade • Ciência aplicada
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRIADORA -->
+    <div class="section">
+      <h2>👩‍⚕️ Sobre a Criadora</h2>
+
+      <div class="creator">
+        <p>
+          Sou <strong>Carol Gurgel</strong>, psicopedagoga, psicomotricista e terapeuta
+          especializada em Comunicação Alternativa, ABA, musicoterapia e práticas terapêuticas integradas.
+        </p>
+
+        <p>
+          O NeuroCAA nasce da prática clínica real, da escuta de famílias e profissionais
+          e da necessidade de ferramentas mais humanas, organizadas e funcionais para o
+          trabalho com comunicação e aprendizagem.
+        </p>
+      </div>
+    </div>
+
+    <!-- LICENÇA -->
+    <div class="section">
+      <h2>📜 Licença e Créditos</h2>
+      <p>
+        Os pictogramas utilizados na plataforma são provenientes do
+        <strong>ARASAAC</strong> e estão licenciados sob
+        <strong>Creative Commons BY-NC-SA 4.0</strong>.
+      </p>
+
+      <p>
+        Os pictogramas não são comercializados isoladamente e são utilizados
+        exclusivamente como recurso funcional dentro da plataforma.
+      </p>
+    </div>
+
+    <!-- CONTATO -->
+    <div class="contact">
+      📧 Email: <a href="mailto:neurocaa@neurocaa.com">seuemail@neurocaa.com</a><br>
+      📸 Instagram: <a href="https://instagram.com/neurocaa" target="_blank">@neurocaa</a>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="footer">
+      © 2025 — <strong>NeuroCAA | Carol Gurgel</strong><br>
+      Sistema protegido por direitos autorais.
+    </div>
+
   </div>
-
-  <!-- AÇÕES -->
-  <div class="grid">
-
-    <div class="board-card" onclick="location.href='index.html'">
-      🧩
-      <strong>Criador de Pranchas</strong>
-      <p>Crie pranchas CAA com pictogramas</p>
-    </div>
-
-    <div class="board-card" onclick="location.href='rotinas.html'">
-      🛁
-      <strong>Criador de Rotinas</strong>
-      <p>Rotinas passo a passo visuais</p>
-    </div>
-
-    <div class="board-card" onclick="location.href='ia.html'">
-      🤖
-      <strong>Prancha com IA</strong>
-      <p>Geração inteligente de pranchas</p>
-    </div>
-
-  </div>
-
-  <button class="clear" onclick="logout()">🚪 Sair</button>
-
-</div>
-
-<script>
-  // 🔥 Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-    authDomain: "neurocaa-1460e.firebaseapp.com",
-    projectId: "neurocaa-1460e",
-    storageBucket: "neurocaa-1460e.firebasestorage.app",
-    messagingSenderId: "788969719580",
-    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // 🔐 Proteção do painel
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById('panel').style.display = 'block';
-    } else {
-      window.location.href = "login.html";
-    }
-  });
-
-  function logout() {
-    auth.signOut().then(() => {
-      window.location.href = "login.html";
-    });
-  }
-</script>
-
 </body>
 </html>
