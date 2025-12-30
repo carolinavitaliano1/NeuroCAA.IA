@@ -30,11 +30,11 @@
   </div>
 
   <div class="generate-info">
-    ✨ A IA vai sugerir uma sequência visual inicial.<br>
-    Você poderá editar, reorganizar e personalizar depois.
+    🤖 A IA cria automaticamente os passos e imagens (ARASAAC).  
+    Você poderá editar depois como quiser.
   </div>
 
-  <!-- RESULTADO -->
+  <!-- PRANCHA -->
   <div id="board" class="board"></div>
 
   <div class="actions">
@@ -47,79 +47,123 @@
 </div>
 
 <script>
-  // 🔥 Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-    authDomain: "neurocaa-1460e.firebaseapp.com",
-    projectId: "neurocaa-1460e",
-    storageBucket: "neurocaa-1460e.firebasestorage.app",
-    messagingSenderId: "788969719580",
-    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-  };
+/* =========================
+   FIREBASE
+========================= */
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+const firebaseConfig = {
+  apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+  authDomain: "neurocaa-1460e.firebaseapp.com",
+  projectId: "neurocaa-1460e",
+  storageBucket: "neurocaa-1460e.firebasestorage.app",
+  messagingSenderId: "788969719580",
+  appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+};
 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById("app").style.display = "block";
-    } else {
-      window.location.href = "login.html";
-    }
-  });
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  // 🤖 IA SIMPLES (BASE DE ROTINAS)
-  function generateRoutineIA() {
-    const theme = document.getElementById("themeInput").value.toLowerCase();
-    const board = document.getElementById("board");
-    board.innerHTML = "";
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById("app").style.display = "block";
+  } else {
+    window.location.href = "login.html";
+  }
+});
 
-    let steps = [];
+/* =========================
+   ARASAAC
+========================= */
 
-    if (theme.includes("banheiro")) {
-      steps = [
-        "Ir ao banheiro",
-        "Baixar a roupa",
-        "Sentar no vaso",
-        "Fazer xixi ou cocô",
-        "Limpar-se",
-        "Dar descarga",
-        "Subir a roupa",
-        "Lavar as mãos"
-      ];
-    } else if (theme.includes("banho")) {
-      steps = [
-        "Entrar no banheiro",
-        "Tirar a roupa",
-        "Entrar no chuveiro",
-        "Ensaboar o corpo",
-        "Lavar o cabelo",
-        "Enxaguar",
-        "Secar-se",
-        "Vestir a roupa"
-      ];
-    } else {
-      steps = [
-        "Início da atividade",
-        "Passo 1",
-        "Passo 2",
-        "Passo 3",
-        "Finalizar atividade"
-      ];
-    }
+const ARASAAC_API =
+  "https://api.arasaac.org/api/pictograms/pt/search/";
 
-    steps.forEach(step => {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.innerHTML = `<strong>${step}</strong>`;
-      board.appendChild(cell);
-    });
+/* =========================
+   IA + ROTINAS
+========================= */
+
+async function generateRoutineIA() {
+  const theme = document.getElementById("themeInput").value.toLowerCase();
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  let steps = [];
+
+  if (theme.includes("banheiro")) {
+    steps = [
+      "ir ao banheiro",
+      "baixar a roupa",
+      "sentar no vaso",
+      "fazer xixi",
+      "limpar-se",
+      "dar descarga",
+      "subir a roupa",
+      "lavar as mãos"
+    ];
+  } else if (theme.includes("banho")) {
+    steps = [
+      "entrar no banheiro",
+      "tirar a roupa",
+      "entrar no chuveiro",
+      "ensaboar o corpo",
+      "lavar o cabelo",
+      "enxaguar",
+      "secar-se",
+      "vestir a roupa"
+    ];
+  } else {
+    steps = [
+      "iniciar atividade",
+      "passo 1",
+      "passo 2",
+      "passo 3",
+      "finalizar atividade"
+    ];
   }
 
-  function clearBoard() {
-    document.getElementById("board").innerHTML = "";
+  for (const step of steps) {
+    const imgUrl = await getArasaacImage(step);
+
+    const cell = document.createElement("div");
+    cell.className = "cell";
+
+    cell.innerHTML = `
+      ${imgUrl ? `<img src="${imgUrl}" alt="${step}">` : ""}
+      <div>${step}</div>
+    `;
+
+    board.appendChild(cell);
   }
+}
+
+/* =========================
+   BUSCA IMAGEM ARASAAC
+========================= */
+
+async function getArasaacImage(word) {
+  try {
+    const res = await fetch(ARASAAC_API + encodeURIComponent(word));
+    const data = await res.json();
+
+    if (data.length > 0) {
+      const id = data[0]._id;
+      return `https://static.arasaac.org/pictograms/${id}/${id}_300.png`;
+    }
+  } catch (e) {
+    console.warn("Erro ARASAAC:", word);
+  }
+  return null;
+}
+
+/* =========================
+   LIMPAR
+========================= */
+
+function clearBoard() {
+  document.getElementById("board").innerHTML = "";
+}
 </script>
 
 </body>
 </html>
+
