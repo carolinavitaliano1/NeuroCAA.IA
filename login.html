@@ -19,11 +19,17 @@
     }
 
     .login-box h2 {
+      margin-bottom: 10px;
+    }
+
+    .login-box p {
       margin-bottom: 20px;
+      color: #475569;
     }
 
     .login-box input {
       margin-bottom: 12px;
+      width: 100%;
     }
 
     .login-box button {
@@ -43,19 +49,31 @@
       cursor: pointer;
       color: #2563eb;
     }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .message {
+      font-size: 14px;
+      margin-top: 12px;
+      color: #dc2626;
+    }
   </style>
 </head>
 
 <body>
 
-  <div class="login-box">
+  <div class="login-box" id="box">
     <h2>🧠 NeuroCAA</h2>
-    <p>Acesso ao sistema</p>
+    <p>Acesso à plataforma</p>
 
-    <!-- EMAIL -->
     <input type="email" id="email" placeholder="E-mail">
-
-    <!-- SENHA -->
     <input type="password" id="password" placeholder="Senha">
 
     <button class="generate" onclick="loginEmail()">Entrar</button>
@@ -66,6 +84,8 @@
     <div class="divider">ou</div>
 
     <button class="pdf" onclick="loginGoogle()">Entrar com Google</button>
+
+    <div class="message" id="message"></div>
   </div>
 
   <!-- FIREBASE -->
@@ -73,73 +93,117 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script>
-    // 🔥 SEU FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
       authDomain: "neurocaa-1460e.firebaseapp.com",
       projectId: "neurocaa-1460e",
       storageBucket: "neurocaa-1460e.firebasestorage.app",
       messagingSenderId: "788969719580",
-      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9",
-      measurementId: "G-TZZT9H86XT"
+      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // 🔐 LOGIN EMAIL
-    function loginEmail() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    const box = document.getElementById("box");
+    const msg = document.getElementById("message");
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => location.href = 'panel.html')
-        .catch(err => alert(err.message));
+    function setLoading(state) {
+      box.classList.toggle("loading", state);
+      msg.innerText = "";
     }
 
-    // 🆕 REGISTRAR
-    function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    function showMessage(text) {
+      msg.innerText = text;
+    }
+
+    // 🔐 LOGIN
+    function loginEmail() {
+      const email = emailField();
+      const password = passwordField();
 
       if (!email || !password) {
-        alert('Preencha e-mail e senha');
+        showMessage("Preencha e-mail e senha");
         return;
       }
 
+      setLoading(true);
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => location.href = "panel.html")
+        .catch(() => showMessage("E-mail ou senha incorretos"))
+        .finally(() => setLoading(false));
+    }
+
+    // 🆕 CRIAR CONTA
+    function register() {
+      const email = emailField();
+      const password = passwordField();
+
+      if (!email || !password) {
+        showMessage("Digite e-mail e crie uma senha");
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage("A senha deve ter pelo menos 6 caracteres");
+        return;
+      }
+
+      setLoading(true);
+
       auth.createUserWithEmailAndPassword(email, password)
-        .then(() => location.href = 'panel.html')
-        .catch(err => alert(err.message));
+        .then(() => location.href = "panel.html")
+        .catch(err => {
+          if (err.code === "auth/email-already-in-use") {
+            showMessage("Este e-mail já possui conta. Use Entrar.");
+          } else {
+            showMessage("Erro ao criar conta");
+          }
+        })
+        .finally(() => setLoading(false));
     }
 
     // 🔁 RESET SENHA
     function resetPassword() {
-      const email = document.getElementById('email').value;
+      const email = emailField();
 
       if (!email) {
-        alert('Digite seu e-mail');
+        showMessage("Digite seu e-mail para recuperar a senha");
         return;
       }
 
       auth.sendPasswordResetEmail(email)
-        .then(() => alert('E-mail de recuperação enviado'))
-        .catch(err => alert(err.message));
+        .then(() => showMessage("E-mail de recuperação enviado 📩"))
+        .catch(() => showMessage("Erro ao enviar e-mail"));
     }
 
-    // 🔵 GOOGLE LOGIN
+    // 🔵 GOOGLE
     function loginGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
+      setLoading(true);
+
       auth.signInWithPopup(provider)
-        .then(() => location.href = 'panel.html')
-        .catch(err => alert(err.message));
+        .then(() => location.href = "panel.html")
+        .catch(() => showMessage("Erro ao entrar com Google"))
+        .finally(() => setLoading(false));
     }
 
-    // 🔒 SE JÁ ESTIVER LOGADO, REDIRECIONA
+    function emailField() {
+      return document.getElementById("email").value.trim();
+    }
+
+    function passwordField() {
+      return document.getElementById("password").value.trim();
+    }
+
+    // 🔒 SE JÁ LOGADO
     auth.onAuthStateChanged(user => {
-      if (user) location.href = 'panel.html';
+      if (user && location.pathname.includes("login")) {
+        location.href = "panel.html";
+      }
     });
   </script>
 
 </body>
 </html>
-
