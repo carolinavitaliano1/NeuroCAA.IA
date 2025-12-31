@@ -19,17 +19,19 @@
     }
 
     .login-box h2 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .login-box p {
       margin-bottom: 20px;
       color: #475569;
+      font-size: 15px;
     }
 
     .login-box input {
       margin-bottom: 12px;
       width: 100%;
+      padding: 10px;
     }
 
     .login-box button {
@@ -61,8 +63,22 @@
 
     .message {
       font-size: 14px;
-      margin-top: 12px;
+      margin-top: 14px;
       color: #dc2626;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .toggle {
+      font-size: 13px;
+      cursor: pointer;
+      color: #2563eb;
+      text-align: right;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -74,11 +90,15 @@
     <p>Acesso à plataforma</p>
 
     <input type="email" id="email" placeholder="E-mail">
+
     <input type="password" id="password" placeholder="Senha">
+    <div class="toggle" onclick="togglePassword()">Mostrar senha</div>
 
     <button class="generate" onclick="loginEmail()">Entrar</button>
 
-    <div class="link" onclick="register()">Criar conta</div>
+    <div class="hint">Primeiro acesso? Digite e-mail, crie uma senha e clique abaixo.</div>
+    <div class="link" onclick="register()">Criar conta (definir senha)</div>
+
     <div class="link" onclick="resetPassword()">Esqueci minha senha</div>
 
     <div class="divider">ou</div>
@@ -107,6 +127,7 @@
 
     const box = document.getElementById("box");
     const msg = document.getElementById("message");
+    const passwordInput = document.getElementById("password");
 
     function setLoading(state) {
       box.classList.toggle("loading", state);
@@ -117,13 +138,26 @@
       msg.innerText = text;
     }
 
+    function emailField() {
+      return document.getElementById("email").value.trim();
+    }
+
+    function passwordField() {
+      return passwordInput.value.trim();
+    }
+
+    function togglePassword() {
+      passwordInput.type =
+        passwordInput.type === "password" ? "text" : "password";
+    }
+
     // 🔐 LOGIN
     function loginEmail() {
       const email = emailField();
       const password = passwordField();
 
       if (!email || !password) {
-        showMessage("Preencha e-mail e senha");
+        showMessage("Digite e-mail e senha para entrar");
         return;
       }
 
@@ -141,12 +175,12 @@
       const password = passwordField();
 
       if (!email || !password) {
-        showMessage("Digite e-mail e crie uma senha");
+        showMessage("Digite seu e-mail e crie uma senha");
         return;
       }
 
       if (password.length < 6) {
-        showMessage("A senha deve ter pelo menos 6 caracteres");
+        showMessage("A senha precisa ter no mínimo 6 caracteres");
         return;
       }
 
@@ -189,14 +223,6 @@
         .finally(() => setLoading(false));
     }
 
-    function emailField() {
-      return document.getElementById("email").value.trim();
-    }
-
-    function passwordField() {
-      return document.getElementById("password").value.trim();
-    }
-
     // 🔒 SE JÁ LOGADO
     auth.onAuthStateChanged(user => {
       if (user && location.pathname.includes("login")) {
@@ -207,3 +233,4 @@
 
 </body>
 </html>
+
