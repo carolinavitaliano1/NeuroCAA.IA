@@ -1,4 +1,4 @@
-<!doctype html>
+!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -11,7 +11,7 @@
       background: #f1f5f9;
       padding: 20px;
     }
-
+<
     .box {
       max-width: 420px;
       margin: 80px auto;
@@ -105,9 +105,16 @@
     const msg = document.getElementById("msg");
     const btn = document.getElementById("btn");
 
+    // 🔍 VERIFICA SE O LINK É VÁLIDO
     if (!oobCode) {
       msg.innerText = "Link inválido ou expirado.";
       btn.disabled = true;
+    } else {
+      auth.verifyPasswordResetCode(oobCode)
+        .catch(() => {
+          msg.innerText = "Link inválido ou expirado.";
+          btn.disabled = true;
+        });
     }
 
     function reset() {
@@ -138,7 +145,7 @@
           }, 2000);
         })
         .catch(() => {
-          msg.innerText = "Link inválido ou expirado.";
+          msg.innerText = "Erro ao redefinir senha. Tente novamente.";
           btn.disabled = false;
           btn.innerText = "Salvar nova senha";
         });
@@ -147,3 +154,4 @@
 
 </body>
 </html>
+
