@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuroCAA | Primeiro acesso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    body {
+      background: #f1f5f9;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .box {
+      max-width: 440px;
+      margin: 80px auto;
+      background: #ffffff;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.12);
+      text-align: center;
+    }
+
+    .box h2 {
+      margin-bottom: 10px;
+    }
+
+    .box p {
+      font-size: 15px;
+      color: #475569;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .info {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #dc2626;
+    }
+
+    .back {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #2563eb;
+      cursor: pointer;
+    }
+
+    .back:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box" id="box">
+    <h2>🧠 NeuroCAA</h2>
+    <p>Primeiro acesso à plataforma</p>
+
+    <div class="info">
+      <strong>Primeiro acesso?</strong><br>
+      Use o <strong>mesmo e-mail da compra</strong>, crie sua senha e clique em
+      <strong>Criar acesso</strong>.
+    </div>
+
+    <input type="email" id="email" placeholder="E-mail usado na compra">
+    <input type="password" id="password" placeholder="Crie uma senha (mín. 6 caracteres)">
+
+    <button onclick="createAccount()">Criar acesso</button>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="back" onclick="location.href='login.html'">
+      ← Voltar para o login
+    </div>
+  </div>
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // 🔥 Firebase config (o seu)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+      authDomain: "neurocaa-1460e.firebaseapp.com",
+      projectId: "neurocaa-1460e",
+      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const msg = document.getElementById("msg");
+    const box = document.getElementById("box");
+
+    function createAccount() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      msg.innerText = "";
+
+      if (!email || !password) {
+        msg.innerText = "Preencha e-mail e senha";
+        return;
+      }
+
+      if (password.length < 6) {
+        msg.innerText = "A senha precisa ter no mínimo 6 caracteres";
+        return;
+      }
+
+      box.style.opacity = "0.6";
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          window.location.href = "panel.html";
+        })
+        .catch(err => {
+          if (err.code === "auth/email-already-in-use") {
+            msg.innerText = "Este e-mail já possui acesso. Use o login.";
+          } else {
+            msg.innerText = "Erro ao criar acesso. Verifique os dados.";
+          }
+          box.style.opacity = "1";
+        });
+    }
+  </script>
+
+</body>
+</html>
+
