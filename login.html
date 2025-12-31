@@ -23,7 +23,7 @@
     }
 
     .login-box p {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       color: #475569;
       font-size: 15px;
     }
@@ -32,6 +32,8 @@
       margin-bottom: 12px;
       width: 100%;
       padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
     }
 
     .login-box button {
@@ -67,10 +69,20 @@
       color: #dc2626;
     }
 
-    .hint {
-      font-size: 13px;
-      color: #64748b;
-      margin-top: 6px;
+    /* 🔵 BOX PRIMEIRO ACESSO */
+    .first-access {
+      background: #eef5ff;
+      border: 1.5px solid #3b82f6;
+      border-radius: 10px;
+      padding: 14px;
+      margin: 14px 0;
+      text-align: left;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .first-access strong {
+      color: #1d4ed8;
     }
 
     .toggle {
@@ -96,9 +108,15 @@
 
     <button class="generate" onclick="loginEmail()">Entrar</button>
 
-    <div class="hint">Primeiro acesso? Digite e-mail, crie uma senha e clique abaixo.</div>
-    <div class="link" onclick="register()">Criar conta (definir senha)</div>
+    <!-- 🔵 PRIMEIRO ACESSO -->
+    <div class="first-access">
+      <strong>Primeiro acesso?</strong><br>
+      Digite o <strong>e-mail usado na compra</strong>,  
+      crie uma <strong>senha</strong> no campo acima  
+      e clique em <strong>Criar conta</strong>.
+    </div>
 
+    <div class="link" onclick="register()">Criar conta</div>
     <div class="link" onclick="resetPassword()">Esqueci minha senha</div>
 
     <div class="divider">ou</div>
@@ -233,4 +251,3 @@
 
 </body>
 </html>
-
