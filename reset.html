@@ -7,8 +7,9 @@
 
   <style>
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f1f5f9;
+      padding: 20px;
     }
 
     .box {
@@ -22,18 +23,19 @@
     }
 
     h2 {
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     p {
       color: #475569;
       font-size: 14px;
+      margin-bottom: 20px;
     }
 
     input {
       width: 100%;
       padding: 12px;
-      margin: 16px 0;
+      margin-bottom: 12px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
       font-size: 15px;
@@ -48,12 +50,22 @@
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .msg {
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 14px;
       color: #dc2626;
+    }
+
+    .success {
+      color: #16a34a;
     }
   </style>
 </head>
@@ -62,11 +74,12 @@
 
   <div class="box">
     <h2>🔐 Redefinir senha</h2>
-    <p>Crie uma nova senha para acessar o NeuroCAA</p>
+    <p>Crie uma nova senha para acessar o <strong>NeuroCAA</strong></p>
 
-    <input type="password" id="password" placeholder="Nova senha">
+    <input type="password" id="password" placeholder="Nova senha (mín. 6 caracteres)">
+    <input type="password" id="confirm" placeholder="Confirmar nova senha">
 
-    <button onclick="reset()">Salvar nova senha</button>
+    <button id="btn" onclick="reset()">Salvar nova senha</button>
 
     <div class="msg" id="msg"></div>
   </div>
@@ -89,22 +102,45 @@
     const params = new URLSearchParams(window.location.search);
     const oobCode = params.get("oobCode");
 
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btn");
+
+    if (!oobCode) {
+      msg.innerText = "Link inválido ou expirado.";
+      btn.disabled = true;
+    }
+
     function reset() {
-      const password = document.getElementById("password").value;
-      const msg = document.getElementById("msg");
+      const password = document.getElementById("password").value.trim();
+      const confirm = document.getElementById("confirm").value.trim();
+
+      msg.innerText = "";
 
       if (password.length < 6) {
-        msg.innerText = "A senha deve ter no mínimo 6 caracteres";
+        msg.innerText = "A senha deve ter no mínimo 6 caracteres.";
         return;
       }
 
+      if (password !== confirm) {
+        msg.innerText = "As senhas não coincidem.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Salvando...";
+
       auth.confirmPasswordReset(oobCode, password)
         .then(() => {
-          alert("Senha redefinida com sucesso!");
-          location.href = "login.html";
+          msg.classList.add("success");
+          msg.innerText = "Senha redefinida com sucesso! Redirecionando...";
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 2000);
         })
         .catch(() => {
-          msg.innerText = "Link inválido ou expirado";
+          msg.innerText = "Link inválido ou expirado.";
+          btn.disabled = false;
+          btn.innerText = "Salvar nova senha";
         });
     }
   </script>
