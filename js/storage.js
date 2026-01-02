@@ -1,96 +1,90 @@
 /* =========================
-   STORAGE – HISTÓRICO REAL
+   STORAGE – HISTÓRICO NEUROCAA
+   (LOCAL + PREPARADO PARA FIREBASE)
 ========================= */
 
-const STORAGE_KEY = "neurocaa_boards";
+const STORAGE_KEY = "neurocaa_history";
 
 /* =========================
-   SALVAR PRANCHA ATUAL
+   SALVAR PRANCHA NO HISTÓRICO
 ========================= */
 
-function saveCurrentBoard() {
+function saveBoard() {
   if (!window.currentBoard || window.currentBoard.length === 0) {
-    alert("Nenhuma prancha para salvar.");
+    alert("Não há prancha para salvar.");
     return;
   }
 
-  const boards = getSavedBoards();
+  const phrase = document.getElementById("phraseInput")?.value || "";
+  const title = document.getElementById("boardTitle")?.value || "";
 
-  const boardTitle =
-    document.getElementById("boardTitle")?.value?.trim() ||
-    "Prancha sem título";
-
-  const newBoard = {
+  const boardData = {
     id: Date.now(),
-    title: boardTitle,
-    date: new Date().toLocaleString("pt-BR"),
-    boardConfig: { ...window.boardConfig },
-    boardData: JSON.parse(JSON.stringify(window.currentBoard))
+    phrase,
+    title,
+    board: JSON.parse(JSON.stringify(window.currentBoard)),
+    config: { ...window.boardConfig },
+    createdAt: new Date().toISOString()
   };
 
-  boards.unshift(newBoard);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(boards));
-
+  saveBoardToLocalHistory(boardData);
   renderHistory();
-  showToast("Prancha salva com sucesso 💾");
 }
 
 /* =========================
-   LISTAR PRANCHAS SALVAS
+   SALVAR LOCALMENTE
 ========================= */
 
-function getSavedBoards() {
+function saveBoardToLocalHistory(boardData) {
+  const history =
+    JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+  history.unshift(boardData);
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(history)
+  );
+}
+
+/* =========================
+   OBTER HISTÓRICO
+========================= */
+
+function getHistory() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 }
 
 /* =========================
-   REABRIR PRANCHA
-========================= */
-
-function loadBoardById(id) {
-  const boards = getSavedBoards();
-  const board = boards.find(b => b.id === id);
-
-  if (!board) {
-    alert("Prancha não encontrada.");
-    return;
-  }
-
-  window.boardConfig = { ...board.boardConfig };
-  window.currentBoard = JSON.parse(JSON.stringify(board.boardData));
-
-  document.getElementById("boardTitle").value = board.title;
-
-  renderBoard();
-}
-
-/* =========================
-   RENDER HISTÓRICO
+   RENDERIZAR HISTÓRICO
 ========================= */
 
 function renderHistory() {
   const historyList = document.getElementById("historyList");
   if (!historyList) return;
 
+  const history = getHistory();
   historyList.innerHTML = "";
 
-  const boards = getSavedBoards();
-
-  if (boards.length === 0) {
+  if (history.length === 0) {
     historyList.innerHTML =
-      "<p style='font-size:14px;color:#64748b'>Nenhuma prancha salva ainda.</p>";
+      "<p style='color:#64748b;font-size:14px'>Nenhuma prancha salva ainda.</p>";
     return;
   }
 
-  boards.forEach(board => {
+  history.forEach(item => {
     const div = document.createElement("div");
     div.className = "history-item";
 
+    const date = new Date(item.createdAt).toLocaleString("pt-BR");
+
     div.innerHTML = `
-      <strong>${board.title}</strong><br>
-      <small>${board.date}</small><br>
-      <button style="margin-top:6px" onclick="loadBoardById(${board.id})">
-        🔁 Reabrir prancha
+      <strong>${item.title || item.phrase || "Prancha sem título"}</strong>
+      <div style="font-size:12px;color:#64748b;margin:4px 0">
+        ${date}
+      </div>
+      <button onclick="loadFromHistory(${item.id})">
+        Abrir prancha
       </button>
     `;
 
@@ -99,27 +93,51 @@ function renderHistory() {
 }
 
 /* =========================
-   TOAST
+   CARREGAR PRANCHA DO HISTÓRICO
 ========================= */
 
-function showToast(text) {
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerText = text;
-  document.body.appendChild(toast);
+function loadFromHistory(id) {
+  const history = getHistory();
+  const item = history.find(h => h.id === id);
+  if (!item) return;
 
-  setTimeout(() => toast.remove(), 2500);
+  window.currentBoard = JSON.parse(JSON.stringify(item.board));
+  window.boardConfig = { ...item.config };
+
+  const phraseInput = document.getElementById("phraseInput");
+  const titleInput = document.getElementById("boardTitle");
+
+  if (phraseInput) phraseInput.value = item.phrase || "";
+  if (titleInput) titleInput.value = item.title || "";
+
+  if (typeof renderBoard === "function") {
+    renderBoard();
+  }
 }
 
 /* =========================
-   INIT
+   LIMPAR HISTÓRICO (opcional)
 ========================= */
 
-document.addEventListener("DOMContentLoaded", renderHistory);
+function clearHistory() {
+  if (!confirm("Deseja apagar todo o histórico?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+}
 
 /* =========================
-   EXPOSIÇÃO GLOBAL
+   INICIALIZA AO CARREGAR
 ========================= */
 
-window.saveCurrentBoard = saveCurrentBoard;
-window.loadBoardById = loadBoardById;
+document.addEventListener("DOMContentLoaded", () => {
+  renderHistory();
+});
+
+/* =========================
+   EXPOR FUNÇÕES GLOBAIS
+========================= */
+
+window.saveBoard = saveBoard;
+window.renderHistory = renderHistory;
+window.loadFromHistory = loadFromHistory;
+window.clearHistory = clearHistory;
