@@ -1,58 +1,53 @@
+/* =========================
+   COMPARTILHAR PRANCHA (FINAL)
+   Salva a prancha COMPLETA no Firebase
+========================= */
+
 function shareCurrentBoard(boardId) {
   if (!boardId) {
     alert("Salve a prancha antes de compartilhar.");
     return;
   }
 
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Usuário não autenticado.");
-    return;
-  }
-
-  // 🔎 Busca a prancha no histórico local
+  // 🔎 busca a prancha no histórico local
   const history =
     JSON.parse(localStorage.getItem("neurocaa_history")) || [];
 
   const boardData = history.find(b => b.id === boardId);
 
-  if (!boardData) {
-    alert("Prancha não encontrada no histórico.");
-    return;
-  }
-
-  // 🛑 Blindagem absoluta
-  if (!Array.isArray(boardData.board)) {
-    console.error("BOARD INVÁLIDO:", boardData.board);
-    alert("Erro interno: prancha corrompida.");
+  if (!boardData || !Array.isArray(boardData.board)) {
+    alert("Prancha inválida ou não encontrada.");
     return;
   }
 
   const shareId = crypto.randomUUID();
 
+  // 📦 payload COMPLETO (isso é o que o view.html espera)
   const payload = {
-    owner: user.uid,
-    board: boardData.board,      // ✅ ARRAY
     phrase: boardData.phrase || "",
     title: boardData.title || "",
+    board: boardData.board,
     config: boardData.config || {},
     createdAt: new Date().toISOString()
   };
 
-  firebase.database()
-    .ref(`sharedBoards/${shareId}`)
+  firebase
+    .database()
+    .ref("sharedBoards/" + shareId)
     .set(payload)
     .then(() => {
-      const link = `${location.origin}/view.html?share=${shareId}`;
+      const link =
+        `${window.location.origin}/view.html?share=${shareId}`;
+
       navigator.clipboard.writeText(link);
       alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
+      console.log("Link gerado:", link);
     })
     .catch(err => {
-      console.error(err);
-      alert("Erro ao gerar link.");
+      console.error("Erro ao compartilhar:", err);
+      alert("Erro ao compartilhar a prancha.");
     });
 }
 
-// 🔓 EXPÕE GLOBALMENTE (ESSENCIAL)
+// 🔓 expõe globalmente (ESSENCIAL)
 window.shareCurrentBoard = shareCurrentBoard;
-
