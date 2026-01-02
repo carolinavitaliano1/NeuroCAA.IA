@@ -141,8 +141,8 @@ function shareCurrentBoard(boardId) {
   const history = getHistory();
   const boardData = history.find(b => b.id === boardId);
 
-  if (!boardData) {
-    alert("Prancha não encontrada.");
+  if (!boardData || !Array.isArray(boardData.board)) {
+    alert("Prancha inválida ou vazia.");
     return;
   }
 
@@ -151,7 +151,7 @@ function shareCurrentBoard(boardId) {
   const payload = {
     phrase: boardData.phrase || "",
     title: boardData.title || "",
-    board: boardData.board,
+    board: boardData.board || [],   // 🔒 blindagem
     config: boardData.config || {},
     createdAt: new Date().toISOString()
   };
@@ -163,13 +163,14 @@ function shareCurrentBoard(boardId) {
       const link = `${window.location.origin}/view.html?share=${shareId}`;
       navigator.clipboard.writeText(link);
       alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
-      console.log("Link:", link);
     })
     .catch(err => {
       console.error(err);
       alert("Erro ao compartilhar a prancha.");
     });
 }
+
+window.shareCurrentBoard = shareCurrentBoard;
 
 /* =========================
    INICIALIZA
@@ -188,5 +189,6 @@ window.renderHistory = renderHistory;
 window.loadFromHistory = loadFromHistory;
 window.clearHistory = clearHistory;
 window.shareCurrentBoard = shareCurrentBoard;
+
 
 
