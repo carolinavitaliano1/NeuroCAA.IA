@@ -4,46 +4,38 @@ function shareCurrentBoard(boardId) {
     return;
   }
 
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Usuário não autenticado.");
+  const history =
+    JSON.parse(localStorage.getItem("neurocaa_history")) || [];
+
+  const boardData = history.find(b => String(b.id) === String(boardId));
+
+  if (!boardData) {
+    alert("Prancha não encontrada no histórico.");
     return;
   }
 
   const shareId = crypto.randomUUID();
 
-  // 🔥 BUSCA A PRANCHA COMPLETA (COM CONFIGURAÇÕES)
-  firebase.database().ref(`boards/${boardId}`).once("value")
-    .then(snapshot => {
-      if (!snapshot.exists()) {
-        alert("Prancha não encontrada.");
-        return;
-      }
+  const payload = {
+    title: boardData.title || "Prancha Compartilhada",
+    board: boardData.board || [],
+    config: boardData.config || {},
+    createdAt: new Date().toISOString()
+  };
 
-      const boardData = snapshot.val();
-
-      // ✅ SALVA TUDO NO sharedBoards
-      return firebase.database()
-        .ref(`sharedBoards/${shareId}`)
-        .set({
-          owner: user.uid,
-          boardId: boardId,
-          title: boardData.title || "",
-          board: boardData.board || [],
-          config: boardData.config || {},
-          createdAt: new Date().toISOString()
-        });
-    })
+  firebase
+    .database()
+    .ref("sharedBoards/" + shareId)
+    .set(payload)
     .then(() => {
       const link = `${location.origin}/view.html?share=${shareId}`;
       navigator.clipboard.writeText(link);
-      alert("🔗 Link copiado para compartilhar!");
+      alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
     })
     .catch(err => {
       console.error(err);
-      alert("Erro ao gerar link.");
+      alert("Erro ao compartilhar prancha.");
     });
 }
 
 window.shareCurrentBoard = shareCurrentBoard;
-
