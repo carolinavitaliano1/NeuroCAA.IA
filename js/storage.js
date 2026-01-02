@@ -132,17 +132,17 @@ function clearHistory() {
    COMPARTILHAR PRANCHA (FIREBASE)
 ========================= */
 
-function shareCurrentBoard(boardId) {
+function shareBoard(boardId) {
   if (!boardId) {
     alert("Salve a prancha antes de compartilhar.");
     return;
   }
 
-  const history = getHistory();
+  const history = JSON.parse(localStorage.getItem("neurocaa_history")) || [];
   const boardData = history.find(b => b.id === boardId);
 
-  if (!boardData || !Array.isArray(boardData.board)) {
-    alert("Prancha inválida ou vazia.");
+  if (!boardData) {
+    alert("Prancha não encontrada no histórico.");
     return;
   }
 
@@ -151,7 +151,7 @@ function shareCurrentBoard(boardId) {
   const payload = {
     phrase: boardData.phrase || "",
     title: boardData.title || "",
-    board: boardData.board || [],   // 🔒 blindagem
+    board: boardData.board,
     config: boardData.config || {},
     createdAt: new Date().toISOString()
   };
@@ -170,7 +170,8 @@ function shareCurrentBoard(boardId) {
     });
 }
 
-window.shareCurrentBoard = shareCurrentBoard;
+// expõe global
+window.shareCurrentBoard = shareBoard;
 
 /* =========================
    INICIALIZA
