@@ -3,133 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <title>🧠 Prancha Compartilhada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f8fafc;
-      margin: 0;
-      padding: 24px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    #status {
-      text-align: center;
-      color: #b91c1c;
-      margin-top: 12px;
-    }
-
-    #board {
-      margin-top: 24px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .cell {
-      border: 2px solid #334155;
-      padding: 8px;
-      text-align: center;
-      background: #fff;
-    }
-
-    .cell img {
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>🧠 Prancha Compartilhada</h1>
-  <div id="status">Carregando prancha…</div>
-  <div id="board"></div>
+  <link rel="stylesheet" href="css/style.css" />
 
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
 
-  <script>
-    // 🔥 CONFIG FIREBASE
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-      authDomain: "neurocaa-1460e.firebaseapp.com",
-      databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
-      projectId: "neurocaa-1460e",
-      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-    };
+<body>
+  <div class="container">
+    <h1>🧠 Prancha Compartilhada</h1>
+    <p id="status">Carregando prancha…</p>
+    <div id="board" class="board"></div>
+  </div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+    authDomain: "neurocaa-1460e.firebaseapp.com",
+    databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
+    projectId: "neurocaa-1460e",
+    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+  };
 
-    // 🔗 PEGA SHARE ID
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("share");
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    if (!shareId) {
-      document.getElementById("status").innerText =
-        "⚠️ Link inválido ou incompleto.";
-      throw new Error("Share ID ausente");
-    }
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("share");
 
-    // 📥 BUSCA PRANCHA
-    db.ref("sharedBoards/" + shareId)
-      .once("value")
-      .then(snapshot => {
-        if (!snapshot.exists()) {
-          document.getElementById("status").innerText =
-            "⚠️ Prancha não encontrada.";
-          return;
-        }
+  const status = document.getElementById("status");
+  const boardEl = document.getElementById("board");
 
-        const data = snapshot.val();
+  if (!shareId) {
+    status.innerText = "⚠️ Link inválido ou incompleto.";
+    throw new Error("Share ID ausente");
+  }
 
-        // ✅ VALIDAÇÃO CORRETA
-        if (!data.board || !Array.isArray(data.board)) {
-          document.getElementById("status").innerText =
-            "⚠️ Prancha inválida ou vazia.";
-          return;
-        }
+  db.ref("sharedBoards/" + shareId).once("value")
+    .then(snapshot => {
+      if (!snapshot.exists()) {
+        status.innerText = "⚠️ Prancha não encontrada.";
+        return;
+      }
 
-        renderBoard(data.board, data.config);
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("status").innerText =
-          "Erro ao carregar a prancha.";
-      });
+      const data = snapshot.val();
 
-    // 🎨 RENDER
-    function renderBoard(board, config = {}) {
-      const boardEl = document.getElementById("board");
-      const status = document.getElementById("status");
-      status.innerText = "";
+      // ✅ AQUI entra o trecho que você perguntou
+      if (!data.board || !Array.isArray(data.board)) {
+        status.innerText = "⚠️ Prancha inválida ou vazia.";
+        return;
+      }
 
-      const cols = config.columns || 4;
-      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      status.innerText = data.title || "Prancha Compartilhada";
 
-      board.forEach(cell => {
+      boardEl.innerHTML = "";
+      data.board.forEach(cell => {
         const div = document.createElement("div");
         div.className = "cell";
-
-        if (cell.image) {
-          const img = document.createElement("img");
-          img.src = cell.image;
-          div.appendChild(img);
-        }
-
-        if (cell.text) {
-          const p = document.createElement("p");
-          p.innerText = cell.text;
-          div.appendChild(p);
-        }
-
+        div.innerHTML = `
+          <img src="${cell.image}" alt="">
+          <span>${cell.text}</span>
+        `;
         boardEl.appendChild(div);
       });
-    }
-  </script>
+    })
+    .catch(err => {
+      console.error(err);
+      status.innerText = "Erro ao carregar prancha.";
+    });
+</script>
+
 </body>
 </html>
+
