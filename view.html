@@ -116,17 +116,12 @@ data.board.forEach(cell => {
   const div = document.createElement("div");
   div.className = "cell";
 
-  // estilos da célula
-  if (cell.bgColor) div.style.backgroundColor = cell.bgColor;
-  if (cell.borderColor) div.style.border = `2px solid ${cell.borderColor}`;
-  if (cell.borderRadius) div.style.borderRadius = cell.borderRadius + "px";
-
-  div.style.padding = "8px";
-  div.style.textAlign = "center";
+  const imgSrc = cell.image || cell.img || cell.imageUrl || "";
+  const text   = cell.text || cell.label || cell.texto || "";
 
   div.innerHTML = `
-    <img src="${cell.image}" style="max-width:100%; height:auto;" />
-    <span>${cell.text}</span>
+    ${imgSrc ? `<img src="${imgSrc}" alt="">` : ""}
+    <span>${text}</span>
   `;
 
   boardEl.appendChild(div);
