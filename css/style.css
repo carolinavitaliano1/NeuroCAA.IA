@@ -253,5 +253,41 @@ button {
   .cell {
     page-break-inside: avoid;
   }
+   
+ /* =========================
+  compartihar
+========================= */
+   
+   .credits {
+  margin-top: 24px;
+  padding: 16px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  border-top: 2px dashed #cbd5e1;
+}
+.credits strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+.credits span {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #b45309;
+  font-weight: 700;
+}
+.credits a {
+  display: inline-block;
+  margin-top: 8px;
+  color: #2563eb;
+  font-weight: 800;
+  text-decoration: none;
+}
+.credits a:hover {
+  text-decoration: underline;
+}
+
 }
 
