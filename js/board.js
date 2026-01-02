@@ -1,3 +1,4 @@
+
 /* =========================
    ESTADO GLOBAL DA PRANCHA
 ========================= */
@@ -13,23 +14,23 @@ window.boardConfig = {
 };
 
 /* =========================
-   INICIALIZA CONFIGURAÇÕES
+   INICIALIZA
 ========================= */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   populateCAASelects();
 });
 
 /* =========================
-   POPULAR SELECTS COM CORES CAA
+   CORES CAA
 ========================= */
 
 function populateCAASelects() {
   const selects = [
-    'headerColor',
-    'cellBgColor',
-    'cellBorderColor',
-    'boardBorderColor'
+    "headerColor",
+    "cellBgColor",
+    "cellBorderColor",
+    "boardBorderColor"
   ];
 
   selects.forEach(id => {
@@ -39,15 +40,12 @@ function populateCAASelects() {
     select.innerHTML = `<option value="">Selecione…</option>`;
 
     CAA_COLORS.forEach(c => {
-      const opt = document.createElement('option');
+      const opt = document.createElement("option");
       opt.value = c.color;
 
-      // Cabeçalho e borda da prancha → só nome da cor
-      if (id === 'headerColor' || id === 'boardBorderColor') {
+      if (id === "headerColor" || id === "boardBorderColor") {
         opt.textContent = c.name;
-      } 
-      // Células → nome + função CAA
-      else {
+      } else {
         opt.textContent = `${c.name} – ${c.label}`;
       }
 
@@ -57,21 +55,20 @@ function populateCAASelects() {
 }
 
 /* =========================
-   GERAR PRANCHA (COM FEEDBACK VISUAL)
+   GERAR PRANCHA (COM GERANDO…)
 ========================= */
 
 async function generateBoard() {
-  const phraseInput = document.getElementById('phraseInput');
-  const generateBtn = document.querySelector('.generate');
+  const btn = document.querySelector(".generate");
+  btn.innerText = "Gerando...";
+  btn.disabled = true;
 
-  if (!phraseInput || !generateBtn) return;
-
-  const phrase = phraseInput.value.trim();
-  if (!phrase) return;
-
-  // 🔄 Estado visual: gerando
-  generateBtn.textContent = '⏳ Gerando...';
-  generateBtn.disabled = true;
+  const phrase = document.getElementById("phraseInput").value.trim();
+  if (!phrase) {
+    btn.innerText = "Gerar";
+    btn.disabled = false;
+    return;
+  }
 
   window.currentBoard = [];
   const words = phrase.split(/\s+/);
@@ -81,9 +78,7 @@ async function generateBoard() {
     try {
       const res = await fetch(API + encodeURIComponent(word));
       data = await res.json();
-    } catch {
-      console.warn('Erro ao buscar pictograma:', word);
-    }
+    } catch {}
 
     const pic = data[0];
 
@@ -100,103 +95,78 @@ async function generateBoard() {
 
   renderBoard();
 
-  // ✅ Volta ao estado normal
-  generateBtn.textContent = 'Gerar';
-  generateBtn.disabled = false;
+  btn.innerText = "Gerar";
+  btn.disabled = false;
 }
 
 /* =========================
-   RENDERIZAR PRANCHA
+   RENDER PRANCHA
 ========================= */
 
 function renderBoard() {
-  const board = document.getElementById('board');
+  const board = document.getElementById("board");
   if (!board) return;
 
-  board.innerHTML = '';
+  board.innerHTML = "";
 
-  // Colunas
   if (boardConfig.columnsCount) {
     board.style.gridTemplateColumns =
       `repeat(${boardConfig.columnsCount}, 1fr)`;
-  } else {
-    board.style.gridTemplateColumns = '';
   }
 
-  // Espaçamento
-  if (boardConfig.cellGap !== null && boardConfig.cellGap !== '') {
+  if (boardConfig.cellGap !== null) {
     board.style.gap = `${boardConfig.cellGap}px`;
-  } else {
-    board.style.gap = '';
   }
 
-  // Borda da prancha
   if (boardConfig.boardBorderColor) {
     board.style.border = `4px solid ${boardConfig.boardBorderColor}`;
-    board.style.borderRadius = '12px';
-    board.style.padding = '10px';
-  } else {
-    board.style.border = '';
-    board.style.padding = '';
+    board.style.padding = "10px";
+    board.style.borderRadius = "12px";
   }
 
-  /* =========================
-     CABEÇALHO (COM OU SEM TÍTULO)
-  ========================= */
-
-  const title = document.getElementById('boardTitle')?.value.trim();
-
-  const headerDiv = document.createElement('div');
-  headerDiv.style.gridColumn = '1 / -1';
-  headerDiv.style.marginBottom = '10px';
-  headerDiv.style.textAlign = 'center';
+  const title = document.getElementById("boardTitle")?.value.trim();
+  const header = document.createElement("div");
+  header.style.gridColumn = "1 / -1";
+  header.style.textAlign = "center";
 
   if (title) {
-    headerDiv.textContent = title;
-    headerDiv.style.fontWeight = '700';
-    headerDiv.style.padding = '8px';
-
+    header.innerText = title;
+    header.style.fontWeight = "800";
+    header.style.fontSize = "32px";
+    header.style.padding = "16px";
     if (boardConfig.headerColor) {
-      headerDiv.style.background = boardConfig.headerColor;
-      headerDiv.style.borderRadius = '8px';
+      header.style.background = boardConfig.headerColor;
+      header.style.borderRadius = "12px";
     }
   } else {
-    // Placeholder invisível para manter layout
-    headerDiv.style.height = '16px';
+    header.style.height = "16px";
   }
 
-  board.appendChild(headerDiv);
-
-  /* =========================
-     CÉLULAS
-  ========================= */
+  board.appendChild(header);
 
   window.currentBoard.forEach((item, index) => {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
+    const cell = document.createElement("div");
+    cell.className = "cell";
 
-    const bg = item.bgColor || boardConfig.cellBgColor || '#ffffff';
-    const border = item.borderColor || boardConfig.cellBorderColor || '#e2e8f0';
-
-    cell.style.background = bg;
-    cell.style.border = `2px solid ${border}`;
+    cell.style.background =
+      item.bgColor || boardConfig.cellBgColor || "#fff";
+    cell.style.border =
+      `2px solid ${item.borderColor || boardConfig.cellBorderColor || "#e2e8f0"}`;
 
     cell.innerHTML = `
-      <div class="remove-btn" title="Remover pictograma">×</div>
-      ${item.img ? `<img src="${item.img}" alt="${item.word}">` : ''}
+      <div class="remove-btn">×</div>
+      ${item.img ? `<img src="${item.img}">` : ""}
       <div>${item.customText || item.word}</div>
     `;
 
-    // Remover pictograma
-    cell.querySelector('.remove-btn').onclick = (e) => {
+    cell.querySelector(".remove-btn").onclick = e => {
       e.stopPropagation();
       window.currentBoard.splice(index, 1);
       renderBoard();
     };
 
-    // Abrir modal
     cell.onclick = () => {
-      if (typeof openQuickEditModal === 'function') {
+      if (typeof openQuickEditModal === "function") {
         openQuickEditModal(index);
       }
     };
@@ -206,27 +176,27 @@ function renderBoard() {
 }
 
 /* =========================
-   APLICAR CONFIGURAÇÕES
+   CONFIGURAÇÕES
 ========================= */
 
 function applyBoardConfig() {
   boardConfig.headerColor =
-    document.getElementById('headerColor')?.value || null;
+    document.getElementById("headerColor")?.value || null;
 
   boardConfig.cellBgColor =
-    document.getElementById('cellBgColor')?.value || null;
+    document.getElementById("cellBgColor")?.value || null;
 
   boardConfig.cellBorderColor =
-    document.getElementById('cellBorderColor')?.value || null;
+    document.getElementById("cellBorderColor")?.value || null;
 
   boardConfig.boardBorderColor =
-    document.getElementById('boardBorderColor')?.value || null;
+    document.getElementById("boardBorderColor")?.value || null;
 
   boardConfig.columnsCount =
-    Number(document.getElementById('columnsCount')?.value) || null;
+    Number(document.getElementById("columnsCount")?.value) || null;
 
   boardConfig.cellGap =
-    Number(document.getElementById('cellGap')?.value) || null;
+    Number(document.getElementById("cellGap")?.value) || null;
 
   renderBoard();
 }
@@ -237,16 +207,15 @@ function applyBoardConfig() {
 
 function clearBoard() {
   window.currentBoard = [];
-  document.getElementById('board').innerHTML = '';
-  document.getElementById('phraseInput').value = '';
+  document.getElementById("board").innerHTML = "";
+  document.getElementById("phraseInput").value = "";
 }
 
 /* =========================
-   EXPOR FUNÇÕES
+   EXPORTS
 ========================= */
 
 window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
-
