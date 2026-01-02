@@ -298,4 +298,11 @@ button {
   display: inline-block;
 }
 
+.share-dev-note {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  opacity: 0.8;
+  text-align: center;
+}
 
