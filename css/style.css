@@ -328,5 +328,45 @@ button {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
 }
    
-   
+     /* =========================
+   AVISO: COMPARTILHAMENTO EM DESENVOLVIMENTO
+========================= */
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap; /* permite quebrar linha */
+}
+
+.actions .share {
+  position: relative;
+}
+
+/* aviso abaixo do botão */
+.share-dev-note {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 16px;
+
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  color: #1e3a8a;
+
+  background: linear-gradient(
+    135deg,
+    rgba(226, 232, 240, 0.9),
+    rgba(219, 234, 254, 0.9)
+  );
+
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: 10px;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
 
