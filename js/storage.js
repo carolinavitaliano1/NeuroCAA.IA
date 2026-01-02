@@ -1,6 +1,6 @@
 /* =========================
    STORAGE – HISTÓRICO NEUROCAA
-   (LOCAL + PREPARADO PARA FIREBASE)
+   (LOCAL + FIREBASE)
 ========================= */
 
 const STORAGE_KEY = "neurocaa_history";
@@ -27,12 +27,13 @@ function saveBoard() {
     createdAt: new Date().toISOString()
   };
 
-  // 🔑 ESSA LINHA É ESSENCIAL PARA O COMPARTILHAMENTO
+  // 🔑 essencial para compartilhamento
   window.lastSavedBoardId = boardData.id;
 
   saveBoardToLocalHistory(boardData);
   renderHistory();
 }
+
 /* =========================
    SALVAR LOCALMENTE
 ========================= */
@@ -48,7 +49,6 @@ function saveBoardToLocalHistory(boardData) {
     JSON.stringify(history)
   );
 }
-
 
 /* =========================
    OBTER HISTÓRICO
@@ -119,7 +119,7 @@ function loadFromHistory(id) {
 }
 
 /* =========================
-   LIMPAR HISTÓRICO (opcional)
+   LIMPAR HISTÓRICO
 ========================= */
 
 function clearHistory() {
@@ -129,7 +129,50 @@ function clearHistory() {
 }
 
 /* =========================
-   INICIALIZA AO CARREGAR
+   COMPARTILHAR PRANCHA (FIREBASE)
+========================= */
+
+function shareCurrentBoard(boardId) {
+  if (!boardId) {
+    alert("Salve a prancha antes de compartilhar.");
+    return;
+  }
+
+  const history = getHistory();
+  const boardData = history.find(b => b.id === boardId);
+
+  if (!boardData) {
+    alert("Prancha não encontrada.");
+    return;
+  }
+
+  const shareId = crypto.randomUUID();
+
+  const payload = {
+    phrase: boardData.phrase || "",
+    title: boardData.title || "",
+    board: boardData.board,
+    config: boardData.config || {},
+    createdAt: new Date().toISOString()
+  };
+
+  firebase.database()
+    .ref("sharedBoards/" + shareId)
+    .set(payload)
+    .then(() => {
+      const link = `${window.location.origin}/view.html?share=${shareId}`;
+      navigator.clipboard.writeText(link);
+      alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
+      console.log("Link:", link);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Erro ao compartilhar a prancha.");
+    });
+}
+
+/* =========================
+   INICIALIZA
 ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -144,36 +187,6 @@ window.saveBoard = saveBoard;
 window.renderHistory = renderHistory;
 window.loadFromHistory = loadFromHistory;
 window.clearHistory = clearHistory;
-
-// 🔓 garante escopo global
-window.saveBoard = saveBoard;
-
-
-/* =========================
-   COMPARTILHAR PRANCHA
-========================= */
-
-function shareCurrentBoard(boardId) {
-  if (!boardId) {
-    alert("Nenhuma prancha salva para compartilhar.");
-    return;
-  }
-
-  const shareUrl =
-    window.location.origin +
-    window.location.pathname.replace("index.html", "view.html") +
-    "?id=" + boardId;
-
-  navigator.clipboard.writeText(shareUrl)
-    .then(() => {
-      alert("🔗 Link copiado com sucesso!");
-      console.log("Link gerado:", shareUrl);
-    })
-    .catch(err => {
-      console.error("Erro ao copiar link:", err);
-    });
-}
-
-// expõe globalmente (ESSENCIAL)
 window.shareCurrentBoard = shareCurrentBoard;
+
 
