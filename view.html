@@ -89,6 +89,12 @@
         }
 
         const data = snapshot.val();
+        if (!data || !data.board || !Array.isArray(data.board)) {
+  document.getElementById("status").innerText =
+    "⚠️ Prancha inválida ou vazia";
+  return;
+}
+
         renderBoard(data);
       })
       .catch(err => {
