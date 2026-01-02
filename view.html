@@ -122,97 +122,113 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  const params   = new URLSearchParams(window.location.search);
-  const shareId  = params.get("share");
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("share");
 
-  const statusEl   = document.getElementById("status");
-  const boardEl    = document.getElementById("board");
-  const titleEl    = document.getElementById("title");
-  const container  = document.getElementById("container");
+  const boardEl = document.getElementById("board");
+  const titleEl = document.getElementById("title");
+  const statusEl = document.getElementById("status");
 
   if (!shareId) {
-    statusEl.innerText = "⚠️ Link inválido ou incompleto.";
+    statusEl.innerText = "⚠️ Link inválido.";
     throw new Error("Share ID ausente");
   }
 
+  // 1️⃣ Busca o compartilhamento
   db.ref("sharedBoards/" + shareId).once("value")
-    .then(snapshot => {
-      if (!snapshot.exists()) {
+    .then(shareSnap => {
+      if (!shareSnap.exists()) {
         statusEl.innerText = "⚠️ Prancha não encontrada.";
         return;
       }
 
-      const data = snapshot.val();
-
-      // ===============================
-      // APLICAR CONFIGURAÇÕES DA PRANCHA
-      // ===============================
-      const cfg = data.config || {};
-
-      if (cfg.backgroundColor) {
-        document.body.style.backgroundColor = cfg.backgroundColor;
-      }
-
-      if (cfg.boardBackground) {
-        container.style.backgroundColor = cfg.boardBackground;
-      }
-
-      if (cfg.headerColor) {
-        titleEl.style.backgroundColor = cfg.headerColor;
-        titleEl.style.color = cfg.headerTextColor || "#fff";
-      }
-
-      if (cfg.borderColor) {
-        container.style.border = `4px solid ${cfg.borderColor}`;
-      }
-
-      if (cfg.borderRadius) {
-        container.style.borderRadius = cfg.borderRadius + "px";
-      }
-
-      // ===============================
-      // VALIDAR PRANCHA
-      // ===============================
-      if (!Array.isArray(data.board)) {
-        statusEl.innerText = "⚠️ Prancha inválida ou vazia.";
+      const { boardId } = shareSnap.val();
+      if (!boardId) {
+        statusEl.innerText = "⚠️ Prancha inválida.";
         return;
       }
 
-      // ===============================
-      // RENDERIZAR CONTEÚDO
-      // ===============================
+      // 2️⃣ Busca a prancha REAL
+      return db.ref("boards/" + boardId).once("value");
+    })
+    .then(boardSnap => {
+      if (!boardSnap || !boardSnap.exists()) {
+        statusEl.innerText = "⚠️ Dados da prancha não encontrados.";
+        return;
+      }
+
+      const data = boardSnap.val();
+
+      // ===== CONFIGURAÇÕES =====
+      const cfg = data.config || {};
+
+      if (cfg.backgroundColor) {
+        document.body.style.background = cfg.backgroundColor;
+      }
+
+      const container = document.querySelector(".container");
+      if (container && cfg.boardBackground) {
+        container.style.background = cfg.boardBackground;
+      }
+
+      if (cfg.borderColor && container) {
+        container.style.border = `4px solid ${cfg.borderColor}`;
+        container.style.borderRadius = "12px";
+      }
+
+      if (cfg.headerColor && titleEl) {
+        titleEl.style.background = cfg.headerColor;
+        titleEl.style.color = "#fff";
+        titleEl.style.padding = "12px";
+        titleEl.style.borderRadius = "10px";
+      }
+
+      // ===== TÍTULO =====
       titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
       statusEl.remove();
+
+      // ===== CÉLULAS =====
       boardEl.innerHTML = "";
+
+      if (!Array.isArray(data.board)) {
+        boardEl.innerHTML = "<p>⚠️ Prancha vazia.</p>";
+        return;
+      }
 
       data.board.forEach(cell => {
         const div = document.createElement("div");
         div.className = "cell";
 
-        if (cfg.cellBackground) {
-          div.style.backgroundColor = cfg.cellBackground;
-        }
-
-        if (cfg.cellBorderRadius) {
-          div.style.borderRadius = cfg.cellBorderRadius + "px";
-        }
-
-        const imgSrc = cell.image || cell.img || cell.imageUrl || "";
-        const text   = cell.text || cell.label || cell.texto || "";
+        const img = cell.image || cell.img || cell.imageUrl || "";
+        const txt = cell.text || cell.label || "";
 
         div.innerHTML = `
-          ${imgSrc ? `<img src="${imgSrc}" alt="">` : ""}
-          <span>${text}</span>
+          ${img ? `<img src="${img}" alt="">` : ""}
+          <span>${txt}</span>
         `;
 
         boardEl.appendChild(div);
       });
+
+      // ===== CRÉDITOS =====
+      const credits = document.createElement("div");
+      credits.className = "credits";
+      credits.innerHTML = `
+        <strong>Prancha criada com NeuroCAA</strong>
+        <span>Comunicação Alternativa Acessível</span>
+        <a href="https://neurocaa.com" target="_blank">Conheça a plataforma</a>
+        <div style="margin-top:8px; font-size:13px;">
+          🔒 Download em PDF disponível apenas no plano Premium
+        </div>
+      `;
+      container.appendChild(credits);
     })
     .catch(err => {
       console.error(err);
       statusEl.innerText = "Erro ao carregar prancha.";
     });
 </script>
+
 
 </body>
 </html>
