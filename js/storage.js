@@ -153,34 +153,27 @@ window.saveBoard = saveBoard;
    COMPARTILHAR PRANCHA
 ========================= */
 
-function shareBoard(boardId) {
+function shareCurrentBoard(boardId) {
   if (!boardId) {
-    alert("Salve a prancha antes de compartilhar.");
+    alert("Nenhuma prancha salva para compartilhar.");
     return;
   }
 
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Usuário não logado.");
-    return;
-  }
+  const shareUrl =
+    window.location.origin +
+    window.location.pathname.replace("index.html", "view.html") +
+    "?id=" + boardId;
 
-  const shareId = crypto.randomUUID();
-
-  firebase.database()
-    .ref(`boards/${user.uid}/${boardId}`)
-    .update({ shareId })
+  navigator.clipboard.writeText(shareUrl)
     .then(() => {
-      const link = `${location.origin}/view.html?share=${shareId}`;
-      navigator.clipboard.writeText(link);
-      alert("Link copiado para compartilhar!");
+      alert("🔗 Link copiado com sucesso!");
+      console.log("Link gerado:", shareUrl);
     })
     .catch(err => {
-      console.error(err);
-      alert("Erro ao gerar link de compartilhamento.");
+      console.error("Erro ao copiar link:", err);
     });
 }
 
-/* 🔓 EXPÕE PARA O HTML */
-window.shareCurrentBoard = shareBoard;
+// expõe globalmente (ESSENCIAL)
+window.shareCurrentBoard = shareCurrentBoard;
 
