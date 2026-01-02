@@ -101,16 +101,17 @@
     <div id="board" class="board"></div>
 
     <!-- 🎛️ AÇÕES -->
-    <div class="actions">
-      <button class="save" onclick="saveBoard()"> Salvar</button>
-      <button class="pdf" onclick="exportBoardToPDF()"> PDF</button>
-       <button class="share" onclick="shareCurrentBoard(window.lastSavedBoardId)"> Compartilhar </button>
-     <button class="clear" onclick="clearBoard()"> Limpar</button>
-       </div>
-      <div class="share-dev-note">
-  ⚠️ Opção de compartilhamento em desenvolvimento
+<div class="actions">
+  <button class="save" onclick="saveBoard()"> Salvar</button>
+  <button class="pdf" onclick="exportBoardToPDF()"> PDF</button>
+  <button class="share" onclick="shareCurrentBoard(window.lastSavedBoardId)"> Compartilhar </button>
+  <button class="clear" onclick="clearBoard()"> Limpar</button>
 </div>
-   
+
+<!-- AVISO COMPARTILHAMENTO -->
+<div class="share-dev-note">
+  Funcionalidade de compartilhamento em processo de evolução
+</div>    
 
     <!-- 📚 HISTÓRICO -->
     <div class="history">
