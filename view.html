@@ -69,58 +69,74 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 🔍 pega shareId da URL
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("share");
+   
+  // 🔎 pega o ID da URL
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("share");
 
-    if (!shareId) {
-      document.getElementById("status").innerText =
-        "Link inválido ou incompleto.";
-      throw new Error("shareId ausente");
-    }
+  const statusEl = document.getElementById("status");
+  const boardEl  = document.getElementById("board");
 
-    // 🔥 busca prancha compartilhada
-    db.ref("sharedBoards/" + shareId).once("value")
-      .then(snapshot => {
-        if (!snapshot.exists()) {
-          document.getElementById("status").innerText =
-            "Conteúdo indisponível.";
-          return;
-        }
+  if (!shareId) {
+    statusEl.innerText = "⚠️ Link inválido ou incompleto.";
+    throw new Error("share ausente");
+  }
 
-        const data = snapshot.val();
-        if (!data || !data.board || !Array.isArray(data.board)) {
-  document.getElementById("status").innerText =
-    "⚠️ Prancha inválida ou vazia";
-  return;
-}
+  // 🔥 busca no Firebase
+  firebase
+    .database()
+    .ref("sharedBoards/" + shareId)
+    .once("value")
+    .then(snapshot => {
+      if (!snapshot.exists()) {
+        statusEl.innerText = "⚠️ Prancha não encontrada.";
+        return;
+      }
 
-        renderBoard(data);
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("status").innerText =
-          "Erro ao carregar prancha.";
-      });
+      const data = snapshot.val();
 
-    function renderBoard(data) {
-      const boardEl = document.getElementById("board");
+      // 🛑 VALIDAÇÃO CRÍTICA (essa que você perguntou!)
+      if (!data.board || !Array.isArray(data.board)) {
+        statusEl.innerText = "⚠️ Prancha inválida ou vazia.";
+        return;
+      }
 
-      boardEl.style.gridTemplateColumns =
-        `repeat(${data.config?.columns || 4}, 1fr)`;
+      statusEl.innerText = "";
 
-      data.board.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "cell";
+      // 🧩 renderiza a prancha
+      renderSharedBoard(data);
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.innerText = "Erro ao carregar a prancha.";
+    });
 
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.label}">
-          <span>${item.label}</span>
-        `;
+  // =========================
+  // 🧩 RENDERIZAÇÃO
+  // =========================
+  function renderSharedBoard(data) {
+    boardEl.innerHTML = "";
 
-        boardEl.appendChild(div);
-      });
-    }
-  </script>
+    data.board.forEach(cell => {
+      const div = document.createElement("div");
+      div.className = "cell";
+
+      if (cell.image) {
+        const img = document.createElement("img");
+        img.src = cell.image;
+        img.alt = cell.text || "";
+        div.appendChild(img);
+      }
+
+      if (cell.text) {
+        const p = document.createElement("p");
+        p.innerText = cell.text;
+        div.appendChild(p);
+      }
+
+      boardEl.appendChild(div);
+    });
+  }
+</script>
 </body>
 </html>
