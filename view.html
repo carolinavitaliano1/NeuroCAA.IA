@@ -68,6 +68,40 @@
 
       const data = snapshot.val();
 
+      // ===============================
+// APLICAR CONFIGURAÇÕES DA PRANCHA
+// ===============================
+if (data.config) {
+
+  // fundo da página
+  if (data.config.backgroundColor) {
+    document.body.style.backgroundColor = data.config.backgroundColor;
+  }
+
+  // título / cabeçalho
+  if (data.config.headerColor) {
+    const h1 = document.querySelector("h1");
+    h1.style.backgroundColor = data.config.headerColor;
+    h1.style.color = "#fff";
+    h1.style.padding = "12px";
+    h1.style.borderRadius = "10px";
+    h1.style.textAlign = "center";
+  }
+
+  // borda da prancha
+  if (data.config.borderColor) {
+    boardEl.style.border = `3px solid ${data.config.borderColor}`;
+  }
+
+  if (data.config.borderRadius) {
+    boardEl.style.borderRadius = data.config.borderRadius + "px";
+  }
+
+  // espaçamento
+  boardEl.style.padding = "16px";
+}
+
+
       if (!Array.isArray(data.board)) {
         status.innerText = "⚠️ Prancha inválida ou vazia.";
         return;
@@ -76,25 +110,27 @@
       titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
       status.remove();
 
-      boardEl.innerHTML = "";
+ boardEl.innerHTML = "";
 
-      data.board.forEach(cell => {
-        const div = document.createElement("div");
-        div.className = "cell";
+data.board.forEach(cell => {
+  const div = document.createElement("div");
+  div.className = "cell";
 
-        const imgSrc =
-          cell.image || cell.img || cell.url || "";
+  // estilos da célula
+  if (cell.bgColor) div.style.backgroundColor = cell.bgColor;
+  if (cell.borderColor) div.style.border = `2px solid ${cell.borderColor}`;
+  if (cell.borderRadius) div.style.borderRadius = cell.borderRadius + "px";
 
-        const textLabel =
-          cell.text || cell.label || cell.word || "";
+  div.style.padding = "8px";
+  div.style.textAlign = "center";
 
-        div.innerHTML = `
-          ${imgSrc ? `<img src="${imgSrc}" alt="">` : ""}
-          <span>${textLabel}</span>
-        `;
+  div.innerHTML = `
+    <img src="${cell.image}" style="max-width:100%; height:auto;" />
+    <span>${cell.text}</span>
+  `;
 
-        boardEl.appendChild(div);
-      });
+  boardEl.appendChild(div);
+});
     })
     .catch(err => {
       console.error(err);
