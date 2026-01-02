@@ -1,143 +1,135 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>🧠 Prancha Compartilhada</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="css/style.css" />
-
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       background: #f8fafc;
       margin: 0;
-      padding: 20px;
+      padding: 24px;
     }
+
     h1 {
       text-align: center;
-      margin-bottom: 20px;
     }
-    .board {
+
+    #status {
+      text-align: center;
+      color: #b91c1c;
+      margin-top: 12px;
+    }
+
+    #board {
+      margin-top: 24px;
       display: grid;
       gap: 12px;
-      justify-content: center;
     }
+
     .cell {
       border: 2px solid #334155;
-      border-radius: 8px;
       padding: 8px;
       text-align: center;
-      background: white;
-      width: 120px;
+      background: #fff;
     }
+
     .cell img {
       max-width: 100%;
       height: auto;
-    }
-    .cell span {
-      display: block;
-      margin-top: 6px;
-      font-weight: bold;
-    }
-    .error {
-      text-align: center;
-      color: #b91c1c;
-      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
   <h1>🧠 Prancha Compartilhada</h1>
-  <div id="status" class="error"></div>
-  <div id="board" class="board"></div>
+  <div id="status">Carregando prancha…</div>
+  <div id="board"></div>
 
-  <!-- 🔥 FIREBASE COMPAT -->
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
+    // 🔥 CONFIG FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
       authDomain: "neurocaa-1460e.firebaseapp.com",
-      projectId: "neurocaa-1460e",
       databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
+      projectId: "neurocaa-1460e",
       appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
- <script>
-    
-  // 🔎 pega o ID da URL
-  const params = new URLSearchParams(window.location.search);
-  const shareId = params.get("share");
+    // 🔗 PEGA SHARE ID
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("share");
 
-  const statusEl = document.getElementById("status");
-  const boardEl  = document.getElementById("board");
+    if (!shareId) {
+      document.getElementById("status").innerText =
+        "⚠️ Link inválido ou incompleto.";
+      throw new Error("Share ID ausente");
+    }
 
-  if (!shareId) {
-    statusEl.innerText = "⚠️ Link inválido ou incompleto.";
-    throw new Error("share ausente");
-  }
+    // 📥 BUSCA PRANCHA
+    db.ref("sharedBoards/" + shareId)
+      .once("value")
+      .then(snapshot => {
+        if (!snapshot.exists()) {
+          document.getElementById("status").innerText =
+            "⚠️ Prancha não encontrada.";
+          return;
+        }
 
-  // 🔥 busca no Firebase
-  firebase
-    .database()
-    .ref("sharedBoards/" + shareId)
-    .once("value")
-    .then(snapshot => {
-      if (!snapshot.exists()) {
-        statusEl.innerText = "⚠️ Prancha não encontrada.";
-        return;
-      }
+        const data = snapshot.val();
 
-      const data = snapshot.val();
+        // ✅ VALIDAÇÃO CORRETA
+        if (!data.board || !Array.isArray(data.board)) {
+          document.getElementById("status").innerText =
+            "⚠️ Prancha inválida ou vazia.";
+          return;
+        }
 
-      // 🛑 VALIDAÇÃO CRÍTICA (essa que você perguntou!)
-      if (!data.board || !Array.isArray(data.board)) {
-        statusEl.innerText = "⚠️ Prancha inválida ou vazia.";
-        return;
-      }
+        renderBoard(data.board, data.config);
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("status").innerText =
+          "Erro ao carregar a prancha.";
+      });
 
-      statusEl.innerText = "";
+    // 🎨 RENDER
+    function renderBoard(board, config = {}) {
+      const boardEl = document.getElementById("board");
+      const status = document.getElementById("status");
+      status.innerText = "";
 
-      // 🧩 renderiza a prancha
-      renderSharedBoard(data);
-    })
-    .catch(err => {
-      console.error(err);
-      statusEl.innerText = "Erro ao carregar a prancha.";
-    });
+      const cols = config.columns || 4;
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-  // =========================
-  // 🧩 RENDERIZAÇÃO
-  // =========================
-  function renderSharedBoard(data) {
-    boardEl.innerHTML = "";
+      board.forEach(cell => {
+        const div = document.createElement("div");
+        div.className = "cell";
 
-    data.board.forEach(cell => {
-      const div = document.createElement("div");
-      div.className = "cell";
+        if (cell.image) {
+          const img = document.createElement("img");
+          img.src = cell.image;
+          div.appendChild(img);
+        }
 
-      if (cell.image) {
-        const img = document.createElement("img");
-        img.src = cell.image;
-        img.alt = cell.text || "";
-        div.appendChild(img);
-      }
+        if (cell.text) {
+          const p = document.createElement("p");
+          p.innerText = cell.text;
+          div.appendChild(p);
+        }
 
-      if (cell.text) {
-        const p = document.createElement("p");
-        p.innerText = cell.text;
-        div.appendChild(p);
-      }
-
-      boardEl.appendChild(div);
-    });
-  }
-</script>
+        boardEl.appendChild(div);
+      });
+    }
+  </script>
 </body>
 </html>
