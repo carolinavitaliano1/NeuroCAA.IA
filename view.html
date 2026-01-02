@@ -101,6 +101,7 @@
   </div>
 
 <script>
+  <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
     authDomain: "neurocaa-1460e.firebaseapp.com",
@@ -134,7 +135,7 @@
 
       const data = snapshot.val();
 
-      /* ===== CONFIGURAÇÕES DA PRANCHA ===== */
+      /* ================= CONFIGURAÇÕES ================= */
       const cfg = data.config || {};
 
       if (cfg.backgroundColor) {
@@ -147,29 +148,26 @@
 
       if (cfg.borderColor) {
         container.style.border = `4px solid ${cfg.borderColor}`;
-        container.style.borderRadius = "12px";
+        container.style.borderRadius = "14px";
       }
 
       if (cfg.headerColor) {
         titleEl.style.backgroundColor = cfg.headerColor;
         titleEl.style.color = "#fff";
-        titleEl.style.padding = "12px";
-        titleEl.style.borderRadius = "10px";
+        titleEl.style.padding = "14px";
+        titleEl.style.borderRadius = "12px";
       }
 
-      if (cfg.columns) {
-        boardEl.style.gridTemplateColumns = `repeat(${cfg.columns}, 1fr)`;
-      }
+      /* 🔢 COLUNAS */
+      const cols = cfg.columns || 4;
+      boardEl.style.display = "grid";
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      boardEl.style.gap = (cfg.cellGap || 10) + "px";
 
-      if (cfg.spacing) {
-        boardEl.style.gap = cfg.spacing + "px";
-      }
-
-      /* ===== TÍTULO ===== */
       titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
       statusEl.remove();
 
-      /* ===== CÉLULAS ===== */
+      /* ================= CÉLULAS ================= */
       boardEl.innerHTML = "";
 
       if (!Array.isArray(data.board)) {
@@ -181,19 +179,16 @@
         const div = document.createElement("div");
         div.className = "cell";
 
+        div.style.backgroundColor = cfg.cellBackground || "#e5e7eb";
+        div.style.border = `3px solid ${cfg.cellBorderColor || "#94a3b8"}`;
+        div.style.borderRadius = "12px";
+        div.style.padding = "10px";
+
         const img = cell.image || cell.img || cell.imageUrl || "";
-        const txt = cell.text || cell.label || "";
-
-        if (cfg.cellBackground) {
-          div.style.backgroundColor = cfg.cellBackground;
-        }
-
-        if (cfg.cellBorderColor) {
-          div.style.border = `2px solid ${cfg.cellBorderColor}`;
-        }
+        const txt = cell.text || cell.label || cell.texto || "";
 
         div.innerHTML = `
-          ${img ? `<img src="${img}" alt="">` : ""}
+          ${img ? `<img src="${img}" style="max-width:100%; height:auto;">` : ""}
           <span>${txt}</span>
         `;
 
@@ -205,6 +200,7 @@
       statusEl.innerText = "Erro ao carregar prancha.";
     });
 </script>
+
 
 </body>
 </html>
