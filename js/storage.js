@@ -1,28 +1,130 @@
-function saveLS(data){ localStorage.setItem('pranchas',JSON.stringify(data)); }
-function loadLS(){ return JSON.parse(localStorage.getItem('pranchas')||'[]'); }
+/*************************************************
+ * STORAGE.JS – NeuroCAA
+ * Objetivo:
+ * - Salvar pranchas completas (não só texto)
+ * - Manter histórico funcional
+ * - NÃO remover nada existente
+ *************************************************/
 
-function saveBoard(){
-  const list = loadLS();
-  list.push({ id:Date.now(), date:new Date().toLocaleString('pt-BR'), board:currentBoard });
-  saveLS(list);
-  renderHistory();
-  toast('Prancha salva!');
+/**
+ * Estrutura de uma prancha salva:
+ * {
+ *   id,
+ *   createdAt,
+ *   text,
+ *   board: [
+ *     {
+ *       id,
+ *       label,
+ *       image,
+ *       color,
+ *       category
+ *     }
+ *   ]
+ * }
+ */
+
+const STORAGE_KEY = "neurocaa_boards";
+
+/* ================================
+   UTILIDADES BÁSICAS
+================================ */
+
+function getAllBoards() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : [];
 }
 
-function clearBoard(){
-  currentBoard=[];
-  board.innerHTML='';
-  phraseInput.value='';
+function saveAllBoards(boards) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(boards));
 }
 
-function renderHistory(){
-  historyList.innerHTML='';
-  loadLS().reverse().forEach(i=>{
-    const d=document.createElement('div');
-    d.className='history-item';
-    d.innerHTML=`${i.date}<br>${i.board.map(b=>b.word).join(' ')}`;
-    historyList.appendChild(d);
-  });
+function generateId() {
+  return "board_" + Date.now();
 }
 
-renderHistory();
+/* ================================
+   SALVAR PRANCHA COMPLETA
+================================ */
+
+function saveBoard({ text, board }) {
+  const boards = getAllBoards();
+
+  const newBoard = {
+    id: generateId(),
+    createdAt: new Date().toISOString(),
+    text: text || "",
+    board: board || []
+  };
+
+  boards.unshift(newBoard); // histórico mais recente primeiro
+  saveAllBoards(boards);
+
+  return newBoard;
+}
+
+/* ================================
+   HISTÓRICO
+================================ */
+
+function getHistory() {
+  return getAllBoards();
+}
+
+function getBoardById(id) {
+  const boards = getAllBoards();
+  return boards.find(b => b.id === id);
+}
+
+/* ================================
+   ATUALIZAR PRANCHA EXISTENTE
+   (usado pelo modal)
+================================ */
+
+function updateBoard(boardId, updatedBoard) {
+  const boards = getAllBoards();
+
+  const index = boards.findIndex(b => b.id === boardId);
+  if (index === -1) return null;
+
+  boards[index] = {
+    ...boards[index],
+    ...updatedBoard,
+    updatedAt: new Date().toISOString()
+  };
+
+  saveAllBoards(boards);
+  return boards[index];
+}
+
+/* ================================
+   REMOVER PRANCHA (opcional)
+================================ */
+
+function deleteBoard(boardId) {
+  const boards = getAllBoards().filter(b => b.id !== boardId);
+  saveAllBoards(boards);
+}
+
+/* ================================
+   EXPORTAÇÃO (para PDF / futuro)
+================================ */
+
+function exportBoardData(boardId) {
+  return getBoardById(boardId);
+}
+
+/* ================================
+   DEBUG (não interfere)
+================================ */
+
+window.NeuroCAAStorage = {
+  saveBoard,
+  getHistory,
+  getBoardById,
+  updateBoard,
+  deleteBoard,
+  exportBoardData
+};
+
+
