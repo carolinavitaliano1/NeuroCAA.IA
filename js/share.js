@@ -19,7 +19,7 @@ function shareCurrentBoard(boardId) {
   const payload = {
     title: boardData.title || "",
     phrase: boardData.phrase || "",
-    board: boardData.board,       // 🔥 AQUI ESTAVA O ERRO
+    board: boardData.board,      // ✅ ISSO É O QUE FALTAVA
     config: boardData.config || {},
     createdAt: new Date().toISOString()
   };
@@ -28,17 +28,15 @@ function shareCurrentBoard(boardId) {
     .ref("sharedBoards/" + shareId)
     .set(payload)
     .then(() => {
-      const link =
-        `${location.origin}/view.html?share=${shareId}`;
-
+      const link = `${location.origin}/view.html?share=${shareId}`;
       navigator.clipboard.writeText(link);
-      alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
+      alert("🔗 Link copiado com sucesso!");
     })
     .catch(err => {
       console.error(err);
-      alert("Erro ao compartilhar a prancha.");
+      alert("Erro ao compartilhar prancha.");
     });
 }
 
+// 🔓 expõe global
 window.shareCurrentBoard = shareCurrentBoard;
-
