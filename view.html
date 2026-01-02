@@ -1,129 +1,83 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>🧠 Prancha Compartilhada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8fafc;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
+  <link rel="stylesheet" href="css/style.css">
 
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    .board {
-      display: grid;
-      gap: 12px;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 16px;
-      background: white;
-      border-radius: 12px;
-    }
-
-    .cell {
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .cell img {
-      max-width: 100%;
-      height: 120px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 8px;
-    }
-
-    .cell div {
-      font-weight: 600;
-      font-size: 16px;
-    }
-  </style>
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 
 <body>
+  <div class="container">
+    <h1>🧠 Prancha Compartilhada</h1>
+    <div id="board" class="board"></div>
+  </div>
 
-<h1>🧠 Prancha Compartilhada</h1>
-<div id="board" class="board"></div>
+  <script>
+    // 🔥 Firebase config (igual ao index)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+      authDomain: "neurocaa-1460e.firebaseapp.com",
+      projectId: "neurocaa-1460e",
+      storageBucket: "neurocaa-1460e.appspot.com",
+      messagingSenderId: "788969719580",
+      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9",
+      databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com"
+    };
 
-<!-- 🔥 FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-    authDomain: "neurocaa-1460e.firebaseapp.com",
-    databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
-    projectId: "neurocaa-1460e",
-    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-  };
+    // 🔑 pega o shareId da URL
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("id");
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  const params = new URLSearchParams(window.location.search);
-  const shareId = params.get("share");
-
-  if (!shareId) {
-    document.body.innerHTML = "<h2>Link inválido</h2>";
-    throw new Error("Sem shareId");
-  }
-
-  db.ref("sharedBoards/" + shareId).once("value").then(snapshot => {
-    if (!snapshot.exists()) {
-      document.body.innerHTML = "<h2>Prancha não encontrada</h2>";
-      return;
+    if (!shareId) {
+      document.body.innerHTML = "<h2>❌ Link inválido</h2>";
+      throw new Error("shareId ausente");
     }
 
-    const { owner, boardId } = snapshot.val();
+    // 📥 busca no local CORRETO
+    db.ref("sharedBoards/" + shareId).once("value")
+      .then(snapshot => {
+        if (!snapshot.exists()) {
+          document.body.innerHTML = "<h2>❌ Conteúdo indisponível</h2>";
+          return;
+        }
 
-    db.ref(`boards/${owner}/${boardId}`).once("value").then(snap => {
-      if (!snap.exists()) {
-        document.body.innerHTML = "<h2>Conteúdo indisponível</h2>";
-        return;
-      }
+        const data = snapshot.val();
+        renderBoard(data.board, data.config);
+      });
 
-      renderBoard(snap.val());
-    });
-  });
+    // 🎨 renderização simples da prancha
+    function renderBoard(board, config) {
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
 
-  function renderBoard(data) {
-    const board = document.getElementById("board");
+      boardEl.style.gridTemplateColumns =
+        `repeat(${config.columns || 4}, 1fr)`;
+      boardEl.style.gap = (config.cellGap || 10) + "px";
 
-    if (data.config?.columnsCount) {
-      board.style.gridTemplateColumns =
-        `repeat(${data.config.columnsCount}, 1fr)`;
-    } else {
-      board.style.gridTemplateColumns = "repeat(auto-fit, minmax(140px, 1fr))";
+      board.forEach(cell => {
+        const div = document.createElement("div");
+        div.className = "cell";
+
+        const img = document.createElement("img");
+        img.src = cell.image;
+        img.alt = cell.text;
+
+        const p = document.createElement("p");
+        p.textContent = cell.text;
+
+        div.appendChild(img);
+        div.appendChild(p);
+        boardEl.appendChild(div);
+      });
     }
-
-    data.board.forEach(item => {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-
-      if (item.bgColor) cell.style.background = item.bgColor;
-      if (item.borderColor)
-        cell.style.border = `2px solid ${item.borderColor}`;
-
-      cell.innerHTML = `
-        ${item.img ? `<img src="${item.img}" alt="">` : ""}
-        <div>${item.customText || item.word}</div>
-      `;
-
-      board.appendChild(cell);
-    });
-  }
-</script>
-
+  </script>
 </body>
 </html>
