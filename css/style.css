@@ -54,16 +54,44 @@ button {
 .generate { background:#667eea; color:#fff; }
 .save { background:#48bb78; color:#fff; }
 .pdf { background:#4299e1; color:#fff; }
+.share { background:#94a3b8; color:#1f2937; }
 .clear { background:#f56565; color:#fff; }
 
+/* =========================
+   AÇÕES (BOTÕES)
+========================= */
+
 .actions {
-  display:flex;
-  gap:10px;
-  margin-top:20px;
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 /* =========================
-   🔔 INSTRUÇÕES APÓS GERAR
+   AVISO — COMPARTILHAMENTO
+========================= */
+
+.share-dev-note {
+  margin: 12px auto 0;
+  max-width: 520px;
+  padding: 12px 18px;
+
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+
+  color: #1e3a8a;
+
+  background-color: rgba(226, 232, 240, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 12px;
+
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+/* =========================
+   INSTRUÇÕES
 ========================= */
 
 .generate-info {
@@ -110,24 +138,10 @@ button {
 
 .board {
   display: grid;
-  justify-content: center; /* 🔥 CENTRALIZA NO PDF */
+  justify-content: center;
   align-content: start;
   margin: 0 auto;
   width: 100%;
-}
-
-/* =========================
-   CABEÇALHO DA PRANCHA
-========================= */
-
-.board > div:first-child {
-  font-size: 36px;       /* 🔥 GRANDE */
-  font-weight: 800;
-  text-align: center;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  grid-column: 1 / -1;
 }
 
 /* =========================
@@ -141,18 +155,12 @@ button {
   padding: 14px;
   text-align: center;
   cursor: pointer;
-
-  /* 🔥 TAMANHO IDEAL PARA IMPRESSÃO */
   min-height: 210px;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
-/* =========================
-   IMAGEM
-========================= */
 
 .cell img {
   width: 100%;
@@ -161,40 +169,11 @@ button {
   margin-bottom: 10px;
 }
 
-/* =========================
-   TEXTO DA CÉLULA (CAA REAL)
-========================= */
-
 .cell > div:last-child {
-  font-size: 26px;       /* 🔥 MUITO MAIOR */
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
   word-break: break-word;
-}
-
-/* =========================
-   BOTÃO REMOVER ❌
-========================= */
-
-.cell .remove-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 22px;
-  height: 22px;
-  background: #ef4444;
-  color: white;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 22px;
-  text-align: center;
-  cursor: pointer;
-  display: none;
-}
-
-.cell:hover .remove-btn {
-  display: block;
 }
 
 /* =========================
@@ -230,7 +209,7 @@ button {
 }
 
 /* =========================
-   IMPRESSÃO / PDF (A4)
+   IMPRESSÃO / PDF
 ========================= */
 
 @media print {
@@ -245,128 +224,7 @@ button {
     padding: 0;
   }
 
-  .board {
-    width: 100%;
-    margin: 0 auto;
-  }
-
   .cell {
     page-break-inside: avoid;
   }
-   
- /* =========================
-  compartihar
-========================= */
-   
-   .credits {
-  margin-top: 24px;
-  padding: 16px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1f2937;
-  border-top: 2px dashed #cbd5e1;
 }
-.credits strong {
-  font-size: 16px;
-  font-weight: 800;
-}
-.credits span {
-  display: block;
-  margin-top: 6px;
-  font-size: 14px;
-  color: #b45309;
-  font-weight: 700;
-}
-.credits a {
-  display: inline-block;
-  margin-top: 8px;
-  color: #2563eb;
-  font-weight: 800;
-  text-decoration: none;
-}
-.credits a:hover {
-  text-decoration: underline;
-}
-.share-dev-hint {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #6b7280; /* cinza discreto */
-  background: #f3f4f6;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-.share-dev-note {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #6b7280;
-  opacity: 0.8;
-  text-align: center;
-}
-.share-dev-note {
-  margin: 10px auto 0;
-  padding: 8px 14px;
-  max-width: 420px;
-  text-align: center;
-
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-
-  color: #1e3a8a; /* azul elegante */
-  background: linear-gradient(
-    135deg,
-    rgba(226, 232, 240, 0.9),
-    rgba(219, 234, 254, 0.9)
-  );
-
-  border: 1px solid rgba(37, 99, 235, 0.25);
-  border-radius: 10px;
-
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-}
-   
-     /* =========================
-   AVISO: COMPARTILHAMENTO EM DESENVOLVIMENTO
-========================= */
-
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  flex-wrap: wrap; /* permite quebrar linha */
-}
-
-.actions .share {
-  position: relative;
-}
-
-/* aviso abaixo do botão */
-.share-dev-note {
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px 16px;
-
-  text-align: center;
-
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-
-  color: #1e3a8a;
-
-  background: linear-gradient(
-    135deg,
-    rgba(226, 232, 240, 0.9),
-    rgba(219, 234, 254, 0.9)
-  );
-
-  border: 1px solid rgba(37, 99, 235, 0.25);
-  border-radius: 10px;
-
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-}
-
-
