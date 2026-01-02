@@ -27,6 +27,9 @@ function saveBoard() {
     createdAt: new Date().toISOString()
   };
 
+  // 🔑 ESSA LINHA É A CHAVE DO COMPARTILHAMENTO
+  window.lastSavedBoardId = boardData.id;
+
   saveBoardToLocalHistory(boardData);
   renderHistory();
 }
@@ -46,6 +49,7 @@ function saveBoardToLocalHistory(boardData) {
     JSON.stringify(history)
   );
 }
+
 
 /* =========================
    OBTER HISTÓRICO
@@ -144,4 +148,3 @@ window.clearHistory = clearHistory;
 
 // 🔓 garante escopo global
 window.saveBoard = saveBoard;
-
