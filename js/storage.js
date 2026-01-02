@@ -16,7 +16,7 @@ function saveBoard() {
   }
 
   const phrase = document.getElementById("phraseInput")?.value || "";
-  const title = document.getElementById("boardTitle")?.value || "";
+  const title  = document.getElementById("boardTitle")?.value || "";
 
   const boardData = {
     id: Date.now(),
@@ -27,13 +27,12 @@ function saveBoard() {
     createdAt: new Date().toISOString()
   };
 
-  // 🔑 ESSA LINHA É A CHAVE DO COMPARTILHAMENTO
+  // 🔑 ESSA LINHA É ESSENCIAL PARA O COMPARTILHAMENTO
   window.lastSavedBoardId = boardData.id;
 
   saveBoardToLocalHistory(boardData);
   renderHistory();
 }
-
 /* =========================
    SALVAR LOCALMENTE
 ========================= */
