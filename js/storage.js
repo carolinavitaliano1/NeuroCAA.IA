@@ -141,3 +141,7 @@ window.saveBoard = saveBoard;
 window.renderHistory = renderHistory;
 window.loadFromHistory = loadFromHistory;
 window.clearHistory = clearHistory;
+
+// 🔓 garante escopo global
+window.saveBoard = saveBoard;
+
