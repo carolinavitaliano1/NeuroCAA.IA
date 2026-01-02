@@ -305,4 +305,28 @@ button {
   opacity: 0.8;
   text-align: center;
 }
+.share-dev-note {
+  margin: 10px auto 0;
+  padding: 8px 14px;
+  max-width: 420px;
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  color: #1e3a8a; /* azul elegante */
+  background: linear-gradient(
+    135deg,
+    rgba(226, 232, 240, 0.9),
+    rgba(219, 234, 254, 0.9)
+  );
+
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: 10px;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+   
+   
 
