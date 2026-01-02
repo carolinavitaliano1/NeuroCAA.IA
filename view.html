@@ -10,89 +10,56 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .container {
-      max-width: 900px;
-      margin: 24px auto;
-      padding: 16px;
-      border-radius: 12px;
-    }
+  .cell span {
+    margin-top: 6px;
+    font-weight: bold;
+    text-align: center;
+  }
 
-    h1 {
-      padding: 12px;
-      border-radius: 10px;
-      text-align: center;
-      margin-bottom: 12px;
-    }
+  /* ⬇️ COLE AQUI */
+  .credits {
+    margin-top: 24px;
+    padding: 16px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    border-top: 2px dashed #cbd5e1;
+  }
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      padding: 16px;
-    }
+  .credits strong {
+    font-size: 16px;
+    font-weight: 800;
+  }
 
-    .cell {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      padding: 10px;
-    }
+  .credits span {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #b45309;
+    font-weight: 700;
+  }
 
-    .cell img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
+  .credits a {
+    display: inline-block;
+    margin-top: 8px;
+    color: #2563eb;
+    font-weight: 800;
+    text-decoration: none;
+  }
 
-    .cell span {
-      margin-top: 6px;
-      font-weight: 700;
-      text-align: center;
-      font-size: 15px;
-    }
+  .credits a:hover {
+    text-decoration: underline;
+  }
+</style>
 
-    .credits {
-      margin-top: 24px;
-      padding: 16px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-      color: #1f2937;
-      border-top: 2px dashed #cbd5e1;
-    }
-
-    .credits strong {
-      font-size: 16px;
-      font-weight: 800;
-    }
-
-    .credits span {
-      display: block;
-      margin-top: 6px;
-      font-size: 14px;
-      color: #b45309;
-      font-weight: 700;
-    }
-
-    .credits a {
-      display: inline-block;
-      margin-top: 8px;
-      color: #2563eb;
-      font-weight: 800;
-      text-decoration: none;
-    }
-
-    .credits a:hover {
-      text-decoration: underline;
-    }
-  </style>
 </head>
 
 <body>
