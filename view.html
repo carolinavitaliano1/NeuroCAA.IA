@@ -1,9 +1,8 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>🧠 Prancha Compartilhada</title>
-  <link rel="stylesheet" href="css/style.css" />
 
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -13,6 +12,7 @@
     body {
       margin: 0;
       padding: 0;
+      font-family: Arial, sans-serif;
     }
 
     .container {
@@ -21,10 +21,14 @@
       padding: 16px;
     }
 
+    h1 {
+      margin: 0;
+      text-align: center;
+    }
+
     .board {
       display: grid;
-      gap: 16px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .cell {
@@ -34,7 +38,8 @@
       justify-content: center;
       padding: 12px;
       border-radius: 12px;
-      background: #fff;
+      box-sizing: border-box;
+      text-align: center;
     }
 
     .cell img {
@@ -45,10 +50,9 @@
     .cell span {
       margin-top: 6px;
       font-weight: bold;
-      text-align: center;
+      word-break: break-word;
     }
 
-    /* CRÉDITOS */
     .credits {
       margin-top: 32px;
       padding: 18px;
@@ -87,91 +91,167 @@
 </head>
 
 <body>
-  <div class="container" id="container">
-    <h1 id="title">🧠 Prancha Compartilhada</h1>
-    <p id="status">Carregando prancha…</p>
-    <div id="board" class="board"></div>
 
-    <!-- CRÉDITOS LEGAIS -->
-    <div class="credits">
-      <strong>Prancha criada com NeuroCAA</strong><br>
-      Plataforma brasileira de Comunicação Alternativa e Aumentativa (CAA).<br><br>
+<div class="container" id="container">
+  <h1 id="title">🧠 Prancha Compartilhada</h1>
+  <p id="status">Carregando prancha…</p>
+  <div id="board" class="board"></div>
 
-      Os pictogramas utilizados são provenientes do
-      <strong>ARASAAC</strong> (licença
-      <strong>Creative Commons CC BY-NC-SA 4.0</strong>).<br><br>
+<div class="credits">
+  <strong>Prancha criada com NeuroCAA</strong><br>
+  Plataforma brasileira de Comunicação Alternativa e Aumentativa (CAA).<br><br>
 
-      © 2025 – <strong>NeuroCAA | Carol Gurgel</strong><br>
-      Sistema protegido por direitos autorais.<br>
-      É proibida a reprodução, distribuição ou uso comercial sem autorização.<br><br>
+  Os pictogramas utilizados são provenientes do
+  <strong>ARASAAC</strong> (licença
+  <strong>Creative Commons CC BY-NC-SA 4.0</strong>).<br><br>
 
-      🌐 <a href="https://neurocaa.com" target="_blank">Conheça a plataforma</a>
-    </div>
-  </div>
+  © 2025 – <strong>NeuroCAA | Carol Gurgel</strong><br>
+  Sistema protegido por direitos autorais.<br>
+  É proibida a reprodução, distribuição ou uso comercial sem autorização.<br><br>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-      authDomain: "neurocaa-1460e.firebaseapp.com",
-      databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
-      projectId: "neurocaa-1460e",
-      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-    };
+  🌐 <a href="https://neurocaa.com" target="_blank">Conheça a plataforma</a>
+</div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+</div>
 
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("share");
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+    authDomain: "neurocaa-1460e.firebaseapp.com",
+    databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
+    projectId: "neurocaa-1460e",
+    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+  };
 
-    const boardEl = document.getElementById("board");
-    const titleEl = document.getElementById("title");
-    const statusEl = document.getElementById("status");
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    if (!shareId) {
-      statusEl.innerText = "⚠️ Link inválido.";
-      throw new Error("Share ID ausente");
-    }
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("share");
 
-    db.ref("sharedBoards/" + shareId).once("value")
-      .then(snapshot => {
-        if (!snapshot.exists()) {
-          statusEl.innerText = "⚠️ Prancha não encontrada.";
-          return;
-        }
+  const boardEl = document.getElementById("board");
+  const titleEl = document.getElementById("title");
+  const statusEl = document.getElementById("status");
+  const container = document.getElementById("container");
 
-        const data = snapshot.val();
+  if (!shareId) {
+    statusEl.innerText = "⚠️ Link inválido.";
+    throw new Error("Share ID ausente");
+  }
 
-        titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
-        statusEl.remove();
+  db.ref("sharedBoards/" + shareId).once("value")
+    .then(snapshot => {
+      if (!snapshot.exists()) {
+        statusEl.innerText = "⚠️ Prancha não encontrada.";
+        return;
+      }
 
-        if (!Array.isArray(data.board)) {
-          boardEl.innerHTML = "<p>⚠️ Prancha vazia.</p>";
-          return;
-        }
+      const data = snapshot.val();
+      const cfg = data.config || {};
 
-        boardEl.innerHTML = "";
+      /* ================= NORMALIZAÇÃO ================= */
 
-        data.board.forEach(cell => {
-          const div = document.createElement("div");
-          div.className = "cell";
+      const columns =
+        cfg.columns ||
+        cfg.numeroColunas ||
+        cfg.numColumns ||
+        4;
 
-          const img = cell.img || "";
-          const txt = cell.word || cell.customText || "";
+      const cellGap =
+        cfg.cellGap ||
+        cfg.espacamentoCelulas ||
+        cfg.cellSpacing ||
+        10;
 
-          div.innerHTML = `
-            ${img ? `<img src="${img}" alt="">` : ""}
-            <span>${txt}</span>
-          `;
+      const cellBg =
+        cfg.cellBackgroundColor ||
+        cfg.cellBackground ||
+        cfg.corFundoCelulas ||
+        "#e5e7eb";
 
-          boardEl.appendChild(div);
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        statusEl.innerText = "Erro ao carregar prancha.";
+      const cellBorder =
+        cfg.cellBorderColor ||
+        cfg.corBordaCelulas ||
+        "#94a3b8";
+
+      const boardBorder =
+        cfg.borderColor ||
+        cfg.corBordaPrancha;
+
+      const headerBg =
+        cfg.headerColor ||
+        cfg.corCabecalho;
+
+      const pageBg =
+        cfg.backgroundColor ||
+        cfg.fundoPagina;
+
+      /* ================= APLICAÇÃO ================= */
+
+      if (pageBg) document.body.style.backgroundColor = pageBg;
+
+      if (boardBorder) {
+        container.style.border = `4px solid ${boardBorder}`;
+        container.style.borderRadius = "14px";
+      }
+
+      if (headerBg) {
+        titleEl.style.backgroundColor = headerBg;
+        titleEl.style.color = "#fff";
+        titleEl.style.padding = "14px";
+        titleEl.style.borderRadius = "12px";
+      }
+
+      boardEl.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+      boardEl.style.gap = cellGap + "px";
+
+      titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
+      statusEl.remove();
+
+      boardEl.innerHTML = "";
+
+      if (!Array.isArray(data.board)) {
+        boardEl.innerHTML = "<p>⚠️ Prancha vazia.</p>";
+        return;
+      }
+
+      data.board.forEach(cell => {
+        const div = document.createElement("div");
+        div.className = "cell";
+
+        div.style.backgroundColor = cellBg;
+        div.style.border = `3px solid ${cellBorder}`;
+
+
+        const img =
+          cell.image ||
+          cell.img ||
+          cell.imageUrl ||
+          cell.imagem ||
+          "";
+
+        const txt =
+          cell.text ||
+          cell.label ||
+          cell.texto ||
+          cell.nome ||
+          "";
+
+        div.innerHTML = `
+          ${img ? `<img src="${img}" alt="">` : ""}
+          <span>${txt}</span>
+        `;
+
+        boardEl.appendChild(div);
       });
-  </script>
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.innerText = "Erro ao carregar prancha.";
+    });
+</script>
+
 </body>
-</html>
+</html>  
+
 
