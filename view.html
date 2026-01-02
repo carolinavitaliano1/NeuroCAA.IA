@@ -1,166 +1,129 @@
-!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>🧠 NeuroCAA – Prancha Compartilhada</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>🧠 Prancha Compartilhada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      font-family: Arial, sans-serif;
       background: #f8fafc;
+      margin: 0;
       padding: 20px;
+      text-align: center;
     }
 
     h1 {
-      text-align: center;<
       margin-bottom: 20px;
     }
 
     .board {
       display: grid;
-      gap: 10px;
-      background: white;
+      gap: 12px;
+      max-width: 900px;
+      margin: 0 auto;
       padding: 16px;
+      background: white;
       border-radius: 12px;
-      max-width: 1000px;
-      margin: auto;
     }
 
     .cell {
-      background: #fff;
       border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 10px;
       text-align: center;
     }
 
     .cell img {
       max-width: 100%;
-      height: auto;
+      height: 120px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 8px;
     }
 
     .cell div {
       font-weight: 600;
-      margin-top: 6px;
+      font-size: 16px;
     }
   </style>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 
 <body>
-  <h1>🧠 Prancha Compartilhada</h1>
-  <div id="board" class="board"></div>
 
-  <script>
-    // 🔐 Firebase config (o MESMO do index)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
-      authDomain: "neurocaa-1460e.firebaseapp.com",
-      projectId: "neurocaa-1460e",
-      storageBucket: "neurocaa-1460e.firebasestorage.app",
-      messagingSenderId: "788969719580",
-      appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
-    };
+<h1>🧠 Prancha Compartilhada</h1>
+<div id="board" class="board"></div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<!-- 🔥 FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    // 🔎 Pega o shareId da URL
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("share");
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
+    authDomain: "neurocaa-1460e.firebaseapp.com",
+    databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com",
+    projectId: "neurocaa-1460e",
+    appId: "1:788969719580:web:fce897a25a2f46dcdadcd9"
+  };
 
-    if (!shareId) {
-      alert("Link inválido.");
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("share");
+
+  if (!shareId) {
+    document.body.innerHTML = "<h2>Link inválido</h2>";
+    throw new Error("Sem shareId");
+  }
+
+  db.ref("sharedBoards/" + shareId).once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      document.body.innerHTML = "<h2>Prancha não encontrada</h2>";
+      return;
+    }
+
+    const { owner, boardId } = snapshot.val();
+
+    db.ref(`boards/${owner}/${boardId}`).once("value").then(snap => {
+      if (!snap.exists()) {
+        document.body.innerHTML = "<h2>Conteúdo indisponível</h2>";
+        return;
+      }
+
+      renderBoard(snap.val());
+    });
+  });
+
+  function renderBoard(data) {
+    const board = document.getElementById("board");
+
+    if (data.config?.columnsCount) {
+      board.style.gridTemplateColumns =
+        `repeat(${data.config.columnsCount}, 1fr)`;
     } else {
-      loadSharedBoard(shareId);
+      board.style.gridTemplateColumns = "repeat(auto-fit, minmax(140px, 1fr))";
     }
 
-    async function loadSharedBoard(shareId) {
-      const snapshot = await db.ref("boards").get();
-      const data = snapshot.val();
+    data.board.forEach(item => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
 
-      if (!data) {
-        alert("Prancha não encontrada.");
-        return;
-      }
+      if (item.bgColor) cell.style.background = item.bgColor;
+      if (item.borderColor)
+        cell.style.border = `2px solid ${item.borderColor}`;
 
-      let foundBoard = null;
+      cell.innerHTML = `
+        ${item.img ? `<img src="${item.img}" alt="">` : ""}
+        <div>${item.customText || item.word}</div>
+      `;
 
-      // 🔍 percorre todos os usuários e pranchas
-      Object.values(data).forEach(userBoards => {
-        Object.values(userBoards).forEach(board => {
-          if (board.shareId === shareId) {
-            foundBoard = board;
-          }
-        });
-      });
+      board.appendChild(cell);
+    });
+  }
+</script>
 
-      if (!foundBoard) {
-        alert("Prancha não encontrada.");
-        return;
-      }
-
-      renderBoard(foundBoard);
-    }
-
-    function renderBoard(boardData) {
-      const board = document.getElementById("board");
-      board.innerHTML = "";
-
-      if (boardData.config?.columnsCount) {
-        board.style.gridTemplateColumns =
-          `repeat(${boardData.config.columnsCount}, 1fr)`;
-      }
-
-      if (boardData.config?.cellGap !== null) {
-        board.style.gap = `${boardData.config.cellGap}px`;
-      }
-
-      if (boardData.config?.boardBorderColor) {
-        board.style.border = `4px solid ${boardData.config.boardBorderColor}`;
-      }
-
-      // 🏷️ título
-      if (boardData.title) {
-        const header = document.createElement("div");
-        header.style.gridColumn = "1 / -1";
-        header.style.textAlign = "center";
-        header.style.fontSize = "32px";
-        header.style.fontWeight = "800";
-        header.style.padding = "16px";
-        header.innerText = boardData.title;
-
-        if (boardData.config?.headerColor) {
-          header.style.background = boardData.config.headerColor;
-          header.style.borderRadius = "12px";
-        }
-
-        board.appendChild(header);
-      }
-
-      // 🧩 células
-      boardData.board.forEach(item => {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-
-        cell.style.background =
-          item.bgColor || boardData.config?.cellBgColor || "#fff";
-
-        cell.style.border =
-          `2px solid ${item.borderColor || boardData.config?.cellBorderColor || "#e2e8f0"}`;
-
-        cell.innerHTML = `
-          ${item.img ? `<img src="${item.img}" />` : ""}
-          <div>${item.customText || item.word}</div>
-        `;
-
-        board.appendChild(cell);
-      });
-    }
-  </script>
 </body>
 </html>
