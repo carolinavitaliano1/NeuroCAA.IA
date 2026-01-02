@@ -16,10 +16,57 @@ function shareCurrentBoard(boardId) {
 
   const shareId = crypto.randomUUID();
 
+  /* 🔥 NORMALIZA CONFIGURAÇÕES */
+  const config = {
+    columns: boardData.config?.columns ?? boardData.columns ?? 4,
+    cellGap: boardData.config?.cellGap ?? boardData.cellGap ?? 10,
+
+    cellBackgroundColor:
+      boardData.config?.cellBackgroundColor ??
+      boardData.cellBackgroundColor ??
+      "#e5e7eb",
+
+    cellBorderColor:
+      boardData.config?.cellBorderColor ??
+      boardData.cellBorderColor ??
+      "#94a3b8",
+
+    borderColor:
+      boardData.config?.borderColor ??
+      boardData.borderColor ??
+      "#64748b",
+
+    headerColor:
+      boardData.config?.headerColor ??
+      boardData.headerColor ??
+      "#3b82f6",
+
+    backgroundColor:
+      boardData.config?.backgroundColor ??
+      boardData.backgroundColor ??
+      "#ffffff"
+  };
+
+  /* 🔥 NORMALIZA CÉLULAS */
+  const board = (boardData.board || []).map(cell => ({
+    image:
+      cell.image ||
+      cell.img ||
+      cell.imageUrl ||
+      cell.imagem ||
+      "",
+    text:
+      cell.text ||
+      cell.label ||
+      cell.texto ||
+      cell.nome ||
+      ""
+  }));
+
   const payload = {
     title: boardData.title || "Prancha Compartilhada",
-    board: boardData.board || [],
-    config: boardData.config || {},
+    board,
+    config,
     createdAt: new Date().toISOString()
   };
 
