@@ -219,3 +219,80 @@ window.generateBoard = generateBoard;
 window.renderBoard = renderBoard;
 window.applyBoardConfig = applyBoardConfig;
 window.clearBoard = clearBoard;
+
+/* =========================
+   SALVAR PRANCHA (FIREBASE)
+========================= */
+
+async function saveBoardToFirebase() {
+  if (!firebase?.auth) {
+    alert("Firebase não carregado");
+    return;
+  }
+
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Usuário não autenticado");
+    return;
+  }
+
+  if (!window.currentBoard.length) {
+    alert("Prancha vazia");
+    return;
+  }
+
+  const boardData = {
+    title: document.getElementById("boardTitle")?.value || "",
+    items: window.currentBoard,
+    config: window.boardConfig,
+    updatedAt: Date.now()
+  };
+
+  const ref = firebase
+    .database()
+    .ref(`boards/${user.uid}`)
+    .push();
+
+  boardData.createdAt = Date.now();
+
+  await ref.set(boardData);
+
+  alert("Prancha salva com sucesso!");
+}
+
+/* =========================
+   COMPARTILHAR PRANCHA (LINK)
+========================= */
+
+async function shareCurrentBoard(boardId) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Usuário não autenticado");
+    return;
+  }
+
+  if (!boardId) {
+    alert("ID da prancha não informado");
+    return;
+  }
+
+  const shareId = crypto.randomUUID();
+
+  await firebase
+    .database()
+    .ref(`boards/${user.uid}/${boardId}/shareId`)
+    .set(shareId);
+
+  const link = `${location.origin}/view.html?share=${shareId}`;
+
+  navigator.clipboard.writeText(link);
+  alert("Link copiado para compartilhar!");
+}
+
+/* =========================
+   EXPORTS NOVOS (SEM REMOVER OS EXISTENTES)
+========================= */
+
+window.saveBoardToFirebase = saveBoardToFirebase;
+window.shareCurrentBoard = shareCurrentBoard;
+
