@@ -122,38 +122,38 @@
   <script src="./js/storage.js" defer></script>
   <script src="./js/pdf.js" defer></script>
 
-  <!-- 🔐 FIREBASE AUTH (ADICIONADO SEM REMOVER NADA) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- 🔥 FIREBASE (COMPAT) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  
+<!-- 🔐 CONFIGURAÇÃO FIREBASE + PROTEÇÃO -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDPwPgsjw0bUrwfvt7242MGEekOdKuT1_8",
     authDomain: "neurocaa-1460e.firebaseapp.com",
     projectId: "neurocaa-1460e",
-    storageBucket: "neurocaa-1460e.firebasestorage.app",
+    storageBucket: "neurocaa-1460e.appspot.com",
     messagingSenderId: "788969719580",
     appId: "1:788969719580:web:fce897a25a2f46dcdadcd9",
-
-    // 🔥 ESSENCIAL PARA COMPARTILHAMENTO
     databaseURL: "https://neurocaa-1460e-default-rtdb.firebaseio.com"
   };
 
+  // 🔥 inicializa uma única vez
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
 
-  // 🔒 Proteção da página
+  // 🔑 serviços
+  const auth = firebase.auth();
+  const db   = firebase.database();
+
+  // 🔒 PROTEÇÃO DA PÁGINA (MANTER!)
   auth.onAuthStateChanged(user => {
     if (!user) {
       window.location.href = "login.html";
     }
   });
 </script>
+
 
 
 </body>
