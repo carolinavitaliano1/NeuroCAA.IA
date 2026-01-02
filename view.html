@@ -71,7 +71,29 @@
       // ===============================
 // APLICAR CONFIGURAÇÕES DA PRANCHA
 // ===============================
-if (data.config) {
+const cfg = data.config || {};
+// fundo geral
+if (cfg.backgroundColor) {
+  document.body.style.background = cfg.backgroundColor;
+}
+// container da prancha
+const container = document.querySelector(".container");
+if (container && cfg.boardBackground) {
+  container.style.background = cfg.boardBackground;
+}
+// título
+const titleEl = document.querySelector("h1");
+if (titleEl && cfg.headerColor) {
+  titleEl.style.background = cfg.headerColor;
+  titleEl.style.color = cfg.headerTextColor || "#fff";
+}
+// borda
+if (container && cfg.borderColor) {
+  container.style.border = `4px solid ${cfg.borderColor}`;
+  container.style.borderRadius = "12px";
+}   
+      
+      if (data.config) {
 
   // fundo da página
   if (data.config.backgroundColor) {
