@@ -10,56 +10,80 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
-  .cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-  .cell span {
-    margin-top: 6px;
-    font-weight: bold;
-    text-align: center;
-  }
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 16px;
+    }
 
-  /* ⬇️ COLE AQUI */
-  .credits {
-    margin-top: 24px;
-    padding: 16px;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    color: #1f2937;
-    border-top: 2px dashed #cbd5e1;
-  }
+    .board {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
 
-  .credits strong {
-    font-size: 16px;
-    font-weight: 800;
-  }
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border-radius: 12px;
+      background: #fff;
+    }
 
-  .credits span {
-    display: block;
-    margin-top: 6px;
-    font-size: 14px;
-    color: #b45309;
-    font-weight: 700;
-  }
+    .cell img {
+      max-width: 100%;
+      height: auto;
+    }
 
-  .credits a {
-    display: inline-block;
-    margin-top: 8px;
-    color: #2563eb;
-    font-weight: 800;
-    text-decoration: none;
-  }
+    .cell span {
+      margin-top: 6px;
+      font-weight: bold;
+      text-align: center;
+    }
 
-  .credits a:hover {
-    text-decoration: underline;
-  }
-</style>
+    /* CRÉDITOS */
+    .credits {
+      margin-top: 32px;
+      padding: 18px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f2937;
+      border-top: 2px dashed #cbd5e1;
+    }
 
+    .credits strong {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .credits span {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      color: #b45309;
+      font-weight: 700;
+    }
+
+    .credits a {
+      display: inline-block;
+      margin-top: 8px;
+      color: #2563eb;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .credits a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 
 <body>
@@ -68,9 +92,8 @@
     <p id="status">Carregando prancha…</p>
     <div id="board" class="board"></div>
 
-    <!-- CRÉDITOS FIXOS -->
     <div class="credits">
-      <strong>Prancha criada com NeuroCAA</strong><br>
+      <strong>Prancha criada com NeuroCAA</strong>
       Comunicação Alternativa acessível, profissional e terapêutica.
       <span>🔒 Download em PDF disponível apenas no plano <strong>Premium</strong>.</span>
       <a href="https://neurocaa.com" target="_blank">Conheça a plataforma</a>
@@ -95,66 +118,58 @@
   const boardEl = document.getElementById("board");
   const titleEl = document.getElementById("title");
   const statusEl = document.getElementById("status");
+  const container = document.getElementById("container");
 
   if (!shareId) {
     statusEl.innerText = "⚠️ Link inválido.";
     throw new Error("Share ID ausente");
   }
 
-  // 1️⃣ Busca o compartilhamento
   db.ref("sharedBoards/" + shareId).once("value")
-    .then(shareSnap => {
-      if (!shareSnap.exists()) {
+    .then(snapshot => {
+      if (!snapshot.exists()) {
         statusEl.innerText = "⚠️ Prancha não encontrada.";
         return;
       }
 
-      const { boardId } = shareSnap.val();
-      if (!boardId) {
-        statusEl.innerText = "⚠️ Prancha inválida.";
-        return;
-      }
+      const data = snapshot.val();
 
-      // 2️⃣ Busca a prancha REAL
-      return db.ref("boards/" + boardId).once("value");
-    })
-    .then(boardSnap => {
-      if (!boardSnap || !boardSnap.exists()) {
-        statusEl.innerText = "⚠️ Dados da prancha não encontrados.";
-        return;
-      }
-
-      const data = boardSnap.val();
-
-      // ===== CONFIGURAÇÕES =====
+      /* ===== CONFIGURAÇÕES DA PRANCHA ===== */
       const cfg = data.config || {};
 
       if (cfg.backgroundColor) {
-        document.body.style.background = cfg.backgroundColor;
+        document.body.style.backgroundColor = cfg.backgroundColor;
       }
 
-      const container = document.querySelector(".container");
-      if (container && cfg.boardBackground) {
-        container.style.background = cfg.boardBackground;
+      if (cfg.boardBackground) {
+        container.style.backgroundColor = cfg.boardBackground;
       }
 
-      if (cfg.borderColor && container) {
+      if (cfg.borderColor) {
         container.style.border = `4px solid ${cfg.borderColor}`;
         container.style.borderRadius = "12px";
       }
 
-      if (cfg.headerColor && titleEl) {
-        titleEl.style.background = cfg.headerColor;
+      if (cfg.headerColor) {
+        titleEl.style.backgroundColor = cfg.headerColor;
         titleEl.style.color = "#fff";
         titleEl.style.padding = "12px";
         titleEl.style.borderRadius = "10px";
       }
 
-      // ===== TÍTULO =====
+      if (cfg.columns) {
+        boardEl.style.gridTemplateColumns = `repeat(${cfg.columns}, 1fr)`;
+      }
+
+      if (cfg.spacing) {
+        boardEl.style.gap = cfg.spacing + "px";
+      }
+
+      /* ===== TÍTULO ===== */
       titleEl.innerText = data.title || "🧠 Prancha Compartilhada";
       statusEl.remove();
 
-      // ===== CÉLULAS =====
+      /* ===== CÉLULAS ===== */
       boardEl.innerHTML = "";
 
       if (!Array.isArray(data.board)) {
@@ -169,6 +184,14 @@
         const img = cell.image || cell.img || cell.imageUrl || "";
         const txt = cell.text || cell.label || "";
 
+        if (cfg.cellBackground) {
+          div.style.backgroundColor = cfg.cellBackground;
+        }
+
+        if (cfg.cellBorderColor) {
+          div.style.border = `2px solid ${cfg.cellBorderColor}`;
+        }
+
         div.innerHTML = `
           ${img ? `<img src="${img}" alt="">` : ""}
           <span>${txt}</span>
@@ -176,19 +199,6 @@
 
         boardEl.appendChild(div);
       });
-
-      // ===== CRÉDITOS =====
-      const credits = document.createElement("div");
-      credits.className = "credits";
-      credits.innerHTML = `
-        <strong>Prancha criada com NeuroCAA</strong>
-        <span>Comunicação Alternativa Acessível</span>
-        <a href="https://neurocaa.com" target="_blank">Conheça a plataforma</a>
-        <div style="margin-top:8px; font-size:13px;">
-          🔒 Download em PDF disponível apenas no plano Premium
-        </div>
-      `;
-      container.appendChild(credits);
     })
     .catch(err => {
       console.error(err);
@@ -196,7 +206,7 @@
     });
 </script>
 
-
 </body>
 </html>
+
 
