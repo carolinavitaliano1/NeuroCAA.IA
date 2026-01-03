@@ -39,7 +39,7 @@ function saveBoard() {
 ========================= */
 
 function saveBoardToLocalHistory(boardData) {
-  const history =
+ 	tfconst history =
     JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
   history.unshift(boardData);
@@ -56,6 +56,21 @@ function saveBoardToLocalHistory(boardData) {
 
 function getHistory() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+
+/* =========================
+   EXCLUIR PRANCHA DO HISTÓRICO
+========================= */
+
+function deleteFromHistory(id) {
+  if (!confirm("Deseja excluir esta prancha do histórico?")) return;
+
+  let history = getHistory();
+  history = history.filter(item => item.id !== id);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+  renderHistory();
 }
 
 /* =========================
@@ -83,12 +98,21 @@ function renderHistory() {
 
     div.innerHTML = `
       <strong>${item.title || item.phrase || "Prancha sem título"}</strong>
+
       <div style="font-size:12px;color:#64748b;margin:4px 0">
         ${date}
       </div>
-      <button onclick="loadFromHistory(${item.id})">
-        Abrir prancha
-      </button>
+
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button onclick="loadFromHistory(${item.id})">
+          Abrir prancha
+        </button>
+
+        <button style="background:#ef4444;color:white"
+          onclick="deleteFromHistory(${item.id})">
+          🗑️ Excluir
+        </button>
+      </div>
     `;
 
     historyList.appendChild(div);
@@ -119,7 +143,7 @@ function loadFromHistory(id) {
 }
 
 /* =========================
-   LIMPAR HISTÓRICO
+   LIMPAR HISTÓRICO COMPLETO
 ========================= */
 
 function clearHistory() {
@@ -138,7 +162,7 @@ function shareBoard(boardId) {
     return;
   }
 
-  const history = JSON.parse(localStorage.getItem("neurocaa_history")) || [];
+  const history = getHistory();
   const boardData = history.find(b => b.id === boardId);
 
   if (!boardData) {
@@ -189,7 +213,5 @@ window.saveBoard = saveBoard;
 window.renderHistory = renderHistory;
 window.loadFromHistory = loadFromHistory;
 window.clearHistory = clearHistory;
-window.shareCurrentBoard = shareCurrentBoard;
-
-
-
+window.deleteFromHistory = deleteFromHistory;
+window.shareCurrentBoard = shareBoard;
