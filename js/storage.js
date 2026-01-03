@@ -1,12 +1,11 @@
 /* =========================
    STORAGE – HISTÓRICO NEUROCAA
-   (LOCAL + FIREBASE)
 ========================= */
 
 const STORAGE_KEY = "neurocaa_history";
 
 /* =========================
-   SALVAR PRANCHA NO HISTÓRICO
+   SALVAR PRANCHA
 ========================= */
 
 function saveBoard() {
@@ -27,31 +26,17 @@ function saveBoard() {
     createdAt: new Date().toISOString()
   };
 
-  // 🔑 ESSENCIAL: marca esta prancha como a atual salva
   window.lastSavedBoardId = boardData.id;
 
-  saveBoardToLocalHistory(boardData);
+  const history = getHistory();
+  history.unshift(boardData);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
   renderHistory();
 }
 
 /* =========================
-   SALVAR LOCALMENTE
-========================= */
-
-function saveBoardToLocalHistory(boardData) {
-  const history =
-    JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-
-  history.unshift(boardData);
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(history)
-  );
-}
-
-/* =========================
-   OBTER HISTÓRICO
+   HISTÓRICO
 ========================= */
 
 function getHistory() {
@@ -83,12 +68,14 @@ function renderHistory() {
 
     div.innerHTML = `
       <strong>${item.title || item.phrase || "Prancha sem título"}</strong>
-      <div style="font-size:12px;color:#64748b;margin:4px 0">
-        ${date}
+      <div style="font-size:12px;color:#64748b;margin:4px 0">${date}</div>
+
+      <div style="display:flex; gap:8px; margin-top:6px">
+        <button onclick="loadFromHistory(${item.id})">Abrir</button>
+        <button onclick="deleteFromHistory(${item.id})" style="background:#ef4444;color:#fff">
+          Excluir
+        </button>
       </div>
-      <button onclick="loadFromHistory(${item.id})">
-        Abrir prancha
-      </button>
     `;
 
     historyList.appendChild(div);
@@ -96,7 +83,7 @@ function renderHistory() {
 }
 
 /* =========================
-   CARREGAR PRANCHA DO HISTÓRICO
+   CARREGAR PRANCHA
 ========================= */
 
 function loadFromHistory(id) {
@@ -104,18 +91,12 @@ function loadFromHistory(id) {
   const item = history.find(h => h.id === id);
   if (!item) return;
 
-  // ✅ CORREÇÃO PRINCIPAL:
-  // ao abrir do histórico, a prancha passa a ser reconhecida como salva
-  window.lastSavedBoardId = id;
-
   window.currentBoard = JSON.parse(JSON.stringify(item.board));
   window.boardConfig = { ...item.config };
+  window.lastSavedBoardId = item.id;
 
-  const phraseInput = document.getElementById("phraseInput");
-  const titleInput = document.getElementById("boardTitle");
-
-  if (phraseInput) phraseInput.value = item.phrase || "";
-  if (titleInput) titleInput.value = item.title || "";
+  document.getElementById("phraseInput").value = item.phrase || "";
+  document.getElementById("boardTitle").value  = item.title || "";
 
   if (typeof renderBoard === "function") {
     renderBoard();
@@ -123,76 +104,47 @@ function loadFromHistory(id) {
 }
 
 /* =========================
-   LIMPAR HISTÓRICO
+   EXCLUIR UMA PRANCHA
+========================= */
+
+function deleteFromHistory(id) {
+  if (!confirm("Deseja excluir esta prancha?")) return;
+
+  let history = getHistory();
+  history = history.filter(item => item.id !== id);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+  // se excluiu a prancha atual
+  if (window.lastSavedBoardId === id) {
+    window.lastSavedBoardId = null;
+  }
+
+  renderHistory();
+}
+
+/* =========================
+   LIMPAR TUDO
 ========================= */
 
 function clearHistory() {
   if (!confirm("Deseja apagar todo o histórico?")) return;
   localStorage.removeItem(STORAGE_KEY);
-  renderHistory();
-
-  // limpa referência de prancha ativa
   window.lastSavedBoardId = null;
-}
-
-/* =========================
-   COMPARTILHAR PRANCHA (FIREBASE)
-========================= */
-
-function shareBoard(boardId) {
-  if (!boardId) {
-    alert("Selecione uma prancha salva para compartilhar.");
-    return;
-  }
-
-  const history = getHistory();
-  const boardData = history.find(b => b.id === boardId);
-
-  if (!boardData) {
-    alert("Prancha não encontrada no histórico.");
-    return;
-  }
-
-  const shareId = crypto.randomUUID();
-
-  const payload = {
-    phrase: boardData.phrase || "",
-    title: boardData.title || "",
-    board: boardData.board,
-    config: boardData.config || {},
-    createdAt: new Date().toISOString()
-  };
-
-  firebase.database()
-    .ref("sharedBoards/" + shareId)
-    .set(payload)
-    .then(() => {
-      const link = `${window.location.origin}/view.html?share=${shareId}`;
-      navigator.clipboard.writeText(link);
-      alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Erro ao compartilhar a prancha.");
-    });
+  renderHistory();
 }
 
 /* =========================
    INICIALIZA
 ========================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderHistory();
-});
+document.addEventListener("DOMContentLoaded", renderHistory);
 
 /* =========================
-   EXPOR FUNÇÕES GLOBAIS
+   EXPOR FUNÇÕES
 ========================= */
 
 window.saveBoard = saveBoard;
-window.renderHistory = renderHistory;
 window.loadFromHistory = loadFromHistory;
+window.deleteFromHistory = deleteFromHistory;
 window.clearHistory = clearHistory;
-window.shareCurrentBoard = shareBoard;
-
-
