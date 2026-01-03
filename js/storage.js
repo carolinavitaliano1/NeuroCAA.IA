@@ -39,7 +39,7 @@ function saveBoard() {
 ========================= */
 
 function saveBoardToLocalHistory(boardData) {
- 	tfconst history =
+  const history =
     JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
   history.unshift(boardData);
@@ -65,11 +65,9 @@ function getHistory() {
 function deleteFromHistory(id) {
   if (!confirm("Deseja excluir esta prancha do histórico?")) return;
 
-  let history = getHistory();
-  history = history.filter(item => item.id !== id);
+  const history = getHistory().filter(item => item.id !== id);
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-
   renderHistory();
 }
 
@@ -98,17 +96,16 @@ function renderHistory() {
 
     div.innerHTML = `
       <strong>${item.title || item.phrase || "Prancha sem título"}</strong>
-
       <div style="font-size:12px;color:#64748b;margin:4px 0">
         ${date}
       </div>
 
       <div style="display:flex; gap:8px; margin-top:6px;">
         <button onclick="loadFromHistory(${item.id})">
-          Abrir prancha
+          Abrir
         </button>
 
-        <button style="background:#ef4444;color:white"
+        <button style="background:#ef4444;color:#fff"
           onclick="deleteFromHistory(${item.id})">
           🗑️ Excluir
         </button>
@@ -120,7 +117,7 @@ function renderHistory() {
 }
 
 /* =========================
-   CARREGAR PRANCHA DO HISTÓRICO
+   CARREGAR PRANCHA
 ========================= */
 
 function loadFromHistory(id) {
@@ -153,7 +150,7 @@ function clearHistory() {
 }
 
 /* =========================
-   COMPARTILHAR PRANCHA (FIREBASE)
+   COMPARTILHAR PRANCHA
 ========================= */
 
 function shareBoard(boardId) {
@@ -184,18 +181,15 @@ function shareBoard(boardId) {
     .ref("sharedBoards/" + shareId)
     .set(payload)
     .then(() => {
-      const link = `${window.location.origin}/view.html?share=${shareId}`;
+      const link = `${location.origin}/view.html?share=${shareId}`;
       navigator.clipboard.writeText(link);
-      alert("🔗 Link copiado! Prancha compartilhada com sucesso.");
+      alert("🔗 Link copiado com sucesso!");
     })
     .catch(err => {
       console.error(err);
-      alert("Erro ao compartilhar a prancha.");
+      alert("Erro ao compartilhar.");
     });
 }
-
-// expõe global
-window.shareCurrentBoard = shareBoard;
 
 /* =========================
    INICIALIZA
@@ -206,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-   EXPOR FUNÇÕES GLOBAIS
+   EXPOSIÇÃO GLOBAL
 ========================= */
 
 window.saveBoard = saveBoard;
@@ -215,3 +209,4 @@ window.loadFromHistory = loadFromHistory;
 window.clearHistory = clearHistory;
 window.deleteFromHistory = deleteFromHistory;
 window.shareCurrentBoard = shareBoard;
+
