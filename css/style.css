@@ -234,5 +234,31 @@ button {
   .cell {
     page-break-inside: avoid;
   }
+   .history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.history-delete {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.history-delete:hover {
+  background: #dc2626;
+}
+   }
+
 }
 
