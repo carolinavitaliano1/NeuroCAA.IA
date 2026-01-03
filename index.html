@@ -99,21 +99,23 @@
 
     <!-- 🧩 PRANCHA -->
     <div id="board" class="board"></div>
-
-   <!-- 🎛️ AÇÕES -->
-<div class="actions">
-  <button class="save">Salvar</button>
-  <button class="pdf">PDF</button>
-  <button class="share">Compartilhar</button>
-  <button class="clear">Limpar</button>
-</div>
-
-<div class="share-dev-note">
-  Funcionalidade de compartilhamento em fase de desenvolvimento.
-  Em breve estará disponível com mais recursos.
-</div>
-
     
+
+  <!-- 🎛️ AÇÕES -->
+<div class="actions">
+  <button class="save" onclick="saveBoard()">Salvar</button>
+  <button class="pdf" onclick="exportBoardToPDF()">PDF</button>
+  <button class="share" onclick="shareCurrentBoard(window.lastSavedBoardId)">
+    Compartilhar
+  </button>
+  <button class="clear" onclick="clearBoard()">Limpar</button>
+</div>
+
+<!-- ⚠️ AVISO ABAIXO DOS BOTÕES -->
+<div class="share-dev-note">
+  ⚠️ A funcionalidade de compartilhamento está em desenvolvimento.
+</div>
+  
     <!-- 📚 HISTÓRICO -->
     <div class="history">
       <h3>📚 Histórico</h3>
