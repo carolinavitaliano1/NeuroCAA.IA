@@ -4,8 +4,50 @@
 ========================= */
 
 async function exportBoardToPDF() {
-  const board = document.getElementById('board');
+  const board = document.getElementById("board");
   if (!board) return;
+
+  // 🔴 ESCONDE OS BOTÕES ❌ TEMPORARIAMENTE
+  const removeButtons = board.querySelectorAll(".remove-btn");
+  removeButtons.forEach(btn => btn.style.display = "none");
+
+  const { jsPDF } = window.jspdf;
+
+  const canvas = await html2canvas(board, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff"
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  // 🔥 QUEBRA AUTOMÁTICA EM VÁRIAS PÁGINAS
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save("prancha-neurocaa.pdf");
+
+  // 🟢 RESTAURA OS BOTÕES ❌
+  removeButtons.forEach(btn => btn.style.display = "");
+}
 
   /* =========================
      CONFIGURAÇÃO A4
