@@ -51,11 +51,12 @@ button {
   font-weight: 600;
 }
 
+/* BOTÕES */
 .generate { background:#667eea; color:#fff; }
-.save { background:#48bb78; color:#fff; }
-.pdf { background:#4299e1; color:#fff; }
-.share { background:#94a3b8; color:#1f2937; }
-.clear { background:#f56565; color:#fff; }
+.save     { background:#48bb78; color:#fff; }
+.pdf      { background:#4299e1; color:#fff; }
+.share    { background:#94a3b8; color:#1f2937; }
+.clear    { background:#f56565; color:#fff; }
 
 /* =========================
    AÇÕES (BOTÕES)
@@ -65,6 +66,14 @@ button {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.actions button {
+  pointer-events: auto;
+  z-index: 3;
 }
 
 /* =========================
@@ -82,12 +91,14 @@ button {
   line-height: 1.45;
 
   color: #1e3a8a;
+  background-color: rgba(226, 232, 240, 0.9);
 
-  background-color: rgba(226, 232, 240, 0.85);
   border: 1px solid rgba(59, 130, 246, 0.35);
   border-radius: 12px;
 
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+
+  pointer-events: none; /* 🔥 ESSENCIAL */
 }
 
 /* =========================
