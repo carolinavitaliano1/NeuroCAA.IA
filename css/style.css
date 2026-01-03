@@ -238,4 +238,7 @@ button {
   .cell {
     page-break-inside: avoid;
   }
+   .share-dev-note {
+      pointer-events: none; 
 }
+   }
