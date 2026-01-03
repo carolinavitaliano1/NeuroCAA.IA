@@ -15,7 +15,7 @@ body {
 .container {
   max-width: 1100px;
   margin: auto;
-  background: white;
+  background: #ffffff;
   padding: 24px;
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,.08);
@@ -36,7 +36,8 @@ h1 {
   margin-bottom: 8px;
 }
 
-input, select {
+input,
+select {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -52,11 +53,12 @@ button {
 }
 
 /* BOTÕES */
+
 .generate { background:#667eea; color:#fff; }
 .save     { background:#48bb78; color:#fff; }
 .pdf      { background:#4299e1; color:#fff; }
-.share    { background:#94a3b8; color:#1f2937; }
-.clear    { background:#f56565; color:#fff; }
+.share   { background:#94a3b8; color:#1f2937; }
+.clear   { background:#f56565; color:#fff; }
 
 /* =========================
    AÇÕES (BOTÕES)
@@ -64,16 +66,10 @@ button {
 
 .actions {
   display: flex;
+  justify-content: center;
   gap: 10px;
   margin-top: 20px;
   flex-wrap: wrap;
-  position: relative;
-  z-index: 2;
-}
-
-.actions button {
-  pointer-events: auto;
-  z-index: 3;
 }
 
 /* =========================
@@ -91,14 +87,15 @@ button {
   line-height: 1.45;
 
   color: #1e3a8a;
-  background-color: rgba(226, 232, 240, 0.9);
+  background: #eef2ff;
 
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  border: 1px solid #c7d2fe;
   border-radius: 12px;
 
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 
-  pointer-events: none; /* 🔥 ESSENCIAL */
+  /* 🔑 nunca bloqueia cliques */
+  pointer-events: none;
 }
 
 /* =========================
@@ -160,7 +157,6 @@ button {
 ========================= */
 
 .cell {
-  position: relative;
   background: #ffffff;
   border-radius: 16px;
   padding: 14px;
@@ -238,7 +234,5 @@ button {
   .cell {
     page-break-inside: avoid;
   }
-   .share-dev-note {
-      pointer-events: none; 
 }
-   }
+
