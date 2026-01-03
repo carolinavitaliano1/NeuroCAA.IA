@@ -258,7 +258,34 @@ button {
 .history-delete:hover {
   background: #dc2626;
 }
-   }
+
+   /* =========================
+   PDF / IMPRESSÃO – CORREÇÕES
+========================= */
+
+@media print {
+
+  /* 🔹 força quebra automática de página quando a prancha é grande */
+  .board {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  /* 🔹 evita que células quebrem no meio */
+  .cell {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 🔹 remove botão ❌ no PDF */
+  .remove-btn {
+    display: none !important;
+  }
+
+  /* 🔹 remove sombras e bordas desnecessárias */
+  .container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
 
 }
-
